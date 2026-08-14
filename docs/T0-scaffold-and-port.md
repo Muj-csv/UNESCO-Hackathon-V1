@@ -2,7 +2,7 @@
 
 **First, and alone.** Nothing else starts until this is on `main` with a working Vercel URL.
 
-Estimated: 4–6 hours.
+Estimated: 5–7 hours.
 
 ---
 
@@ -96,12 +96,87 @@ Port each screen to its own file: Lobby, Round, Terminal, Reveal, BlackboxGuess,
 
 App reads `screen` from context and renders from a registry — same pattern as the prototype's `screens` object, so it stays familiar.
 
-## Phase 6 — Deploy
+## Phase 6 — Parallel-work scaffolding
+
+**Twenty minutes here decides whether five people work in parallel or spend Day 2 resolving conflicts.** Do not skip it. Retrofitting this after three branches exist means rewriting all three.
+
+Five later tasks would otherwise edit the same three files: `Round.tsx`, `Ledger.tsx`, and `gameReducer.ts`. The fix is to create the mount points now, so each task fills in **its own file** and never opens a shared host.
+
+### 6a — Stub components
+
+Create these as working-but-empty files. Each has exactly one future owner.
+
+| File | Renders now | Owner |
+|---|---|---|
+| `src/components/HopInput.tsx` | the current textarea, moved out of `Round.tsx` | T1 |
+| `src/components/AIHopBeat.tsx` | `null` | T6 |
+| `src/components/VerifyFeedback.tsx` | `null` | T4 |
+| `src/components/PredictionPrompt.tsx` | `null` | T9 |
+| `src/components/ReactionBar.tsx` | `null` | T9 |
+| `src/screens/HowToPlay.tsx` | placeholder heading | T3 |
+| `src/screens/Brief.tsx` | placeholder heading | T3 |
+| `src/screens/Thesis.tsx` | placeholder heading | T3 |
+| `src/screens/TuringHop.tsx` | skips itself, advances | T6 |
+| `src/screens/Accusation.tsx` | skips itself, advances | T8 |
+| `src/screens/PackStudio.tsx` | placeholder heading | T10 |
+
+Then wire them:
+
+- `Round.tsx` composes `<AIHopBeat/>` and `<HopInput/>`. **Nobody edits `Round.tsx` again.** T1 rewrites `HopInput`; T6 fills `AIHopBeat`.
+- `Ledger.tsx` imports `<VerifyFeedback/>` on a single line. T2 rewrites the death rows freely; T4 never opens the file.
+
+A screen that "skips itself" checks whether its feature is enabled and immediately dispatches to the next screen if not. That way the full route exists from day one and no later task has to touch routing.
+
+### 6b — Register the full route order now
+
+Including screens that currently do nothing:
+
+```
+lobby → howToPlay → brief → prediction → round → terminal
+      → reveal → blackboxGuess → turingHop → accusation
+      → thesis → ledger → debrief → superlatives → sessionReadout
+```
+
+Each not-yet-built screen self-skips. This means T3, T6, and T8 each fill in their own screen without three people editing the router.
+
+### 6c — Stub every action name
+
+Add all of these to `gameReducer.ts` now, with empty handlers that return state unchanged. **T4, T5, T6, T8, and T9 all need to add actions**, and four branches editing one switch statement conflicts on every merge.
+
+```
+SET_VERIFY_CHOICE       T4
+RESTORE_STATE           T5
+CLEAR_SAVED_STATE       T5
+SET_AI_HOP              T6
+SET_TURING_GUESS        T6
+JOIN_ROOM               T7
+SYNC_ROOM_STATE         T7
+ASSIGN_IMPOSTER         T8
+CAST_ACCUSATION         T8
+REVEAL_ROLES            T8
+SET_PREDICTION          T9
+ADD_REACTION            T9
+```
+
+Each task fills its own `case` rather than adding one, so the surrounding lines never move and git merges cleanly.
+
+### 6d — Include forward-looking fields in `contracts.ts`
+
+Already covered in Phase 2, but confirm these exist before you finish: `Hop.isAI`, `Hop.isImposter`, `Hop.atomsLost`, `AtomVerdict.originalPhrase`, `AtomVerdict.finalPhrase`, `AtomVerdict.deathKind`, `AtomVerdict.confidence`.
+
+Adding a field to a frozen type later means every branch rebases.
+
+**Done when:** a full round still plays, every stub file exists and is imported, and `grep` for each action name finds it in the reducer.
+
+---
+
+## Phase 7 — Deploy
 
 - Push to GitHub, import to Vercel. It detects Vite; no config needed.
 - Confirm preview deployments are on — every branch gets a URL, so the team can test on phones without running anything.
 - Protect `main`, require one review.
-- Commit stub files at every path in `CLAUDE.md`'s file map so nobody invents a different location.
+- Commit the Phase 6 stubs and every remaining path in `CLAUDE.md`'s file map, so nobody invents a different location.
+- Post to the team: one owner per file, and **nobody edits `Round.tsx`, `Ledger.tsx`, `App.tsx`, `contracts.ts`, or the router** — those are settled.
 
 ---
 
@@ -115,6 +190,11 @@ App reads `screen` from context and renders from a registry — same pattern as 
 - [ ] Vercel URL loads on a phone
 - [ ] Five listed bugs fixed
 - [ ] No console errors
+- [ ] Every stub component and screen from Phase 6a exists and is imported
+- [ ] `Round.tsx` and `Ledger.tsx` compose their children — no later task needs to edit either
+- [ ] Full route registered, unbuilt screens self-skip
+- [ ] All twelve action names present in the reducer
+- [ ] Forward-looking fields present in `contracts.ts`
 
 ## Do not
 

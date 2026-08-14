@@ -121,6 +121,23 @@ Always ship with fallbacks: on timeout or error, use a pre-generated rewrite fro
 
 ---
 
+## Shared files — do not edit
+
+Six people work here in parallel. These files were finalised in T0 so that later tasks never collide in them:
+
+| File | Why |
+|---|---|
+| `src/screens/Round.tsx` | composes `<AIHopBeat/>` and `<HopInput/>` — edit those instead |
+| `src/screens/Ledger.tsx` | imports `<VerifyFeedback/>` — T2 owns the death rows, T4 owns the feedback component |
+| `src/App.tsx` and the route registry | full route is already registered; unbuilt screens self-skip |
+| `src/types/contracts.ts` | frozen. A new field means every branch rebases. |
+
+`gameReducer.ts` already contains every action name later tasks need, with empty handlers. **Fill in your `case`, do not add one** — adding shifts surrounding lines and conflicts on merge.
+
+`styles/global.css`: append at the bottom only, with feature-prefixed class names. Never edit another feature's block.
+
+If your task genuinely needs a change in one of these, say so rather than making it.
+
 ## Working rules
 
 - **One task per session.** Read `tasks/TN-*.md`, do it, stop.
