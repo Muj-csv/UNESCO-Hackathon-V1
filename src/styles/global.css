@@ -1,0 +1,636 @@
+/* ============================================================================
+   TruthChain — global stylesheet
+   ----------------------------------------------------------------------------
+   The visual identity is settled. Palette and typography are carried over
+   verbatim from the project proposal sheet (TruthChain.html).
+
+   Do not restyle. Later tasks APPEND a feature-prefixed block at the bottom
+   of this file and never edit another feature's block.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- tokens -- */
+
+:root {
+  /* Ink — dark chrome. Everything that is the machinery of the game. */
+  --ink: #14181c;
+  --ink-soft: #5b6672;
+  --ink-line: #ddd6c4;
+
+  /* Paper — anything that represents claim text. */
+  --paper: #f7f4ec;
+  --paper-text: #2c343d;
+  --cream: #e6e1d4;
+
+  /* Accents. One per meaning, never decorative. */
+  --amber: #b0762a;   /* pressure, constraint, attention */
+  --teal: #2f6f62;    /* survived, verified, intact */
+  --red: #a63c35;     /* lost, degraded, over the limit */
+  --violet: #6d4f8c;  /* the AI participant */
+
+  /* Tints of the accents, for fills. */
+  --amber-bg: #f5ead6;
+  --teal-bg: #e0ebe7;
+  --red-bg: #f6e3e1;
+  --violet-bg: #ece5f3;
+
+  /* On-ink variants — the accents lifted for legibility on dark chrome. */
+  --amber-on-ink: #e0a03c;
+  --teal-on-ink: #7fa89b;
+  --red-on-ink: #d4635b;
+  --violet-on-ink: #a98cc8;
+  --ink-text: #e6e0ce;
+  --ink-text-soft: #8a8677;
+  --ink-rule: #2c343d;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius: 5px;
+  --radius-lg: 10px;
+  --shell: 640px;
+  --tap: 44px; /* minimum touch target. Not negotiable — phones in classrooms. */
+}
+
+/* ------------------------------------------------------------------ base -- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.35rem;
+}
+h3 {
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0 0 0.8em;
+}
+p:last-child {
+  margin-bottom: 0;
+}
+
+strong {
+  font-weight: 600;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- layout -- */
+
+.shell {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* The small mono label that sits above a block and names it. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.eyebrow-amber {
+  color: var(--amber);
+}
+
+.lede {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--paper-text);
+  line-height: 1.4;
+}
+
+.muted {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.rule {
+  height: 1px;
+  background: var(--ink-line);
+  border: 0;
+  margin: 4px 0;
+}
+
+/* ------------------------------------------------- card — the dark chrome -- */
+/* Anything that is the game talking: instructions, status, the ledger.        */
+
+.card {
+  background: var(--ink);
+  color: var(--ink-text);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card h1,
+.card h2,
+.card h3 {
+  color: var(--paper);
+}
+
+.card .eyebrow {
+  color: var(--ink-text-soft);
+}
+
+.card .muted {
+  color: var(--ink-text-soft);
+}
+
+.card .rule {
+  background: var(--ink-rule);
+}
+
+/* ------------------------------------------ paper — anything claim-shaped -- */
+/* If it represents the claim itself, at any hop, it is paper.                 */
+
+.paper {
+  background: var(--paper);
+  color: var(--paper-text);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: 0 1px 2px rgba(20, 24, 28, 0.09);
+}
+
+.paper-text {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.paper-original {
+  border-left: 3px solid var(--teal);
+}
+
+.paper-final {
+  border-left: 3px solid var(--red);
+}
+
+/* --------------------------------------------------------------- buttons -- */
+
+.btn {
+  appearance: none;
+  border: 1.5px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius);
+  min-height: var(--tap);
+  padding: 11px 18px;
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: opacity 0.12s ease, transform 0.06s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-danger {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.btn-small {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* On dark chrome, ghost buttons invert. */
+.card .btn-ghost {
+  border-color: var(--ink-rule);
+  color: var(--ink-text);
+}
+
+/* ---------------------------------------------------------------- inputs -- */
+
+.field {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink-line);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  min-height: var(--tap);
+}
+
+.field:focus {
+  border-color: var(--amber);
+  outline: none;
+}
+
+textarea.field {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+
+select.field {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------- the constraint cards -- */
+/* Six pressures. None of them instructs anyone to distort anything.          */
+
+.constraint {
+  background: var(--amber-bg);
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.constraint-name {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b4a12;
+}
+
+.constraint-note {
+  font-size: 0.86rem;
+  color: var(--paper-text);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------ atom chips -- */
+
+.atom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  padding: 4px 9px;
+  border-radius: 3px;
+  background: var(--ink-line);
+  color: var(--paper-text);
+}
+
+.atom-chip.is-alive {
+  background: var(--teal-bg);
+  color: var(--teal);
+}
+
+.atom-chip.is-lost {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* -------------------------------------------------------- the AI marker -- */
+/* The model is a participant under observation. It is never an assistant.    */
+
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--violet);
+  background: var(--violet-bg);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.card .ai-tag {
+  color: var(--violet-on-ink);
+  background: rgba(169, 140, 200, 0.15);
+}
+
+/* ----------------------------------------------------------------- timer -- */
+
+.timer {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.timer.is-warning {
+  color: var(--red);
+}
+
+.timer-track {
+  height: 3px;
+  background: var(--ink-line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--amber);
+  transition: width 0.9s linear;
+}
+
+.timer-fill.is-warning {
+  background: var(--red);
+}
+
+/* ----------------------------------------------------- the hop chain wire -- */
+/* The spine of the whole game: a wire of hops, sparking where an atom died.   */
+
+.wire {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 6px 0;
+}
+
+.wire-node {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--ink-line);
+  flex-shrink: 0;
+}
+
+.wire-node.is-done {
+  background: var(--teal);
+}
+
+.wire-node.is-current {
+  background: var(--amber);
+  box-shadow: 0 0 0 4px var(--amber-bg);
+}
+
+.wire-node.is-ai {
+  background: var(--violet);
+}
+
+/* The spark. Where the atom stopped being true. */
+.wire-node.is-spark {
+  background: var(--red);
+  box-shadow: 0 0 0 3px var(--red-bg), 0 0 10px 2px rgba(166, 60, 53, 0.5);
+}
+
+.wire-link {
+  flex: 1;
+  height: 2px;
+  background: var(--ink-line);
+  min-width: 8px;
+}
+
+.wire-link.is-done {
+  background: var(--teal);
+}
+
+.wire-link.is-broken {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--red) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+/* On dark chrome the wire lifts. */
+.card .wire-node {
+  background: var(--ink-rule);
+}
+.card .wire-link {
+  background: var(--ink-rule);
+}
+.card .wire-node.is-done {
+  background: var(--teal-on-ink);
+}
+.card .wire-link.is-done {
+  background: var(--teal-on-ink);
+}
+.card .wire-node.is-spark {
+  background: var(--red-on-ink);
+  box-shadow: 0 0 10px 3px rgba(212, 99, 91, 0.45);
+}
+.card .wire-node.is-ai {
+  background: var(--violet-on-ink);
+}
+
+/* ------------------------------------------------------- the Decay Ledger -- */
+/* The only fidelity signal in the game. There is no score anywhere.           */
+
+.ledger {
+  background: var(--ink);
+  color: var(--ink-text);
+  border-radius: var(--radius-lg);
+  padding: 16px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ledger-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ink-rule);
+}
+
+.ledger-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ledger-head {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--amber-on-ink);
+}
+
+.ledger-head.is-alive {
+  color: var(--teal-on-ink);
+}
+
+.alive-note {
+  font-size: 0.84rem;
+  color: var(--ink-text-soft);
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------- utility -- */
+
+.center {
+  text-align: center;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Anything wide scrolls inside itself. The page never scrolls sideways. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 560px) {
+  .shell {
+    padding: 32px 24px 48px;
+  }
+  h1 {
+    font-size: 2.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   APPEND-ONLY BELOW THIS LINE
+   Later tasks add their own feature-prefixed block here (redact-, ledger-diag-,
+   verify-, brief-, room-, …). Never edit another feature's block.
+   ========================================================================== */

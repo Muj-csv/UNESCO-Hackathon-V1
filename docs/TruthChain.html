@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TruthChain — UNESCO Youth Hackathon 2026 Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14181c; --ink-2:#2c343d; --ink-3:#5b6672;
+    --rule:#ddd6c4; --rule-soft:#ebe6d9;
+    --paper:#f7f4ec; --amber:#b0762a; --amber-bg:#f5ead6;
+    --teal:#2f6f62; --red:#a63c35;
+    --f-display:'Fraunces',Georgia,serif;
+    --f-body:'Inter',system-ui,sans-serif;
+    --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#e6e1d4;color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding:40px 16px 80px}
+  .sheet{max-width:790px;margin:0 auto;background:var(--paper);padding:64px 72px 72px;box-shadow:0 2px 40px rgba(20,24,28,.14);border-radius:2px}
+
+  .masthead{border-bottom:2px solid var(--ink);padding-bottom:26px;margin-bottom:38px}
+  h1{font-family:var(--f-display);font-weight:700;font-size:3.1rem;line-height:1;letter-spacing:-.02em;margin:0 0 12px}
+  h1 span{color:var(--amber)}
+  .tagline{font-family:var(--f-display);font-size:1.12rem;font-style:italic;color:var(--ink-2);line-height:1.4;margin:0 0 22px;max-width:36em}
+  .meta{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.04em;color:var(--ink-3);line-height:1.9;text-transform:uppercase}
+  .meta b{color:var(--ink);font-weight:500}
+
+  section{margin-bottom:40px}
+  h2{font-family:var(--f-display);font-size:1.42rem;font-weight:600;letter-spacing:-.01em;margin:0 0 4px;display:flex;align-items:baseline;gap:12px}
+  h2 .num{font-family:var(--f-mono);font-size:.68rem;font-weight:500;color:var(--amber);letter-spacing:.08em;flex-shrink:0}
+  h2::after{content:"";flex:1;height:1px;background:var(--rule)}
+  h3{font-family:var(--f-body);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin:26px 0 8px}
+  p{margin:0 0 13px}
+  p:last-child{margin-bottom:0}
+  strong{font-weight:600}
+
+  ol,ul{margin:0 0 13px;padding-left:1.3em}
+  li{margin-bottom:6px}
+  li::marker{color:var(--amber);font-weight:600}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0 16px;font-size:.88rem}
+  th{text-align:left;font-family:var(--f-mono);font-size:.66rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);border-bottom:1.5px solid var(--ink);padding:0 12px 7px 0}
+  td{padding:9px 12px 9px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:600}
+  .nowrap td:first-child{white-space:nowrap}
+
+  .lede{font-size:1.02rem;color:var(--ink-2);border-left:3px solid var(--amber);padding-left:18px;margin-bottom:16px}
+  .arc{background:var(--amber-bg);border-radius:4px;padding:14px 18px;margin:0 0 18px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.02em;color:var(--ink-2);text-align:center}
+  .arc b{color:var(--amber);font-weight:500}
+  .ledger{background:var(--ink);color:#e6e0ce;border-radius:5px;padding:18px 20px;font-family:var(--f-mono);font-size:.78rem;line-height:1.85;margin:16px 0;white-space:pre;overflow-x:auto}
+  .ledger .k{color:#8a8677}
+  .ledger .atom{color:#e0a03c;font-weight:500}
+  .ledger .old{color:#9b968a}
+  .ledger .new{color:#d4635b}
+  .ledger .cmp{color:#7fa89b}
+  .note{font-size:.86rem;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:16px;margin-top:30px;font-style:italic}
+  .todo{background:#fff;border:1px dashed var(--amber);border-radius:4px;padding:12px 16px;font-size:.85rem;color:var(--ink-2);margin:14px 0}
+  mark{background:#f6e2b8;color:#6b4a12;padding:1px 5px;border-radius:3px;font-family:var(--f-mono);font-size:.82em;font-weight:500}
+
+  @media print{
+    body{background:#fff;padding:0;font-size:10.5pt}
+    .sheet{box-shadow:none;max-width:100%;padding:0}
+    section{page-break-inside:avoid}
+    h2{page-break-after:avoid}
+    table,.ledger,.arc,.todo{page-break-inside:avoid}
+    .ledger{background:#14181c !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    mark,.arc{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    @page{margin:18mm}
+  }
+  @media (max-width:640px){
+    body{padding:16px 10px 40px}
+    .sheet{padding:32px 24px 40px}
+    h1{font-size:2.2rem}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header class="masthead">
+  <h1>Truth<span>Chain</span></h1>
+  <p class="tagline">A media and information literacy game about how true information quietly stops being true.</p>
+  <div class="meta">
+    UNESCO Youth Hackathon 2026<br>
+    Theme · <b>Play Your Part: Youth Designing the Future of Media and Information Literacy</b><br>
+    Track · <b>AI and MIL</b> &nbsp;·&nbsp; Category · <b>Games</b><br>
+    Live prototype · <b><mark>[VERCEL URL]</mark></b>
+  </div>
+</header>
+
+<section>
+  <h2><span class="num">01</span> Team members</h2>
+  <table>
+    <tr><th>Name</th><th>Age</th><th>Role</th></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Team lead · architecture, integration</td></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Backend · room service and realtime sync</td></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Backend · AI participant service</td></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Backend · ledger engine and claim validation</td></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Frontend · game screens and reveal sequence</td></tr>
+    <tr><td><mark>[Name]</mark></td><td><mark>[ ]</mark></td><td>Frontend · Pack Studio and facilitation design</td></tr>
+  </table>
+  <p>All members are aged 18–30 and are undergraduate Computer Science students at Angeles University Foundation, Philippines.</p>
+</section>
+
+<section>
+  <h2><span class="num">02</span> Problem statement</h2>
+  <p class="lede">Most media and information literacy education teaches people to detect liars — spot the fake account, the doctored image, the propaganda outlet.</p>
+  <p>That framing misses the larger share of the problem. A great deal of false information reaches people with no bad actor anywhere in the chain. It starts as something true and degrades as ordinary people retell it under ordinary pressure: a character limit, a group chat, a headline that has to fit, an audience that expects a particular conclusion. Everyone is trying to be accurate. The claim becomes false anyway.</p>
+  <p>AI systems did not create this failure. They industrialise it. Summarisers compress on every pass rather than occasionally. Answer boxes state uncertain findings in the same confident register as settled ones. Recommender systems select for the version of a claim that performs rather than the version that is accurate.</p>
+  <p><strong>There is also evidence that the dominant fix is producing a side effect.</strong> The leading MIL games are built on inoculation theory, casting the player as a manipulator to teach technique recognition. Recent research suggests these interventions may mainly increase <em>conservative reporting</em> — players become more likely to label items as fake overall, including true ones. That is suspicion, not discernment.</p>
+  <div class="todo">Add the academic citation for the conservative-reporting finding before submission. Start from the reference chain in arXiv 2503.02135.</div>
+  <p>What learners lack is not more scepticism. It is a vocabulary for <strong>what specifically gets lost</strong> when accurate information travels, and practice noticing that loss in claims that are not fake — only degraded.</p>
+</section>
+
+<section>
+  <h2><span class="num">03</span> Objectives</h2>
+  <p>TruthChain is built around a six-stage learning arc:</p>
+  <div class="arc"><b>EXPERIENCE</b> → <b>DIAGNOSE</b> → <b>DETECT</b> → <b>COMPARE</b> → <b>VERIFY</b> → <b>AUTHOR</b></div>
+  <p>By the end of a session, a learner can:</p>
+  <ol>
+    <li><strong>Name</strong> the five properties that make a claim trustworthy — source, number, hedge, scope, and causality.</li>
+    <li><strong>Identify</strong> which property a piece of information has lost, and at what point.</li>
+    <li><strong>Explain</strong> why a specific pressure — brevity, engagement, speed, confidence — destroys a specific property.</li>
+    <li><strong>Distinguish</strong> deliberate distortion from accidental degradation, and recognise that the two are often indistinguishable in the output.</li>
+    <li><strong>Compare</strong> how a human and an AI system degrade the same claim under the same pressure.</li>
+    <li><strong>Choose</strong> what to verify first when they cannot verify everything.</li>
+    <li><strong>Author</strong> a claim set for their own community, applying the framework rather than only consuming it.</li>
+  </ol>
+  <p>Objectives 4, 5 and 7 are what separate this from a media literacy quiz. The learner ends the session having hunted a saboteur, run a comparison, and built an instrument.</p>
+</section>
+
+<section>
+  <h2><span class="num">04</span> Target audience</h2>
+  <p><strong>Primary.</strong> Senior high school and undergraduate students aged 15–22 in the Philippines, especially in classrooms where students share devices rather than each having one.</p>
+  <p><strong>Secondary.</strong> Teachers and youth organisation facilitators who need a self-running MIL activity. On-screen discussion prompts and a one-page facilitator guide mean someone with no MIL training can run a full session.</p>
+  <p><strong>Tertiary.</strong> Any group of four to twelve people. Plays either on individual phones in a shared room, or passed around a single device.</p>
+  <p class="lede">The design constraint that follows: the barrier to entry is a room, not a computer lab.</p>
+</section>
+
+<section>
+  <h2><span class="num">05</span> Prototype and concept</h2>
+  <p>TruthChain is a working browser game, playable now at <mark>[VERCEL URL]</mark>. Text-only, no installation, no account, runs on a low-end phone.</p>
+
+  <h3>The five Integrity Atoms</h3>
+  <p>Every claim is tagged along five dimensions. This is the entire measurement system and the project's central contribution — portable to any MIL curriculum, with or without the game.</p>
+  <table class="nowrap">
+    <tr><th>Atom</th><th>What it holds</th><th>How it dies</th></tr>
+    <tr><td>SOURCE</td><td>who says so</td><td>“studies show” with nobody named</td></tr>
+    <tr><td>NUMBER</td><td>the figure and its base</td><td>a percentage with the denominator dropped</td></tr>
+    <tr><td>HEDGE</td><td>may, suggests, preliminary</td><td>an early finding retold as settled</td></tr>
+    <tr><td>SCOPE</td><td>who, where, when</td><td>one campus becomes everywhere</td></tr>
+    <tr><td>CAUSE</td><td>correlational or causal</td><td>“linked to” becomes “causes”</td></tr>
+  </table>
+
+  <h3>Three modes</h3>
+  <table class="nowrap">
+    <tr><th>Mode</th><th>Villain</th><th>What it teaches</th></tr>
+    <tr><td>CHAIN</td><td>none</td><td>decay needs no bad actor</td></tr>
+    <tr><td>BAD FAITH</td><td>one hidden imposter</td><td>the accidents do more damage than the sabotage</td></tr>
+    <tr><td>CROWD RECALL</td><td>none, structurally</td><td>a group cannot recover what nobody holds</td></tr>
+  </table>
+
+  <p><strong>CHAIN.</strong> A true claim passes player to player. Each sees only the previous version and rewrites it under a <strong>constraint card</strong> applying a real pressure — a ninety-character limit, a countdown, an instruction to sound certain. Under compression cards, players <em>tap words out</em> rather than retyping, so the loss is visible as it happens. No card ever asks anyone to lie.</p>
+
+  <p><strong>BAD FAITH.</strong> Identical, except one player secretly receives a different brief: rewrite under your constraint, and make one named property die. Everyone else plays honestly and does not know a saboteur exists.</p>
+  <p>After the reveal, the room argues and votes on who it was. Then the ledger lands, and the imposter turns out to have killed <strong>one</strong> property on purpose while the honest players killed <strong>three</strong> by accident.</p>
+  <p>That inversion is why the mode exists. In CHAIN, players are told nobody lied. In BAD FAITH, they discover it while actively hunting a liar. The imposter learns the same lesson from the other side: how small an edit needs to be, and that deliberate distortion is indistinguishable from an honest mistake under pressure.</p>
+
+  <p><strong>CROWD RECALL.</strong> Every player receives a <em>different</em> version of the same claim, each missing one property, and none of them know theirs was altered. The group reconstructs the original together. The ledger shows what the group collectively could not recover — because the person holding the version missing that property had no way to supply it. There is deliberately no traitor.</p>
+
+  <p class="lede">The pairing is the curriculum. BAD FAITH and CROWD RECALL are designed as opposites. Play both and compare: one room had a saboteur and lost three properties; one had none and lost three. That comparison teaches the distinction the field currently collapses — between sabotage and pressure.</p>
+
+  <h3>AI participants and the Turing Hop</h3>
+  <p>Some hops are taken by an AI language model rather than a person. It receives the same previous version and the same constraint card, and both hops are audited identically by the same ledger.</p>
+  <p>Before the ledger appears, the room guesses <strong>which hop was the machine</strong>. Most rooms cannot tell — and that failure is the lesson: a summariser's output is not distinguishable from a person doing their honest best under the same constraint. In BAD FAITH, two hidden identities stack into one argument: which hop was the machine, and which was the traitor.</p>
+  <p class="lede">AI appears here as a participant under observation, never as an assistant to the player. Nobody uses it to play better. Everyone watches what it does to true information.</p>
+
+  <h3>The Decay Ledger</h3>
+  <div class="ledger"><span class="atom">CAUSE — LOST AT HOP 5</span>
+<span class="k">Trigger:</span>   SOUND CERTAIN  (AI participant)
+<span class="k">Original:</span>  <span class="old">"associated with"</span>
+<span class="k">Final:</span>     <span class="new">"causes"</span>
+
+<span class="cmp">Deliberate:  1 property</span>
+<span class="cmp">Accidental:  3 properties</span></div>
+  <p>Telephone shows that a message changed. TruthChain shows what was lost, where it disappeared, and what pressure caused it. Where detection is uncertain, the ledger proposes and the room decides — the noticing is the learning.</p>
+  <p>There is no score, no leaderboard, no ranking. The ledger measures what happened to the claim, never who is best.</p>
+
+  <h3>Verify before you share</h3>
+  <p>The final reader sees only the last version and chooses <strong>Share, Flag, or Verify</strong>. Choosing Verify asks a second question — <em>what would you check first?</em> — with five options mapping onto the five properties. The ledger then shows whether that was the one the claim had already lost. This converts the game from a description of a behaviour into rehearsal of one.</p>
+
+  <h3>Pack Studio</h3>
+  <p>Learners author their own claims — the original text, its five properties, and the degraded variants — and share them by link. No account, no server storage; the pack travels inside the URL itself.</p>
+  <p>Writing a claim where all five properties are present and separable teaches the framework more thoroughly than playing does. It is also where the theme becomes literal: young people stop being the audience for an MIL tool and become the authors of one, in their own language, about their own community.</p>
+</section>
+
+<section>
+  <h2><span class="num">06</span> Sustainability</h2>
+  <p><strong>Near-zero cost.</strong> A static React application on free hosting, plus two small serverless functions: one relaying AI participant requests so no key is exposed, one holding ephemeral room state for multiplayer sessions. No persistent database of users, no accounts, no storage that grows with adoption.</p>
+  <p><strong>Rooms expire; nothing is kept.</strong> Room state lives for a few hours and is discarded. No email, no login, no analytics, no student text retained. Our users are minors in classrooms, so collecting nothing is a design requirement rather than an oversight.</p>
+  <p><strong>It degrades gracefully.</strong> Pre-generated fallback rewrites ship with the application, so the game remains fully playable if the AI service is unavailable or its budget is exhausted. Pass-and-play on a single shared device works without the room service at all. The AI improves the lesson; the tool does not depend on it.</p>
+  <p><strong>Open claim packs.</strong> The claim format is documented JSON, shareable by link or file. Teachers and youth organisations author and distribute packs without our involvement. Code under <mark>[MIT]</mark>; packs under <mark>[CC BY 4.0]</mark>.</p>
+  <p><strong>Where we use AI, and where we refuse to.</strong> AI takes hops in the chain, where it is the subject under study, under a constrained prompt that only permits compressing or rephrasing the text it was given. It does not judge whether a property survived — that stays with the room. A game about opaque systems should not seat an opaque system as the arbiter.</p>
+  <p><strong>Maintenance.</strong> <mark>[Maintained by NAME at the AUF College of Computer Studies; repository at GITHUB URL.]</mark></p>
+  <p><strong>Planned extension.</strong> Fully offline distribution for schools without connectivity is on the roadmap, not a current claim.</p>
+</section>
+
+<section>
+  <h2><span class="num">07</span> Creativity and innovation</h2>
+  <p><strong>A vocabulary, not just a game.</strong> The five Integrity Atoms work as a classroom checklist with no application at all. The game exists to make the vocabulary felt rather than memorised.</p>
+  <p><strong>It teaches the distinction the field collapses.</strong> Every major MIL game casts the player as a manipulator, and the evidence suggests this mainly produces blanket suspicion. TruthChain never asks whether something is true. It asks what it has lost — and by running the villain and villain-free cases side by side, it teaches learners to tell sabotage from pressure.</p>
+  <p><strong>Diagnosis instead of demonstration.</strong> TruthChain resembles Telephone and we say so openly. The difference is instrumentation: a per-property audit naming the lost phrase, the hop, and the pressure responsible.</p>
+  <p><strong>AI as a subject, not a feature.</strong> Most projects add AI to appear current. Here the model is the thing being examined, audited by exactly the same ledger as a human. The strongest finding the game produces is that a room usually cannot tell which hop was the machine.</p>
+  <p><strong>Two-way learning in BAD FAITH.</strong> The room learns detection; the imposter learns distortion from the inside and discovers how little they had to do. Both halves of the lesson run in the same five minutes.</p>
+  <p><strong>Fidelity, not judgment.</strong> Removing scoring was deliberate and costly. A scored version teaches students that some people are careless; the truth is that everyone is subject to the same pressures.</p>
+  <p><strong>Playing your part.</strong> The theme is literal twice over. Each player's hop is their part, and the ledger records it — naming the pressure, never accusing the person. And through Pack Studio, young people play a part in building MIL for their own community. Nobody lied. Everybody played their part.</p>
+</section>
+
+<section>
+  <h2><span class="num">08</span> Feasibility</h2>
+  <p><strong>It exists and is playable.</strong> Live at <mark>[VERCEL URL]</mark>.</p>
+  <p><strong>Technically modest by design.</strong> React and TypeScript, deployed as static output on free hosting, with two serverless functions. Multiplayer uses simple polling rather than persistent connections — the game is turn-based with roughly one update every thirty seconds, so a 1.5-second poll is imperceptible and avoids reconnection fragility on school wifi. No authentication, no user database, no infrastructure to provision.</p>
+  <p><strong>Playtested.</strong> <mark>[Run with N students at Angeles University Foundation on DATE. Finding: SCOPE was the property players were least likely to notice had gone.]</mark></p>
+  <div class="todo"><strong>Before submitting:</strong> move each item below into the correct list based on what has actually landed. An honest split is doing real credibility work here, and a judge who opens the URL and finds a missing feature loses more than the feature would have gained.</div>
+  <p><strong>Built:</strong> CHAIN mode · CROWD RECALL · the constraint card deck · pressure environments · the Decay Ledger with per-property diagnosis · Share/Flag/Verify with property selection · word-tap redaction · host settings · discussion prompts · facilitator guide.</p>
+  <p><strong>In development:</strong> BAD FAITH mode · AI participants and the Turing Hop · multiplayer rooms · Pack Studio sharing.</p>
+  <p><strong>Planned, not built:</strong> full Filipino and Taglish localisation · team play · additional modes · offline distribution. These appear in the application as disabled settings, so players can see the roadmap without us overstating what exists.</p>
+  <p><strong>Adoption cost for a school: zero.</strong> One phone or several, one link, one class period. No procurement, no installation, no accounts, no training — the on-screen prompts run the debrief.</p>
+  <p><strong>Principal risk.</strong> Value depends on claim quality, and claims are hand-authored. We mitigate with a documented authoring pipeline, a validator that refuses malformed claims at load, and an open format so quality improves through contribution rather than through us alone.</p>
+</section>
+
+<p class="note">All claims used in TruthChain are fabricated and clearly labelled as fictional in-game. No real people, organisations, or events are referenced.</p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,476 @@
+[
+  {
+    "id": "rainfall-alerts",
+    "topic": "Weather",
+    "lang": "en",
+    "originalText": "The San Ramil Weather Bureau says preliminary October figures suggest heavier upstream rainfall is associated with a 15 percent rise in flood alerts across the Malaya river basin — 40 alerts last October, 46 this year.",
+    "atoms": {
+      "SOURCE": {
+        "truth": "A named weather bureau — not \"officials\", not \"reports say\".",
+        "phrase": "The San Ramil Weather Bureau",
+        "keywords": [
+          "san ramil weather bureau",
+          "san ramil",
+          "weather bureau",
+          "the bureau"
+        ],
+        "overreach": [
+          "officials",
+          "authorities",
+          "experts",
+          "the government",
+          "reports say",
+          "sources say",
+          "they say"
+        ]
+      },
+      "NUMBER": {
+        "truth": "15 percent, and the base it was measured from: 40 alerts to 46.",
+        "phrase": "a 15 percent rise — 40 alerts last October, 46 this year",
+        "keywords": [
+          "15 percent",
+          "15%",
+          "40 alerts",
+          "46",
+          "40 to 46"
+        ],
+        "overreach": [
+          "huge rise",
+          "massive rise",
+          "soaring",
+          "way more",
+          "double",
+          "doubled",
+          "tripled",
+          "through the roof"
+        ]
+      },
+      "HEDGE": {
+        "truth": "Preliminary figures that suggest. Nothing here is settled.",
+        "phrase": "preliminary October figures suggest",
+        "keywords": [
+          "preliminary",
+          "suggest",
+          "suggests",
+          "early figures",
+          "may",
+          "might",
+          "appears to"
+        ],
+        "overreach": [
+          "confirms",
+          "confirmed",
+          "proves",
+          "proven",
+          "shows that",
+          "definitely",
+          "settled",
+          "final"
+        ]
+      },
+      "SCOPE": {
+        "truth": "One river basin, one October.",
+        "phrase": "across the Malaya river basin",
+        "keywords": [
+          "malaya river basin",
+          "malaya",
+          "river basin",
+          "october"
+        ],
+        "overreach": [
+          "everywhere",
+          "nationwide",
+          "across the country",
+          "the whole country",
+          "all over",
+          "every region",
+          "the entire country"
+        ]
+      },
+      "CAUSE": {
+        "truth": "Associated with. Nobody established that the rain caused the alerts.",
+        "phrase": "is associated with",
+        "keywords": [
+          "associated with",
+          "linked to",
+          "correlated",
+          "alongside",
+          "goes with",
+          "went with"
+        ],
+        "overreach": [
+          "causes",
+          "caused",
+          "causing",
+          "because of",
+          "due to",
+          "driving",
+          "triggers",
+          "leads to",
+          "blamed on"
+        ]
+      }
+    },
+    "degraded": {
+      "SOURCE": "Officials say preliminary October figures suggest heavier upstream rainfall is associated with a 15 percent rise in flood alerts across the Malaya river basin — 40 alerts last October, 46 this year.",
+      "NUMBER": "The San Ramil Weather Bureau says preliminary October figures suggest heavier upstream rainfall is associated with a rise in flood alerts across the Malaya river basin.",
+      "HEDGE": "The San Ramil Weather Bureau confirms that heavier upstream rainfall is associated with a 15 percent rise in flood alerts across the Malaya river basin — 40 alerts last October, 46 this year.",
+      "SCOPE": "The San Ramil Weather Bureau says preliminary figures suggest heavier upstream rainfall is associated with a 15 percent rise in flood alerts nationwide — 40 alerts last year, 46 this year.",
+      "CAUSE": "The San Ramil Weather Bureau says preliminary October figures suggest heavier upstream rainfall is causing a 15 percent rise in flood alerts across the Malaya river basin — 40 alerts last October, 46 this year."
+    }
+  },
+
+  {
+    "id": "class-start-times",
+    "topic": "Education",
+    "lang": "en",
+    "originalText": "A preliminary study of 240 students at Bulwagan State College found that later class start times were associated with a 12-point rise in morning attendance, from 61 percent to 73 percent.",
+    "atoms": {
+      "SOURCE": {
+        "truth": "One named college's own study — not \"studies\" in general.",
+        "phrase": "A preliminary study of 240 students at Bulwagan State College",
+        "keywords": [
+          "bulwagan state college",
+          "bulwagan",
+          "state college",
+          "study of 240 students"
+        ],
+        "overreach": [
+          "studies show",
+          "research shows",
+          "experts",
+          "scientists",
+          "science says",
+          "a new study",
+          "researchers say"
+        ]
+      },
+      "NUMBER": {
+        "truth": "Twelve points, from 61 percent to 73. The base is half the number.",
+        "phrase": "a 12-point rise, from 61 percent to 73 percent",
+        "keywords": [
+          "12-point",
+          "12 point",
+          "12 points",
+          "61 percent",
+          "73 percent",
+          "61%",
+          "73%",
+          "240"
+        ],
+        "overreach": [
+          "doubled",
+          "twice as many",
+          "soared",
+          "massive jump",
+          "huge increase",
+          "skyrocketed"
+        ]
+      },
+      "HEDGE": {
+        "truth": "One preliminary study. A finding, not a fact.",
+        "phrase": "A preliminary study … found",
+        "keywords": [
+          "preliminary",
+          "early",
+          "suggests",
+          "one study",
+          "may",
+          "might",
+          "appears"
+        ],
+        "overreach": [
+          "proves",
+          "proven",
+          "confirms",
+          "confirmed",
+          "shows definitively",
+          "settled",
+          "we now know",
+          "it is clear"
+        ]
+      },
+      "SCOPE": {
+        "truth": "240 students on one campus.",
+        "phrase": "240 students at Bulwagan State College",
+        "keywords": [
+          "240 students",
+          "one college",
+          "one campus",
+          "240"
+        ],
+        "overreach": [
+          "all students",
+          "students everywhere",
+          "nationwide",
+          "every school",
+          "every college",
+          "teenagers",
+          "young people everywhere"
+        ]
+      },
+      "CAUSE": {
+        "truth": "Associated with. Nobody showed later starts caused the rise.",
+        "phrase": "were associated with",
+        "keywords": [
+          "associated with",
+          "linked to",
+          "correlated with",
+          "went with",
+          "alongside"
+        ],
+        "overreach": [
+          "causes",
+          "caused",
+          "because",
+          "makes",
+          "leads to",
+          "boosts",
+          "improves",
+          "raises",
+          "fixes"
+        ]
+      }
+    },
+    "degraded": {
+      "SOURCE": "A preliminary study found that later class start times were associated with a 12-point rise in morning attendance among 240 students at one campus, from 61 percent to 73 percent.",
+      "NUMBER": "A preliminary study at Bulwagan State College found that later class start times were associated with a rise in morning attendance among students on one campus.",
+      "HEDGE": "A study of 240 students at Bulwagan State College proves that later class start times were associated with a 12-point rise in morning attendance, from 61 percent to 73 percent.",
+      "SCOPE": "A preliminary study at Bulwagan State College found that later class start times were associated with a 12-point rise in morning attendance for students everywhere, from 61 percent to 73 percent.",
+      "CAUSE": "A preliminary study of 240 students at Bulwagan State College found that later class start times caused a 12-point rise in morning attendance, from 61 percent to 73 percent."
+    }
+  },
+
+  {
+    "id": "evening-phone-sleep",
+    "topic": "Sleep",
+    "lang": "en",
+    "originalText": "An early survey by the Perpetua City Youth Research Circle found that among 180 senior high students, heavier evening phone use was linked to a 9-point drop in self-reported sleep quality, from 54 percent to 45 percent.",
+    "atoms": {
+      "SOURCE": {
+        "truth": "A named youth research circle, and it was a survey they ran themselves.",
+        "phrase": "the Perpetua City Youth Research Circle",
+        "keywords": [
+          "perpetua city youth research circle",
+          "perpetua city",
+          "youth research circle",
+          "research circle"
+        ],
+        "overreach": [
+          "studies show",
+          "research shows",
+          "experts",
+          "scientists",
+          "doctors say",
+          "a study",
+          "science"
+        ]
+      },
+      "NUMBER": {
+        "truth": "Nine points, from 54 percent to 45 — and 180 students answered.",
+        "phrase": "a 9-point drop, from 54 percent to 45 percent",
+        "keywords": [
+          "9-point",
+          "9 point",
+          "9 points",
+          "54 percent",
+          "45 percent",
+          "54%",
+          "45%",
+          "180"
+        ],
+        "overreach": [
+          "halved",
+          "collapsed",
+          "plummeted",
+          "way worse",
+          "destroyed",
+          "ruined"
+        ]
+      },
+      "HEDGE": {
+        "truth": "An early survey, and the students rated their own sleep.",
+        "phrase": "An early survey … self-reported",
+        "keywords": [
+          "early survey",
+          "early",
+          "self-reported",
+          "self reported",
+          "suggests",
+          "may"
+        ],
+        "overreach": [
+          "proves",
+          "proven",
+          "confirms",
+          "confirmed",
+          "shows that",
+          "we now know",
+          "the science is clear"
+        ]
+      },
+      "SCOPE": {
+        "truth": "180 senior high students in one city.",
+        "phrase": "among 180 senior high students",
+        "keywords": [
+          "180 senior high students",
+          "180 students",
+          "senior high",
+          "180"
+        ],
+        "overreach": [
+          "all teenagers",
+          "teenagers",
+          "everyone",
+          "all students",
+          "young people",
+          "kids these days",
+          "nationwide"
+        ]
+      },
+      "CAUSE": {
+        "truth": "Linked to. Nobody established that phones caused the drop.",
+        "phrase": "was linked to",
+        "keywords": [
+          "linked to",
+          "associated with",
+          "correlated with",
+          "went with",
+          "alongside"
+        ],
+        "overreach": [
+          "causes",
+          "caused",
+          "causing",
+          "because of",
+          "due to",
+          "ruining",
+          "wrecking",
+          "destroys",
+          "is why"
+        ]
+      }
+    },
+    "degraded": {
+      "SOURCE": "An early survey found that among 180 senior high students, heavier evening phone use was linked to a 9-point drop in self-reported sleep quality, from 54 percent to 45 percent.",
+      "NUMBER": "An early survey by the Perpetua City Youth Research Circle found that among senior high students, heavier evening phone use was linked to a drop in self-reported sleep quality.",
+      "HEDGE": "A survey by the Perpetua City Youth Research Circle confirms that among 180 senior high students, heavier evening phone use was linked to a 9-point drop in sleep quality, from 54 percent to 45 percent.",
+      "SCOPE": "An early survey by the Perpetua City Youth Research Circle found that among teenagers, heavier evening phone use was linked to a 9-point drop in self-reported sleep quality, from 54 percent to 45 percent.",
+      "CAUSE": "An early survey by the Perpetua City Youth Research Circle found that among 180 senior high students, heavier evening phone use caused a 9-point drop in self-reported sleep quality, from 54 percent to 45 percent."
+    }
+  },
+
+  {
+    "id": "bus-lane-travel-times",
+    "topic": "Transport",
+    "lang": "en",
+    "originalText": "The Villareal City Transport Office says its early figures suggest the new bus lane is associated with an 8 percent fall in morning travel times along Rosal Avenue, from 34 minutes to 31.",
+    "atoms": {
+      "SOURCE": {
+        "truth": "A named city transport office, reporting on its own project.",
+        "phrase": "The Villareal City Transport Office",
+        "keywords": [
+          "villareal city transport office",
+          "villareal",
+          "transport office",
+          "the city"
+        ],
+        "overreach": [
+          "officials",
+          "the government",
+          "experts",
+          "planners say",
+          "reports say",
+          "sources say"
+        ]
+      },
+      "NUMBER": {
+        "truth": "8 percent, which is three minutes: 34 down to 31.",
+        "phrase": "an 8 percent fall … from 34 minutes to 31",
+        "keywords": [
+          "8 percent",
+          "8%",
+          "34 minutes",
+          "31",
+          "34 to 31",
+          "three minutes"
+        ],
+        "overreach": [
+          "halved",
+          "way faster",
+          "massive",
+          "huge",
+          "cut in half",
+          "no traffic"
+        ]
+      },
+      "HEDGE": {
+        "truth": "Early figures that suggest. The lane has barely opened.",
+        "phrase": "its early figures suggest",
+        "keywords": [
+          "early figures",
+          "early",
+          "suggest",
+          "suggests",
+          "may",
+          "might",
+          "so far"
+        ],
+        "overreach": [
+          "proves",
+          "proven",
+          "confirms",
+          "confirmed",
+          "shows that",
+          "definitely",
+          "it works"
+        ]
+      },
+      "SCOPE": {
+        "truth": "One avenue, in the morning.",
+        "phrase": "along Rosal Avenue",
+        "keywords": [
+          "rosal avenue",
+          "rosal",
+          "morning"
+        ],
+        "overreach": [
+          "citywide",
+          "everywhere",
+          "all roads",
+          "the whole city",
+          "nationwide",
+          "every route"
+        ]
+      },
+      "CAUSE": {
+        "truth": "Associated with. Nobody established the lane made the difference.",
+        "phrase": "is associated with",
+        "keywords": [
+          "associated with",
+          "linked to",
+          "correlated",
+          "alongside",
+          "went with"
+        ],
+        "overreach": [
+          "causes",
+          "caused",
+          "causing",
+          "because of",
+          "thanks to",
+          "cut",
+          "fixed",
+          "solved"
+        ]
+      }
+    },
+    "degraded": {
+      "SOURCE": "Officials say early figures suggest the new bus lane is associated with an 8 percent fall in morning travel times along Rosal Avenue, from 34 minutes to 31.",
+      "NUMBER": "The Villareal City Transport Office says its early figures suggest the new bus lane is associated with a fall in morning travel times along Rosal Avenue.",
+      "HEDGE": "The Villareal City Transport Office confirms that the new bus lane is associated with an 8 percent fall in morning travel times along Rosal Avenue, from 34 minutes to 31.",
+      "SCOPE": "The Villareal City Transport Office says its early figures suggest the new bus lane is associated with an 8 percent fall in travel times citywide, from 34 minutes to 31.",
+      "CAUSE": "The Villareal City Transport Office says its early figures suggest the new bus lane cut morning travel times along Rosal Avenue by 8 percent, from 34 minutes to 31."
+    }
+  }
+]
