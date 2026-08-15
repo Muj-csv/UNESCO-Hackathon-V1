@@ -80,6 +80,13 @@ describe('prepareRound', () => {
     expect(setup.aiHopIndexes[0]).toBeLessThan(4);
   });
 
+  /* The lobby toggle writes aiHops straight through, so a room that switched
+     the participant off must get a chain with nobody but people in it. */
+  it('deals none when the room switched the participant off', () => {
+    const setup = prepareRound(stateWith({ aiHops: 0, chainLength: 5 }), CLAIMS);
+    expect(setup.aiHopIndexes).toEqual([]);
+  });
+
   /* CROWD RECALL has no chain — everyone reads at the same time, so there is
      no hop for a machine to take. */
   it('deals none in crowd recall', () => {

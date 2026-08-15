@@ -17,6 +17,15 @@ import HopInput, { hopInputValid } from '../components/HopInput';
 
    T1 also owns the timer's five-second warning and applying card.timerOverride
    — both live in this file's timer, so raise it rather than editing here.
+
+   T6 CHANGE, AGREED BEFORE MAKING IT: the handoff gate below is skipped when
+   the current hop belongs to the machine. It could not live in AIHopBeat,
+   because this file returns the handoff before AIHopBeat is ever mounted — so
+   the room was told to pass the device to a player, tapped to confirm, and
+   then watched the machine take that player's turn.
+
+   Skipping the gate also leaves `handedOver` false for a machine hop, which
+   is what keeps the timer from starting and auto-submitting underneath it.
    ========================================================================== */
 
 export default function Round() {
@@ -24,6 +33,7 @@ export default function Round() {
   const { round, settings } = state;
   const index = round.currentHop;
 
+  const isMachineHop = round.aiHopIndexes.includes(index);
   const player = hopPlayerName(state, index);
   const card = getCard(round.dealtCards[index] ?? null);
   const source = textInFrontOfPlayer(state);
@@ -68,7 +78,7 @@ export default function Round() {
 
   if (!round.claim) return null;
 
-  if (!handedOver) {
+  if (!handedOver && !isMachineHop) {
     return (
       <div className="screen">
         <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} />
@@ -90,7 +100,10 @@ export default function Round() {
 
   return (
     <div className="screen">
-      <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} note={player} />
+      <StageBar
+        label={`Hop ${index + 1} of ${settings.chainLength}`}
+        note={isMachineHop ? 'AI participant' : player}
+      />
 
       <AIHopBeat />
 
