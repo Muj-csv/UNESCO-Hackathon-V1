@@ -3,6 +3,7 @@ import { useGame } from '../state/GameContext';
 import { hopsForLedger } from '../state/gameReducer';
 import { computeLedger, firstLostAtom, lostAtoms, survivingAtoms } from '../engine/ledger';
 import { cardName } from '../data/cards';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* The talking part. A facilitator with no MIL training should be able to run
@@ -43,61 +44,118 @@ export default function Debrief() {
 
   return (
     <div className="screen">
-      <StageBar label="Talk about it" />
-      <h2>Nobody was told to lie</h2>
-      <p className="lede">
-        Every card in that chain named a pressure. Not one of them asked anyone to distort
-        anything.
-      </p>
+      <StageBar label="Talk about it" note="Facilitator prompts" />
 
-      <div className="row">
-        {lost.map((a) => (
-          <span key={a} className="atom-chip is-lost">
-            {a}
-          </span>
-        ))}
-        {survived.map((a) => (
-          <span key={a} className="atom-chip is-alive">
-            {a}
-          </span>
-        ))}
+      {/* The finding, stated once and large. Everything below is the room
+          working out what to do with it. */}
+      <section className="debrief-hero">
+        <p className="eyebrow">The finding</p>
+        <h2 className="debrief-hero-line">Nobody was told to lie.</h2>
+        <p className="muted">
+          Every card in that chain named a pressure. Not one of them asked anyone to distort
+          anything.
+        </p>
+      </section>
+
+      <div className="debrief-cols">
+        <section className="neo-panel">
+          <div className="neo-head neo-head-amber">
+            Questions for the room
+            <span className="neo-tag">Say these out loud</span>
+          </div>
+          <div className="neo-body">
+            {/* Each question's content is wrapped in a single span. The <li>
+                is a flex row (marker + question), so an inline <strong> left
+                as a direct child would become its own flex item and the card
+                name would stack into a narrow column of its own. */}
+            <ol className="debrief-questions">
+              {first && (
+                <li>
+                  <span className="debrief-q">{ATOM_QUESTION[first]}</span>
+                </li>
+              )}
+              {first && result[first].deathCardId && (
+                <li>
+                  <span className="debrief-q">
+                    {first} went under <strong>{cardName(result[first].deathCardId)}</strong>. Where
+                    have you felt that same pressure this week?
+                  </span>
+                </li>
+              )}
+              {survived.length > 0 && (
+                <li>
+                  <span className="debrief-q">
+                    {survived.join(' and ')} came through. What was it about{' '}
+                    {survived.length > 1 ? 'those' : 'that'} that made{' '}
+                    {survived.length > 1 ? 'them' : 'it'} harder to lose?
+                  </span>
+                </li>
+              )}
+              <li>
+                <span className="debrief-q">
+                  Nobody in this chain was trying to mislead anyone. Does that change what you'd do
+                  about it?
+                </span>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <aside className="stack">
+          <section className="neo-panel">
+            <div className="neo-head">Round telemetry</div>
+            <div className="neo-body stack">
+              <p className="eyebrow">Did not survive</p>
+              <div className="row">
+                {lost.length ? (
+                  lost.map((a) => (
+                    <span key={a} className="atom-chip is-lost">
+                      {a}
+                    </span>
+                  ))
+                ) : (
+                  <span className="muted">Nothing — all five held.</span>
+                )}
+              </div>
+
+              <p className="eyebrow">Held all the way</p>
+              <div className="row">
+                {survived.length ? (
+                  survived.map((a) => (
+                    <span key={a} className="atom-chip is-alive">
+                      {a}
+                    </span>
+                  ))
+                ) : (
+                  <span className="muted">None of the five.</span>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Room aggregate only. This never says who called it. */}
+          {prediction.total > 0 && (
+            <section className="neo-panel">
+              <div className="neo-head neo-head-plain">Calling it in advance</div>
+              <div className="neo-body">
+                <p className="muted">
+                  {first
+                    ? `${prediction.correct} of ${prediction.total} predicted ${first}. ${first} went first, at hop ${
+                        (result[first].deathHop ?? 0) + 1
+                      }.`
+                    : `${prediction.total} of ${prediction.total} predicted something would go first. Nothing did — every atom survived.`}
+                </p>
+              </div>
+            </section>
+          )}
+        </aside>
       </div>
 
-      <div className="card">
-        <p className="eyebrow">Questions for the room</p>
-        <ol className="debrief-questions">
-          {first && <li>{ATOM_QUESTION[first]}</li>}
-          {first && result[first].deathCardId && (
-            <li>
-              {first} went under <strong>{cardName(result[first].deathCardId)}</strong>. Where have
-              you felt that same pressure this week?
-            </li>
-          )}
-          {survived.length > 0 && (
-            <li>
-              {survived.join(' and ')} came through. What was it about {survived.length > 1 ? 'those' : 'that'}{' '}
-              that made {survived.length > 1 ? 'them' : 'it'} harder to lose?
-            </li>
-          )}
-          <li>Nobody in this chain was trying to mislead anyone. Does that change what you'd do about it?</li>
-        </ol>
-      </div>
-
-      {prediction.total > 0 && (
-        <div className="card">
-          <p className="eyebrow">What the room called it</p>
-          <p className="muted">
-            {first
-              ? `${prediction.correct} of ${prediction.total} predicted ${first}. ${first} went first, at hop ${
-                  (result[first].deathHop ?? 0) + 1
-                }.`
-              : `${prediction.total} of ${prediction.total} predicted something would go first. Nothing did — every atom survived.`}
-          </p>
-        </div>
-      )}
-
-      <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
-        Continue
+      <button
+        className="btn btn-primary btn-lg btn-block"
+        onClick={() => dispatch({ type: 'ADVANCE' })}
+      >
+        Continue <Icon name="arrowForward" />
       </button>
     </div>
   );
