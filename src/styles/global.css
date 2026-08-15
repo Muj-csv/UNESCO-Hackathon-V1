@@ -1465,3 +1465,50 @@ select.field {
 .accuse-hop {
   border-left: 3px solid var(--amber);
 }
+
+/* The number the mode exists to produce. Two rows, read as a comparison —
+   the counts line up so the difference is the thing you see first. */
+
+.intent-split {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 10px;
+  margin: 0;
+  align-items: baseline;
+}
+
+.intent-split-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-text-soft);
+}
+
+.intent-split-value {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+
+.intent-split-count {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink-text);
+}
+
+.intent-split-count.is-none {
+  color: var(--ink-text-soft);
+}
+
+.intent-split-atoms {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  color: var(--amber-on-ink);
+  overflow-wrap: anywhere;
+}
