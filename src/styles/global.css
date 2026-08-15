@@ -1340,3 +1340,46 @@ select.field {
   line-height: 1.45;
   color: var(--ink-text-soft);
 }
+
+/* ------------------------------------------------------ T6 turing hop -- */
+/* Every version, offered as a choice. Nothing here is marked right or wrong:
+   the room's pick is outlined, the machine's hop is named, and that is all.  */
+
+.turing-option {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  /* The claim-shaped background comes from .paper; only the edge changes. */
+  transition: border-color 0.12s ease;
+}
+
+.turing-option:hover:not(:disabled) {
+  border-color: var(--ink-line);
+}
+
+.turing-option:disabled {
+  cursor: default;
+}
+
+/* What the room chose. Amber is attention, not correctness. */
+.turing-option.is-picked {
+  border-color: var(--amber);
+}
+
+/* Where the machine actually was. Violet, as everywhere else it appears. */
+.turing-option.is-machine {
+  border-left: 3px solid var(--violet);
+}
+
+.turing-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}

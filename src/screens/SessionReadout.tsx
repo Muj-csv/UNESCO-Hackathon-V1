@@ -1,4 +1,4 @@
-import type { Atom } from '../types/contracts';
+import type { Atom, RoundResult } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import StageBar from '../components/StageBar';
@@ -6,6 +6,18 @@ import StageBar from '../components/StageBar';
 /* Across the whole session. Room-level only — this screen never says which
    person lost the most, because that number does not exist anywhere in the
    application and adding it would teach the wrong thing. */
+
+/**
+ * T6 — how often the room picked the machine out.
+ *
+ * Rounds where no machine played, or where nobody voted, are not counted
+ * against the room: `turingCorrect` is null for those and they are skipped
+ * entirely rather than folded in as misses.
+ */
+export function spottedTheMachine(results: RoundResult[]): { correct: number; asked: number } {
+  const asked = results.filter((r) => r.turingCorrect !== null);
+  return { correct: asked.filter((r) => r.turingCorrect).length, asked: asked.length };
+}
 
 export default function SessionReadout() {
   const { state, dispatch, nextRound } = useGame();
@@ -17,6 +29,7 @@ export default function SessionReadout() {
   const rounds = results.length;
   const mostFragile = ATOMS.slice().sort((a, b) => timesLost[b] - timesLost[a])[0];
   const neverLost = ATOMS.filter((a) => timesLost[a] === 0);
+  const turing = spottedTheMachine(results);
 
   return (
     <div className="screen">
@@ -52,11 +65,27 @@ export default function SessionReadout() {
         <p className="muted">Never lost here: {neverLost.join(' · ')}.</p>
       )}
 
+      {/* Reported, not scored. A room that never found it has learned the
+          thing this beat exists to teach. */}
+      {turing.asked > 0 && (
+        <div className="card">
+          <p className="eyebrow">The machine</p>
+          <p className="muted">
+            This room picked the machine out {turing.correct}{' '}
+            {turing.correct === 1 ? 'time' : 'times'} out of {turing.asked}.
+          </p>
+          <p className="muted">
+            {turing.correct === 0
+              ? 'Not once — which is the usual result. A summariser under a real pressure is not distinguishable from a person doing their honest best under the same one.'
+              : 'Whatever gave it away, it was not the machine being careless. It was handed the same version and the same card as everyone else.'}
+          </p>
+        </div>
+      )}
+
       <div className="card">
         <p className="eyebrow">Not yet available</p>
         <p className="muted">
-          Prediction accuracy across rounds, and how often this room spotted the machine, appear
-          here once those parts are built.
+          Prediction accuracy across rounds appears here once that part is built.
         </p>
       </div>
 
