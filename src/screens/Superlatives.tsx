@@ -3,6 +3,8 @@ import { hopsForLedger } from '../state/gameReducer';
 import { computeLedger, firstLostAtom, survivingAtoms } from '../engine/ledger';
 import { shrinkRatio } from '../engine/normalize';
 import { cardName } from '../data/cards';
+import { ATOM_ICON } from '../data/atoms';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -34,46 +36,60 @@ export default function Superlatives() {
 
   return (
     <div className="screen">
-      <StageBar label="What the round did" />
+      <StageBar label="What the round did" note="About the claim, not the room" />
 
-      {first && (
-        <div className="card">
-          <p className="eyebrow">First to go</p>
-          <h3>{first}</h3>
-          <p className="muted">
-            Lost at hop {(result[first].deathHop ?? 0) + 1}, under{' '}
-            <strong>{cardName(result[first].deathCardId)}</strong>
-            {byline(hops, result[first].deathHop)}.
-          </p>
-        </div>
-      )}
+      <div className="superlatives">
+        {first && (
+          <section className="super-card super-card-lost">
+            <span className="super-icon">
+              <Icon name={ATOM_ICON[first]} size={24} />
+            </span>
+            <p className="eyebrow">First to go</p>
+            <h3 className="super-headline">{first}</h3>
+            <p className="muted">
+              Lost at hop {(result[first].deathHop ?? 0) + 1}, under{' '}
+              <strong>{cardName(result[first].deathCardId)}</strong>
+              {byline(hops, result[first].deathHop)}.
+            </p>
+          </section>
+        )}
 
-      {survived.length > 0 && (
-        <div className="card">
-          <p className="eyebrow">Held all the way</p>
-          <h3>{survived.join(' · ')}</h3>
-          <p className="muted">
-            {survived.length === 5
-              ? 'The whole claim arrived intact. That is rarer than it looks.'
-              : 'Whatever else happened, this made it to the end.'}
-          </p>
-        </div>
-      )}
+        {survived.length > 0 && (
+          <section className="super-card super-card-held">
+            <span className="super-icon">
+              <Icon name="check" size={24} />
+            </span>
+            <p className="eyebrow">Held all the way</p>
+            <h3 className="super-headline">{survived.join(' · ')}</h3>
+            <p className="muted">
+              {survived.length === 5
+                ? 'The whole claim arrived intact. That is rarer than it looks.'
+                : 'Whatever else happened, this made it to the end.'}
+            </p>
+          </section>
+        )}
 
-      {sharpest.index >= 0 && sharpest.ratio > 0 && (
-        <div className="card">
-          <p className="eyebrow">Sharpest cut</p>
-          <h3>{Math.round(sharpest.ratio * 100)}% of the words gone</h3>
-          <p className="muted">
-            At hop {sharpest.index + 1}, under{' '}
-            <strong>{cardName(hops[sharpest.index].cardId)}</strong>
-            {byline(hops, sharpest.index)}.
-          </p>
-        </div>
-      )}
+        {sharpest.index >= 0 && sharpest.ratio > 0 && (
+          <section className="super-card super-card-cut">
+            <span className="super-icon">
+              <Icon name="split" size={24} />
+            </span>
+            <p className="eyebrow">Sharpest cut</p>
+            <h3 className="super-headline">{Math.round(sharpest.ratio * 100)}% of the words gone</h3>
+            <p className="muted">
+              At hop {sharpest.index + 1}, under{' '}
+              <strong>{cardName(hops[sharpest.index].cardId)}</strong>
+              {byline(hops, sharpest.index)}.
+            </p>
+          </section>
+        )}
+      </div>
 
-      <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
-        Continue
+      <button
+        className="btn btn-primary btn-lg btn-block"
+        onClick={() => dispatch({ type: 'ADVANCE' })}
+      >
+        Continue <Icon name="arrowForward" />
       </button>
     </div>
   );

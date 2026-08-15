@@ -1631,32 +1631,86 @@ select.field {
   padding: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .ledger-row {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding: 18px 20px;
   border-bottom: var(--border-1) solid var(--ink);
+  border-left: 8px solid var(--outline-variant);
 }
 
 .ledger-row:last-child {
   border-bottom: 0;
 }
 
+.ledger-row.is-alive {
+  border-left-color: var(--teal-container);
+}
+
+.ledger-row.is-lost {
+  border-left-color: var(--red);
+  background: var(--surface-low);
+}
+
+/* Icon, name, verdict — one line the eye can run down all five of. */
+.ledger-rowhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ledger-rowicon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--surface-highest);
+  color: var(--ink-soft);
+}
+
+.ledger-row.is-alive .ledger-rowicon {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.ledger-row.is-lost .ledger-rowicon {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.ledger-atom {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .ledger-head {
+  margin: 0;
+  margin-left: auto;
   font-family: var(--font-mono);
-  font-size: var(--text-label);
+  font-size: var(--text-code);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--on-red-container);
-  margin: 0;
+  background: var(--red-container);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 4px 9px;
 }
 
 .ledger-head.is-alive {
-  color: var(--teal);
+  color: var(--on-teal-fixed);
+  background: var(--teal-fixed);
 }
 
 .alive-note {
@@ -1664,6 +1718,55 @@ select.field {
   color: var(--ink-soft);
   line-height: 1.5;
   margin: 0;
+}
+
+/* -- the atom strip ---------------------------------------------------------
+   Five cells, one per property, as a legend for the rows below. It counts
+   atoms because that is what a ledger does. It must never become a
+   percentage, a grade, or a comparison between rounds. */
+
+.atomstrip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.atomstrip-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  text-align: center;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.atomstrip-cell.is-alive {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.atomstrip-cell.is-lost {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.atomstrip-name {
+  letter-spacing: 0.08em;
+}
+
+.atomstrip-state {
+  font-weight: 400;
+  opacity: 0.85;
+  text-transform: uppercase;
 }
 
 /* ==========================================================================
@@ -2436,6 +2539,9 @@ select.field {
 }
 
 .ledger-diag-ask-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin: 0;
   font-size: var(--text-body-md);
   line-height: 1.5;
@@ -3484,51 +3590,57 @@ select.field {
   border-left: 6px solid var(--amber-strong);
 }
 
-/* The number the mode exists to produce. Two rows, read as a comparison. */
+/* The number the mode exists to produce. Two cells side by side, set at the
+   SAME size on purpose: the difference between them is the finding, and
+   weighting one over the other would put a thumb on it. */
 .intent-split {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 16px;
-  row-gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
   margin: 0;
-  align-items: baseline;
 }
 
-.intent-split-label {
+.intent-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 14px;
+  text-align: center;
+  background: var(--surface-low);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.intent-cell-label {
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--outline);
 }
 
-.intent-split-value {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 0;
-}
-
-.intent-split-count {
+.intent-cell-count {
   font-family: var(--font-display);
-  font-size: var(--text-headline-md);
+  font-size: 44px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1;
   color: var(--ink);
 }
 
-.intent-split-count.is-none {
-  color: var(--outline);
+.intent-cell-count.is-none {
+  color: var(--outline-variant);
 }
 
-.intent-split-atoms {
+.intent-cell-atoms {
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   line-height: 1.5;
-  color: var(--on-amber);
+  color: var(--ink-soft);
   overflow-wrap: anywhere;
 }
 
@@ -3556,6 +3668,12 @@ select.field {
   border-radius: var(--radius);
 }
 
+/* The whole question as one flex item, so inline markup inside it stays
+   inline instead of becoming a sibling item of the text around it. */
+.debrief-q {
+  min-width: 0;
+}
+
 .debrief-questions li::before {
   content: 'Q' counter(debrief-q);
   flex: none;
@@ -3569,6 +3687,102 @@ select.field {
   padding: 3px 7px;
 }
 
+/* The statement a screen opens on, when the screen exists to make a point
+   rather than to be operated. */
+.debrief-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debrief-hero-line {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+@media (min-width: 768px) {
+  .debrief-hero-line {
+    font-size: var(--text-headline-xl);
+  }
+}
+
+.debrief-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .debrief-cols {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+/* -- superlatives -------------------------------------------------------------
+   About the CLAIM, never about the people. There is no "most destructive
+   player" here and there must never be one. */
+
+.superlatives {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.super-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  background: var(--surface-lowest);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+}
+
+.super-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.super-card-lost .super-icon {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.super-card-held .super-icon {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.super-card-cut .super-icon {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+}
+
+.super-headline {
+  margin: 0;
+  font-size: var(--text-headline-md);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 860px) {
+  .superlatives {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* -- session readout --------------------------------------------------------- */
 
 .readout-row {
@@ -3578,29 +3792,22 @@ select.field {
 }
 
 .readout-atom {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--ink);
-  min-width: 6em;
+  min-width: 8em;
 }
 
-.readout-bar {
+/* One block per round played, so a room counts losses rather than reading a
+   proportion off a bar. */
+.readout-meter {
   flex: 1;
-  height: 18px;
-  background: var(--surface-highest);
-  border: var(--border-1) solid var(--ink);
-  border-radius: var(--radius);
-  overflow: hidden;
-  padding: 2px;
-}
-
-.readout-fill {
-  display: block;
-  height: 100%;
-  background: var(--red);
-  border-radius: 1px;
+  min-width: 0;
 }
 
 .readout-count {

@@ -4,17 +4,21 @@ import { useGame } from '../state/GameContext';
 import { hopsForLedger } from '../state/gameReducer';
 import { computeLedger, firstLostAtom, lostAtoms, splitByIntent } from '../engine/ledger';
 import { cardName } from '../data/cards';
+import { ATOM_ICON } from '../data/atoms';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 import VerifyFeedback from '../components/VerifyFeedback';
 
 /* ============================================================================
    The Decay Ledger.
 
-   SHARED FILE — T2 owns the death rows, T4 owns <VerifyFeedback/>.
-   T4 must not open this file; the component is already composed below.
+   The signature screen. T2 owns the death rows, T4 owns <VerifyFeedback/>.
 
-   There is no score on this screen and there never will be. The ledger
-   measures what happened to the claim, never who is best.
+   There is no score on this screen and there never will be. The strip at the
+   top counts atoms because counting atoms is what a ledger DOES — five rows,
+   each alive or not. It is a legend for the rows underneath, not a rating of
+   the room, and it must never acquire a percentage, a grade or a comparison
+   with another round.
    ========================================================================== */
 
 const NUMBER_WORDS: Record<number, string> = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' };
@@ -44,13 +48,10 @@ export default function Ledger() {
      and the death row names a player who was never found to have broken it. */
   const proposed = claim ? computeLedger(claim, hops, round.verifications) : null;
 
-  /* Recorded through an action, not from inside a render. The prototype pushed
-     straight into session.results while rendering and counted the round again
-     on every re-render; the reducer now refuses a second record for the round.
-
-     It happens on the way out rather than on the way in, because the room can
-     still overturn a row while this screen is open (part C) and the session
-     readout has to agree with the ledger the room actually settled on. */
+  /* Recorded through an action, not from inside a render. It happens on the
+     way out rather than on the way in, because the room can still overturn a
+     row while this screen is open (part C) and the session readout has to
+     agree with the ledger the room actually settled on. */
   const recordAndContinue = () => {
     const { deliberate, accidental } = splitByIntent(result!, hops);
     dispatch({
@@ -87,25 +88,50 @@ export default function Ledger() {
 
   return (
     <div className="screen">
-      <StageBar label="Decay ledger" />
-      <h2>{isCrowd ? 'What the room could not recover' : 'What it cost'}</h2>
-      <p className="muted">
-        {lost.length === 0 &&
-          (isCrowd
-            ? 'Between you, the room put all five back.'
-            : 'Every property made it through this time.')}
-        {lost.length === 5 &&
-          (isCrowd
-            ? 'None of the five came back.'
-            : 'None of the five properties survived the retelling.')}
-        {lost.length > 0 &&
-          lost.length < 5 &&
-          `${NUMBER_WORDS[lost.length]} of the five ${
-            isCrowd ? 'did not come back.' : 'properties did not survive the retelling.'
-          }`}
-      </p>
+      <StageBar label="Decay ledger" note={`${5 - lost.length} of 5 intact`} />
 
-      <div className="ledger">
+      <section className="neo-panel">
+        <div className="neo-head neo-head-plain">
+          {isCrowd ? 'What the room could not recover' : 'What it cost'}
+          <span className="neo-tag">No score</span>
+        </div>
+        <div className="neo-body stack">
+          <p className="lede">
+            {lost.length === 0 &&
+              (isCrowd
+                ? 'Between you, the room put all five back.'
+                : 'Every property made it through this time.')}
+            {lost.length === 5 &&
+              (isCrowd
+                ? 'None of the five came back.'
+                : 'None of the five properties survived the retelling.')}
+            {lost.length > 0 &&
+              lost.length < 5 &&
+              `${NUMBER_WORDS[lost.length]} of the five ${
+                isCrowd ? 'did not come back.' : 'properties did not survive the retelling.'
+              }`}
+          </p>
+
+          {/* A legend for the rows below — five cells, one per property.
+              Never a percentage, never a grade. */}
+          <ul className="atomstrip">
+            {ATOMS.map((atom) => (
+              <li
+                key={atom}
+                className={`atomstrip-cell${result[atom].alive ? ' is-alive' : ' is-lost'}`}
+              >
+                <Icon name={ATOM_ICON[atom]} />
+                <span className="atomstrip-name">{atom}</span>
+                <span className="atomstrip-state">
+                  {result[atom].alive ? 'Held' : isCrowd ? 'Gone' : `Hop ${(result[atom].deathHop ?? 0) + 1}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="ledger">
         {ATOMS.map((atom) => {
           const v = result[atom];
 
@@ -122,19 +148,24 @@ export default function Ledger() {
             engineUnsure && (Boolean(round.overrides[atom]) || waitingOnTheRoom.includes(atom));
 
           return (
-            <div className="ledger-row" key={atom}>
-              <p className={`ledger-head${v.alive ? ' is-alive' : ''}`}>
-                {atom}
-                {v.alive
-                  ? v.recovered
-                    ? ' — SURVIVED, AFTER A CHECK'
-                    : ' — SURVIVED'
-                  : isCrowd
-                    ? ' — NOT RECOVERED'
-                    : roomOnly
-                      ? ' — LOST'
-                      : ` — LOST AT HOP ${(v.deathHop ?? 0) + 1}`}
-              </p>
+            <div className={`ledger-row${v.alive ? ' is-alive' : ' is-lost'}`} key={atom}>
+              <div className="ledger-rowhead">
+                <span className="ledger-rowicon">
+                  <Icon name={ATOM_ICON[atom]} size={20} />
+                </span>
+                <span className="ledger-atom">{atom}</span>
+                <span className={`ledger-head${v.alive ? ' is-alive' : ''}`}>
+                  {v.alive
+                    ? v.recovered
+                      ? 'Survived, after a check'
+                      : 'Survived'
+                    : isCrowd
+                      ? 'Not recovered'
+                      : roomOnly
+                        ? 'Lost'
+                        : `Lost at hop ${(v.deathHop ?? 0) + 1}`}
+                </span>
+              </div>
 
               {!isCrowd && <AtomWire hops={hops} deathHop={roomOnly ? null : v.deathHop} />}
 
@@ -149,8 +180,8 @@ export default function Ledger() {
                 /* Nobody in the room was holding this one, so nobody could
                    supply it. That is the whole lesson of the mode. */
                 <p className="alive-note">
-                  The room could not put this back. Whoever held the version
-                  missing it had no way to know.
+                  The room could not put this back. Whoever held the version missing it had no way
+                  to know.
                 </p>
               ) : (
                 <DeathRow verdict={v} hops={hops} roomOnly={roomOnly} />
@@ -160,43 +191,39 @@ export default function Ledger() {
                 <AdjudicateRow
                   atom={atom}
                   picked={round.overrides[atom] ?? null}
-                  onDecide={(override) =>
-                    dispatch({ type: 'SET_LEDGER_OVERRIDE', atom, override })
-                  }
+                  onDecide={(override) => dispatch({ type: 'SET_LEDGER_OVERRIDE', atom, override })}
                 />
               )}
             </div>
           );
         })}
-      </div>
+      </section>
 
-      {/* T8 CHANGE, AGREED BEFORE MAKING IT. This is the number BAD FAITH
-          exists to produce: the room has just spent an argument hunting one
-          person, and this is where it learns that person did less damage than
-          the people trying to help. The mode fails without it, so it sits on
-          the screen the room is already reading for the verdict.
-
-          Gated on the mode — chain and crowd rounds render exactly as before. */}
+      {/* T8. This is the number BAD FAITH exists to produce: the room has just
+          spent an argument hunting one person, and this is where it learns
+          that person did less damage than the people trying to help. */}
       {settings.mode === 'badfaith' && round.imposter && (
         <IntentSplit result={result} hops={hops} targetAtom={round.imposter.targetAtom} />
       )}
 
       {/* CROWD RECALL has no final reader, so there is no decision to revisit. */}
       {!isCrowd && (
-        <div className="card">
-          <p className="eyebrow">What you did with it</p>
-          <p className="muted">
-            {round.terminalDecision === 'share' && 'You passed it on as it stood.'}
-            {round.terminalDecision === 'flag' && 'You flagged it.'}
-            {round.terminalDecision === 'verify' && 'You wanted to check it first.'}
-            {!round.terminalDecision && 'The chain ended without a decision.'}
-          </p>
-          <VerifyFeedback />
-        </div>
+        <section className="neo-panel">
+          <div className="neo-head neo-head-plain">What you did with it</div>
+          <div className="neo-body stack">
+            <p className="muted">
+              {round.terminalDecision === 'share' && 'You passed it on as it stood.'}
+              {round.terminalDecision === 'flag' && 'You flagged it.'}
+              {round.terminalDecision === 'verify' && 'You wanted to check it first.'}
+              {!round.terminalDecision && 'The chain ended without a decision.'}
+            </p>
+            <VerifyFeedback />
+          </div>
+        </section>
       )}
 
-      <button className="btn btn-primary btn-block" onClick={recordAndContinue}>
-        Continue
+      <button className="btn btn-primary btn-lg btn-block" onClick={recordAndContinue}>
+        Continue <Icon name="arrowForward" />
       </button>
     </div>
   );
@@ -207,8 +234,7 @@ export default function Ledger() {
 
    Telephone shows that a message changed. This says what the change cost, and
    it needs no diff algorithm to do it: the engine already knows the card, the
-   authored phrase and the phrase that replaced it, and used to throw the last
-   one away.
+   authored phrase and the phrase that replaced it.
 
    The card is the subject of the sentence and the person never is. Nobody in
    the chain was trying to mislead anyone, and the copy has to keep saying so.
@@ -254,8 +280,7 @@ function DeathRow({
             {verdict.finalPhrase ? (
               <dd className="ledger-diag-value ledger-diag-final">“{verdict.finalPhrase}”</dd>
             ) : (
-              /* Nothing took its place — it stopped being in the text at all.
-                 Saying so in words beats an empty cell. */
+              /* Nothing took its place — it stopped being in the text at all. */
               <dd className="ledger-diag-value ledger-diag-dropped">dropped</dd>
             )}
           </>
@@ -270,10 +295,7 @@ function DeathRow({
 
    Only rows the engine could not read are asked about — a keyword match is
    evidence, and overruling it on every row would turn the payoff screen into
-   a form. Where the text alone does not settle it, the engine has no business
-   asserting a loss it cannot see.
-
-   Neither answer is marked right. There is no score on this screen.
+   a form. Neither answer is marked right. There is no score on this screen.
    ========================================================================== */
 function AdjudicateRow({
   atom,
@@ -287,7 +309,7 @@ function AdjudicateRow({
   return (
     <div className="ledger-diag-ask">
       <p className="ledger-diag-ask-note">
-        The words alone don't settle this one. Did {atom} make it through?
+        <Icon name="help" /> The words alone don't settle this one. Did {atom} make it through?
       </p>
       <div className="ledger-diag-choices">
         <button
@@ -316,12 +338,11 @@ function AdjudicateRow({
 
    One person was told to make a property disappear. Nobody told anybody else
    to do anything, and the chain lost more anyway. That comparison is the
-   whole reason the mode exists, and it is why adding a saboteur strengthens
-   the thesis instead of contradicting it: in CHAIN the room is told nobody
-   lied, and here it finds out while actively hunting a liar.
+   whole reason the mode exists.
 
-   No score, and no blame. The deliberate loss is named by its property and
-   its hop, exactly like every other row on this screen.
+   No score, and no blame. The two counts are set at the same size on purpose:
+   the difference between them is the finding, and weighting one would put a
+   thumb on it.
    ========================================================================== */
 function IntentSplit({
   result,
@@ -338,47 +359,42 @@ function IntentSplit({
     atoms.map((atom) => `${atom} (hop ${(result[atom].deathHop ?? 0) + 1})`).join(' · ');
 
   return (
-    <div className="card">
-      <p className="eyebrow">On purpose, and by accident</p>
+    <section className="neo-panel">
+      <div className="neo-head neo-head-red">
+        On purpose, and by accident
+        <span className="neo-tag">Bad Faith</span>
+      </div>
+      <div className="neo-body stack">
+        <div className="intent-split">
+          <div className="intent-cell">
+            <span className="intent-cell-label">Deliberate</span>
+            <span className={`intent-cell-count${deliberate.length ? '' : ' is-none'}`}>
+              {deliberate.length}
+            </span>
+            <span className="intent-cell-atoms">
+              {deliberate.length ? list(deliberate) : 'nothing'}
+            </span>
+          </div>
+          <div className="intent-cell">
+            <span className="intent-cell-label">Accidental</span>
+            <span className={`intent-cell-count${accidental.length ? '' : ' is-none'}`}>
+              {accidental.length}
+            </span>
+            <span className="intent-cell-atoms">
+              {accidental.length ? list(accidental) : 'nothing'}
+            </span>
+          </div>
+        </div>
 
-      <dl className="intent-split">
-        <dt className="intent-split-label">Deliberate</dt>
-        <dd className="intent-split-value">
-          {deliberate.length ? (
-            <>
-              <span className="intent-split-count">
-                {deliberate.length} {deliberate.length === 1 ? 'property' : 'properties'}
-              </span>
-              <span className="intent-split-atoms">{list(deliberate)}</span>
-            </>
-          ) : (
-            <span className="intent-split-count is-none">nothing</span>
-          )}
-        </dd>
-
-        <dt className="intent-split-label">Accidental</dt>
-        <dd className="intent-split-value">
-          {accidental.length ? (
-            <>
-              <span className="intent-split-count">
-                {accidental.length} {accidental.length === 1 ? 'property' : 'properties'}
-              </span>
-              <span className="intent-split-atoms">{list(accidental)}</span>
-            </>
-          ) : (
-            <span className="intent-split-count is-none">nothing</span>
-          )}
-        </dd>
-      </dl>
-
-      <p className="muted">
-        {accidental.length > deliberate.length
-          ? `One person was asked to make ${targetAtom} disappear. Nobody asked anyone else for anything, and the chain lost ${accidental.length} more ${accidental.length === 1 ? 'property' : 'properties'} anyway.`
-          : deliberate.length
-            ? `One person was asked to make ${targetAtom} disappear, and the rest of the chain held on to what it was given. That is rarer than it looks.`
-            : `One person was asked to make ${targetAtom} disappear and did not manage it. Everything lost here was lost by somebody trying to help.`}
-      </p>
-    </div>
+        <p className="muted">
+          {accidental.length > deliberate.length
+            ? `One person was asked to make ${targetAtom} disappear. Nobody asked anyone else for anything, and the chain lost ${accidental.length} more ${accidental.length === 1 ? 'property' : 'properties'} anyway.`
+            : deliberate.length
+              ? `One person was asked to make ${targetAtom} disappear, and the rest of the chain held on to what it was given. That is rarer than it looks.`
+              : `One person was asked to make ${targetAtom} disappear and did not manage it. Everything lost here was lost by somebody trying to help.`}
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -394,9 +410,7 @@ function AtomWire({ hops, deathHop }: { hops: Hop[]; deathHop: number | null }) 
           <span key={i} style={{ display: 'contents' }}>
             {i > 0 && (
               <span
-                className={`wire-link${
-                  deathHop !== null && i > deathHop ? ' is-broken' : ' is-done'
-                }`}
+                className={`wire-link${deathHop !== null && i > deathHop ? ' is-broken' : ' is-done'}`}
               />
             )}
             <span
