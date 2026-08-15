@@ -392,8 +392,12 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return state;
 
     case 'ASSIGN_IMPOSTER':
-      /* T8 — exactly one, never first or last hop. */
-      return state;
+      /* T8 — exactly one, never first or last hop. Assignment itself happens
+         in prepareRound, outside the reducer, because it is random; this is
+         for reassigning within a round, which T7 needs when a room fills up
+         after the deal. It replaces rather than adds: two imposters make the
+         reveal unreadable, and the mode only works with one. */
+      return { ...state, round: { ...state.round, imposter: action.assignment } };
 
     case 'CAST_ACCUSATION':
       /* T8 — the room's vote. Never scored. */
@@ -562,22 +566,82 @@ export function pickAIHopIndexes(count: number, chainLength: number): number[] {
   return shuffle(eligible).slice(0, Math.min(count, eligible.length)).sort((a, b) => a - b);
 }
 
+/**
+ * The property the imposter is asked to make disappear.
+ *
+ * Only atoms this claim actually authored are eligible — a brief targeting a
+ * property the claim never carried asks for something impossible, and the
+ * ledger would then show a deliberate loss that never happened.
+ */
+export function pickTargetAtom(claim: Claim): Atom {
+  const present = ATOMS.filter((atom) => claim.atoms?.[atom]?.keywords?.length);
+  const pool = present.length ? present : ATOMS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/**
+ * Exactly one imposter, or none.
+ *
+ * Never the first or last hop, for the same reasons the machine never takes
+ * them. Never a hop the machine is taking either — a language model cannot be
+ * given a secret brief, and the reveal has to name a person.
+ *
+ * The role rotates by round so that everyone plays it across a session: the
+ * point of the mode is only half about detection, and the other half is what
+ * the imposter learns from inside — how small an edit has to be, and how much
+ * it looks like an ordinary mistake. Which hop they sabotage stays random.
+ *
+ * When the rotation lands on somebody who has no eligible hop this round —
+ * short chain, machine in the way — the round goes to whoever does rather
+ * than losing the imposter altogether.
+ */
+export function pickImposter(
+  claim: Claim,
+  players: Player[],
+  chainLength: number,
+  aiHopIndexes: number[],
+  roundNumber: number,
+): ImposterAssignment | null {
+  if (!players.length) return null;
+
+  const eligible: number[] = [];
+  for (let i = 1; i < chainLength - 1; i++) {
+    if (!aiHopIndexes.includes(i)) eligible.push(i);
+  }
+  if (!eligible.length) return null;
+
+  const whoseTurn = (roundNumber - 1) % players.length;
+  const theirs = eligible.filter((i) => i % players.length === whoseTurn);
+  const pool = theirs.length ? theirs : eligible;
+  const hopIndex = pool[Math.floor(Math.random() * pool.length)];
+
+  return {
+    player: players[hopIndex % players.length].name,
+    hopIndex,
+    targetAtom: pickTargetAtom(claim),
+  };
+}
+
 /** Everything random about a round, decided in one place, outside the reducer. */
 export function prepareRound(state: GameState, claims: Claim[]): RoundSetup {
   const playedIds = state.session.results.map((r) => r.claimId);
   const claim = pickClaim(claims, playedIds);
+  const { mode, chainLength, aiHops } = state.settings;
+
+  /* CROWD RECALL has no chain to place a hop in — everyone reads at once. */
+  const aiHopIndexes = mode === 'crowd' ? [] : pickAIHopIndexes(aiHops, chainLength);
 
   return {
     claim,
-    dealtCards: dealCards(state.settings.cardIds, state.settings.chainLength),
-    /* CROWD RECALL has no chain to place a hop in — everyone reads at once. */
-    aiHopIndexes:
-      state.settings.mode === 'crowd'
-        ? []
-        : pickAIHopIndexes(state.settings.aiHops, state.settings.chainLength),
-    splitAssignments:
-      state.settings.mode === 'crowd' ? buildSplitAssignments(claim, state.players) : [],
-    /* T8 assigns the imposter here — exactly one, never first or last. */
-    imposter: null,
+    dealtCards: dealCards(state.settings.cardIds, chainLength),
+    aiHopIndexes,
+    splitAssignments: mode === 'crowd' ? buildSplitAssignments(claim, state.players) : [],
+    /* CROWD RECALL never gets one. Its entire lesson is that a group can fail
+       to hold the truth between them with nobody working against it, and a
+       traitor would give the room something to blame instead. */
+    imposter:
+      mode === 'badfaith'
+        ? pickImposter(claim, state.players, chainLength, aiHopIndexes, state.session.roundNumber)
+        : null,
   };
 }

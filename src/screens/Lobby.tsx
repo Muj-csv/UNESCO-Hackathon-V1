@@ -13,7 +13,7 @@ const MODES: { id: Mode; name: string; note: string; ready: boolean }[] = [
     id: 'badfaith',
     name: 'Bad Faith',
     note: 'One player is quietly given a different brief.',
-    ready: false,
+    ready: true,
   },
   {
     id: 'crowd',
