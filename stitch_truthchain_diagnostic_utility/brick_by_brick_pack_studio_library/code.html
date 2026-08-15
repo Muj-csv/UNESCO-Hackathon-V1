@@ -1,0 +1,330 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Brick-by-Brick | Pack Studio</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@700;900&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c3c6d7",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#ffe083",
+                        "surface-variant": "#e1e2ed",
+                        "on-background": "#191b23",
+                        "on-secondary-fixed": "#231b00",
+                        "on-error-container": "#93000a",
+                        "secondary": "#735c00",
+                        "primary": "#004ac6",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-tertiary-container": "#c1ffc5",
+                        "surface-dim": "#d9d9e5",
+                        "on-secondary-fixed-variant": "#574500",
+                        "tertiary-container": "#007e37",
+                        "surface-container": "#ededf9",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#191b23",
+                        "surface-container-highest": "#e1e2ed",
+                        "background": "#faf8ff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-fixed": "#002109",
+                        "surface-tint": "#0053db",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "secondary-fixed-dim": "#eec200",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#6f5900",
+                        "surface-bright": "#faf8ff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-high": "#e7e7f3",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-container": "#fed01b",
+                        "inverse-primary": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-low": "#f3f3fe",
+                        "on-primary-fixed": "#00174b",
+                        "surface": "#faf8ff",
+                        "tertiary": "#006229"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "offset-sm": "2px",
+                        "offset-md": "4px",
+                        "margin": "32px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "offset-lg": "8px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Work Sans"],
+                        "body-lg": ["Work Sans"],
+                        "headline-xl": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "label-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "code-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for Neo-Brutalist feel */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: #faf8ff; border-left: 2px solid #191b23; }
+        ::-webkit-scrollbar-thumb { background: #004ac6; border: 2px solid #191b23; }
+        ::-webkit-scrollbar-thumb:hover { background: #0053db; }
+        
+        .neo-shadow { box-shadow: 4px 4px 0px 0px #191b23; }
+        .neo-shadow-hover:hover { box-shadow: 6px 6px 0px 0px #191b23; transform: translate(-2px, -2px); }
+        .neo-shadow-active:active { box-shadow: 0px 0px 0px 0px #191b23; transform: translate(4px, 4px); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden min-h-screen">
+<!-- JSON Component: SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-margin gap-4 w-64 border-r-4 border-on-background bg-surface shadow-[4px_4px_0px_0px_#191b23] z-50">
+<!-- Brand Header -->
+<div class="mb-8 border-b-4 border-on-background pb-4">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">CONTROL DECK</h1>
+<p class="font-code-sm text-code-sm text-on-surface-variant uppercase tracking-widest mt-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed inline-block"></span> System Active
+            </p>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex flex-col gap-2 flex-grow">
+<!-- Inactive: Main Canvas -->
+<a class="flex items-center gap-3 p-3 border-2 border-transparent text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Main Canvas</span>
+</a>
+<!-- Inactive: Decay Ledger -->
+<a class="flex items-center gap-3 p-3 border-2 border-transparent text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Decay Ledger</span>
+</a>
+<!-- Active: Pack Studio -->
+<a class="flex items-center gap-3 p-3 bg-secondary-container text-on-secondary-container border-2 border-on-background translate-x-1 translate-y-1 shadow-none font-label-md text-label-md font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span>Pack Studio</span>
+</a>
+<!-- Inactive: Vault -->
+<a class="flex items-center gap-3 p-3 border-2 border-transparent text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span>Vault</span>
+</a>
+</nav>
+<!-- CTA -->
+<div class="mt-auto pt-4 border-t-4 border-on-background">
+<button class="w-full py-4 bg-primary text-on-primary border-2 border-on-background font-label-md text-label-md font-bold text-center uppercase tracking-wider neo-shadow neo-shadow-hover neo-shadow-active transition-all flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add_circle</span> NEW CLAIM
+            </button>
+</div>
+</aside>
+<!-- JSON Component: TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter ml-64 h-20 bg-primary-container border-b-4 border-on-background shadow-[0px_4px_0px_0px_#191b23]">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container">BRICK-BY-BRICK</h2>
+</div>
+<div class="flex items-center gap-6">
+<!-- Trailing Secondary Action -->
+<div class="font-label-md text-label-md text-on-primary-container bg-primary-fixed-dim px-4 py-2 border-2 border-on-background neo-shadow">
+                Room: BX-99
+            </div>
+<!-- Trailing Icon Actions -->
+<div class="flex gap-2">
+<button class="w-10 h-10 bg-surface text-on-surface border-2 border-on-background flex items-center justify-center neo-shadow neo-shadow-hover neo-shadow-active transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-10 h-10 bg-surface text-on-surface border-2 border-on-background flex items-center justify-center neo-shadow neo-shadow-hover neo-shadow-active transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Workspace (3-Column layout achieved via CSS Grid in the workspace area) -->
+<main class="ml-64 pt-20 pb-20 min-h-screen w-[calc(100%-16rem)] flex flex-col p-8 gap-8 relative z-10 bg-[radial-gradient(#e1e2ed_1px,transparent_1px)] [background-size:16px_16px]">
+<!-- Workspace Header -->
+<div class="flex justify-between items-end border-b-4 border-on-background pb-4">
+<div>
+<h2 class="font-headline-xl text-headline-xl text-on-background tracking-tight">LIBRARY</h2>
+<p class="font-code-sm text-code-sm text-on-surface-variant mt-2 uppercase">Local Directory / Pack Studio Workspace</p>
+</div>
+<div class="flex gap-4">
+<button class="px-4 py-2 bg-surface border-2 border-on-background font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> FILTER
+                </button>
+<button class="px-4 py-2 bg-surface border-2 border-on-background font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">sort</span> SORT
+                </button>
+</div>
+</div>
+<!-- Grid of Claim Packs -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 flex-grow">
+<!-- CREATE NEW PACK Tile -->
+<div class="bg-secondary border-4 border-on-background neo-shadow flex flex-col items-center justify-center p-8 group cursor-pointer neo-shadow-hover neo-shadow-active transition-all min-h-[320px]">
+<div class="w-24 h-24 bg-surface rounded-full border-4 border-on-background flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_#191b23]">
+<span class="material-symbols-outlined text-[48px] text-primary font-bold" style="font-variation-settings: 'FILL' 1;">add</span>
+</div>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-secondary text-center tracking-tight leading-tight">CREATE<br>NEW PACK</h3>
+<p class="font-code-sm text-code-sm text-on-secondary-container mt-4 bg-secondary-fixed px-3 py-1 border-2 border-on-background rounded-full">INITIALIZE CANVAS</p>
+</div>
+<!-- Pack Card 1: Health -->
+<div class="bg-surface border-2 border-on-background neo-shadow flex flex-col group cursor-pointer neo-shadow-hover transition-all min-h-[320px]">
+<!-- Header/Image Area -->
+<div class="h-32 bg-primary-container border-b-2 border-on-background relative overflow-hidden flex items-center justify-center" data-alt="A neo-brutalist styled digital graphic representing healthcare data. Thick black outlines define an abstract medical cross and pill shapes. The background is a stark, solid primary blue with high contrast white elements. The aesthetic mimics early-2000s software interfaces with hard shadows and flat colors." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKnFr2lEhtrCF3unR2FYHFdzyNTR6b5EJsEpPO54O31tZVWaeA-LpKw_Md8DOVrwT-HP4Rtafh7rUOO5hqM4L4gpszFY2R-Hn7hK836bqKagr__D554WV_6oSMibVghsChKZp5qKaQWkiDtAa2FCtvTRKjyBcZ-HrR_7lnbeglT10SpIjMCs069JCTpKFCVNzRp7QKeP8EKP_Q82a8jjhjQj-GirA90uJSCmW-IdtEi-_-oCaZakTctw')">
+<div class="absolute inset-0 bg-primary/20 backdrop-blur-[2px]"></div>
+<span class="material-symbols-outlined text-[64px] text-on-primary-container relative z-10" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<!-- Content Area -->
+<div class="p-5 flex flex-col gap-2 flex-grow">
+<div class="flex justify-between items-start gap-2">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Health Pack</h3>
+<span class="shrink-0 bg-tertiary-container text-on-tertiary-container font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.1.4</span>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span>CLAIMS</span>
+<span class="font-bold text-on-surface">1,402</span>
+</div>
+<div class="flex justify-between pt-1">
+<span>AUTHOR</span>
+<span class="font-bold text-on-surface">ID-993A</span>
+</div>
+</div>
+<!-- Action -->
+<div class="mt-auto pt-6">
+<button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+                        </button>
+</div>
+</div>
+</div>
+<!-- Pack Card 2: Disaster -->
+<div class="bg-surface border-2 border-on-background neo-shadow flex flex-col group cursor-pointer neo-shadow-hover transition-all min-h-[320px]">
+<div class="h-32 bg-error-container border-b-2 border-on-background relative overflow-hidden flex items-center justify-center" data-alt="A striking neo-brutalist digital illustration representing disaster recovery data. Bold, thick black outlines depict abstract flames and caution symbols. The primary background color is a stark, solid error red with stark white accents. The design invokes a retro-software alert aesthetic with rigid geometry and absolute lack of gradients." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnFS74qn68HcjqDXr8NwmMsJUkjOUeGYGlO0AoIyjfWgiCG85XSYrRH3HtMQZ_YVQ7SQR7kk1m7bra0icB92T08a5eHZ-x767EKaaJPTbUYaoI1QKeW5qH-NNCbcTFDRrLRtKcPjJJYwUKKOfZyEtNOrKp3uhxDtHr4A5zooWhMLx0lwSK9QHqZbk3nGL6QDWX3uOhOvHeP03Z2VaS8WOhT5XfW3E1bEZjRKUZ_WeuGK8B6HbuXfQHOw')">
+<div class="absolute inset-0 bg-error/10 backdrop-blur-[2px]"></div>
+<span class="material-symbols-outlined text-[64px] text-on-error-container relative z-10" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="p-5 flex flex-col gap-2 flex-grow">
+<div class="flex justify-between items-start gap-2">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Disaster Response</h3>
+<span class="shrink-0 bg-tertiary-container text-on-tertiary-container font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.2.0</span>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span>CLAIMS</span>
+<span class="font-bold text-on-surface">8,991</span>
+</div>
+<div class="flex justify-between pt-1">
+<span>AUTHOR</span>
+<span class="font-bold text-on-surface">SYS-ROOT</span>
+</div>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+                        </button>
+</div>
+</div>
+</div>
+<!-- Pack Card 3: Civic -->
+<div class="bg-surface border-2 border-on-background neo-shadow flex flex-col group cursor-pointer neo-shadow-hover transition-all min-h-[320px]">
+<div class="h-32 bg-secondary-fixed border-b-2 border-on-background relative overflow-hidden flex items-center justify-center" data-alt="A neo-brutalist architectural digital illustration representing civic data infrastructure. Chunky black outlines form simplistic buildings and structural columns. The background is a solid, flat secondary yellow. The aesthetic is heavily influenced by vintage 90s educational software, featuring hard edges, no shading, and high contrast tactile elements." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB-yITf9nq66AueiT1B58LkM9auCAxEmerKjfDh0vdBNP0SvOvP6nTsmSg8eirESV_BPJcVGNKCPCbnPmcC2ARIHukNcjRdsqVLx1DtxzhB5yirDsquApZcl9hqa8x1GFRqD2w72Vw55oHTUXbyWJG3l5av7wv_WCDq42oeSTn-QR5m9QsyEcdaO8SR2OW8N6RZXC8fkYBmqt1Z4a1Ov3vXE0CyrK7yCMXpXbb2B91SD4KTopORWPDXnA')">
+<div class="absolute inset-0 bg-secondary/10 backdrop-blur-[2px]"></div>
+<span class="material-symbols-outlined text-[64px] text-on-secondary-fixed relative z-10" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div class="p-5 flex flex-col gap-2 flex-grow">
+<div class="flex justify-between items-start gap-2">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Civic Infrastructure</h3>
+<span class="shrink-0 bg-surface-variant text-on-surface-variant font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.0.9</span>
+</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+<div class="flex justify-between border-b border-outline-variant/50 pb-1">
+<span>CLAIMS</span>
+<span class="font-bold text-on-surface">342</span>
+</div>
+<div class="flex justify-between pt-1">
+<span>AUTHOR</span>
+<span class="font-bold text-on-surface">ID-112B</span>
+</div>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- System Log Box (Bottom of Workspace) -->
+<div class="mt-8 bg-inverse-surface text-inverse-on-surface border-4 border-on-background neo-shadow p-6 font-code-sm text-code-sm flex flex-col gap-2 h-48 overflow-y-auto relative rounded-sm">
+<div class="absolute top-0 right-0 bg-primary text-on-primary px-3 py-1 border-b-2 border-l-2 border-on-background font-bold tracking-widest">
+                SYS.LOG
+            </div>
+<div class="opacity-60">&gt;&gt; SYSTEM INITIALIZATION SEQUENCE STARTED...</div>
+<div class="opacity-60">&gt;&gt; CHECKING DIRECTORY INTEGRITY... [OK]</div>
+<div class="text-tertiary-fixed-dim">&gt;&gt; MOUNTING WORKSPACE VOLUMES... [SUCCESS]</div>
+<div class="text-secondary-fixed">&gt;&gt; AUTH_TOKEN_VALID: SESSION ACTIVE FOR ID-993A</div>
+<div class="opacity-60">&gt;&gt; WAITING FOR USER INPUT...</div>
+<div class="text-on-primary font-bold bg-primary-fixed-dim/20 inline-block px-2 py-1 border-l-4 border-primary">&gt;&gt; PACK: DISASTER_01 LOADED SUCCESSFULLY.</div>
+<div class="opacity-60">&gt;&gt; PARSING CLAIM DATA... 8,991 RECORDS FOUND.</div>
+<div class="flex items-center gap-2 mt-2 text-primary-fixed-dim">
+<span>C:\BRICK\STUDIO&gt;</span>
+<span class="w-3 h-4 bg-primary-fixed-dim animate-pulse inline-block"></span>
+</div>
+</div>
+</main>
+<!-- JSON Component: Footer -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-16rem)] h-12 z-30 flex justify-between items-center px-gutter py-2 bg-surface-container-highest border-t-2 border-on-background flat no shadow">
+<div class="font-label-md text-label-md font-bold text-on-surface tracking-widest">
+            SYSTEM STATUS: VERIFIED
+        </div>
+<div class="flex gap-6 font-code-sm text-code-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors active:scale-95 border-b border-transparent hover:border-primary" href="#">Privacy Protocol</a>
+<a class="hover:text-primary transition-colors active:scale-95 border-b border-transparent hover:border-primary" href="#">Source Code</a>
+</div>
+</footer>
+<script>
+        // Simple script to auto-scroll the system log to bottom if new content is added dynamically
+        document.addEventListener('DOMContentLoaded', () => {
+            const logBox = document.querySelector('.overflow-y-auto');
+            if (logBox) {
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        });
+    </script>
+</body></html>

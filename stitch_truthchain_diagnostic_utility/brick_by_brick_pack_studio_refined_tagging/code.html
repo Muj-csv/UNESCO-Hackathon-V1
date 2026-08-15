@@ -1,0 +1,343 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Pack Studio - BRICK-BY-BRICK</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&amp;family=Work+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#c3c6d7",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#ffe083",
+                        "surface-variant": "#e1e2ed",
+                        "on-background": "#191b23",
+                        "on-secondary-fixed": "#231b00",
+                        "on-error-container": "#93000a",
+                        "secondary": "#735c00",
+                        "primary": "#004ac6",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-tertiary-container": "#c1ffc5",
+                        "surface-dim": "#d9d9e5",
+                        "on-secondary-fixed-variant": "#574500",
+                        "tertiary-container": "#007e37",
+                        "surface-container": "#ededf9",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "on-surface": "#191b23",
+                        "surface-container-highest": "#e1e2ed",
+                        "background": "#faf8ff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-fixed": "#002109",
+                        "surface-tint": "#0053db",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "secondary-fixed-dim": "#eec200",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#6f5900",
+                        "surface-bright": "#faf8ff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-high": "#e7e7f3",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-container": "#fed01b",
+                        "inverse-primary": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-low": "#f3f3fe",
+                        "on-primary-fixed": "#00174b",
+                        "surface": "#faf8ff",
+                        "tertiary": "#006229"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "offset-sm": "2px",
+                        "offset-md": "4px",
+                        "margin": "32px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "offset-lg": "8px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Work Sans", "sans-serif"],
+                        "body-lg": ["Work Sans", "sans-serif"],
+                        "headline-xl": ["Space Grotesk", "sans-serif"],
+                        "headline-lg": ["Space Grotesk", "sans-serif"],
+                        "code-sm": ["JetBrains Mono", "monospace"],
+                        "headline-lg-mobile": ["Space Grotesk", "sans-serif"],
+                        "label-md": ["JetBrains Mono", "monospace"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "500" }],
+                        "headline-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "code-sm": ["12px", { lineHeight: "1.4", fontWeight: "400" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "label-md": ["14px", { lineHeight: "1.2", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neo-shadow {
+            box-shadow: 4px 4px 0px 0px #191b23;
+        }
+        .neo-shadow-lg {
+            box-shadow: 8px 8px 0px 0px #191b23;
+        }
+        .neo-shadow-sm {
+            box-shadow: 2px 2px 0px 0px #191b23;
+        }
+        .neo-border {
+            border: 2px solid #191b23;
+        }
+        .neo-border-thick {
+            border: 4px solid #191b23;
+        }
+        .neo-inset {
+            border-bottom: 2px solid #c3c6d7;
+            border-right: 2px solid #c3c6d7;
+            border-top: 2px solid #191b23;
+            border-left: 2px solid #191b23;
+        }
+        .neo-interactive:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px #191b23;
+        }
+        .neo-interactive:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- JSON Component: SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-margin gap-4 w-64 border-r-4 border-on-background dark:border-on-surface shadow-[4px_4px_0px_0px_#191b23] bg-surface dark:bg-background z-50 hidden md:flex">
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">CONTROL DECK</h1>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase mt-2">System Active</p>
+</div>
+<button class="w-full bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-headline-lg text-headline-lg-mobile py-3 px-4 border-2 border-on-background dark:border-on-surface neo-interactive transition-all mb-8 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_box</span>
+            NEW CLAIM
+        </button>
+<ul class="flex flex-col gap-2">
+<!-- Main Canvas -->
+<li>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md">Main Canvas</span>
+</a>
+</li>
+<!-- Decay Ledger -->
+<li>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Decay Ledger</span>
+</a>
+</li>
+<!-- Pack Studio - ACTIVE -->
+<li>
+<a class="flex items-center gap-3 p-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary border-2 border-on-background dark:border-on-surface translate-x-1 translate-y-1 shadow-none transition-all font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-md text-label-md">Pack Studio</span>
+</a>
+</li>
+<!-- Vault -->
+<li>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-md text-label-md">Vault</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto flex items-center gap-4 pt-4 border-t-2 border-on-background">
+<div class="w-10 h-10 bg-primary-container border-2 border-on-background flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-primary-container">person</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-background">Investigator 01</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">ID: 9942</span>
+</div>
+</div>
+</nav>
+<!-- JSON Component: TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter ml-64 h-20 border-b-4 border-on-background dark:border-on-surface shadow-[0px_4px_0px_0px_#191b23] bg-primary-container dark:bg-primary-container hidden md:flex">
+<div class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container">BRICK-BY-BRICK</div>
+<div class="flex items-center gap-6">
+<div class="font-label-md text-label-md text-on-primary-container bg-on-primary-fixed-variant px-4 py-2 border-2 border-on-background neo-shadow-sm">
+                Room: BX-99
+            </div>
+<div class="flex gap-2">
+<button class="w-10 h-10 bg-surface flex items-center justify-center border-2 border-on-background neo-interactive text-on-background">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-10 h-10 bg-surface flex items-center justify-center border-2 border-on-background neo-interactive text-on-background">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 mt-20 p-gutter overflow-y-auto h-[calc(100vh-80px-48px)] flex gap-gutter">
+<!-- Workspace (Center Column) -->
+<div class="flex-1 flex flex-col gap-6 max-w-[800px]">
+<!-- Pack Header -->
+<div class="bg-surface-container-low border-4 border-on-background p-6 neo-shadow-lg flex justify-between items-start">
+<div class="flex-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase mb-2 block">Pack Designation</label>
+<input class="w-full bg-surface text-on-background font-headline-lg text-headline-lg-mobile md:text-headline-lg p-3 neo-inset focus:outline-none focus:ring-0" type="text" value="The Sleep Science Pack">
+</div>
+<div class="ml-6 flex items-center gap-2 mt-8">
+<span class="font-label-md text-label-md bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full border-2 border-on-background uppercase">Draft</span>
+</div>
+</div>
+<!-- Baseplate -->
+<div class="bg-surface border-4 border-on-background neo-shadow flex flex-col">
+<div class="bg-primary-container text-on-primary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+<h2 class="font-headline-lg text-headline-lg-mobile uppercase flex items-center gap-2">
+<span class="material-symbols-outlined">foundation</span>
+                        Baseplate Claim
+                    </h2>
+<span class="font-code-sm text-code-sm bg-on-background text-surface px-2 py-1">HOP 0</span>
+</div>
+<div class="p-6">
+<p class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase">Tag Integrity Atoms in the source text:</p>
+<div class="bg-surface-container p-6 border-2 border-on-background font-body-lg text-body-lg leading-relaxed relative neo-inset"><span class="relative inline-block bg-[#dbe1ff] border-b-2 border-on-background px-1 cursor-pointer group">According to a recent study by Oxford University<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Source</span></span>, adults need exactly <span class="relative inline-block bg-[#ffe083] border-b-2 border-on-background px-1 cursor-pointer group">8.5 hours<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Number</span></span> of sleep per night. <span class="relative inline-block bg-[#b4c5ff] border-b-2 border-on-background px-1 cursor-pointer group">Failing to do so<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Cause</span></span> <span class="relative inline-block bg-[#ffdad6] border-b-2 border-on-background px-1 cursor-pointer group">will inevitably lead<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Scope</span></span> to <span class="relative inline-block bg-[#e1e2ed] border-b-2 border-on-background px-1 cursor-pointer group">severe cognitive decline<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Hedge</span></span> within a week.</div>
+<div class="flex gap-2 mt-4 flex-wrap"><div class="w-full border-t-2 border-on-background pt-4 mt-6"><p class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase">Atom Palette</p><div class="flex gap-3 flex-wrap"><button class="flex-1 min-w-[120px] font-bold text-label-md bg-[#dbe1ff] text-[#00174b] border-2 border-on-background p-3 neo-interactive flex flex-col items-center gap-1 shadow-[4px_4px_0px_0px_#191b23]"><span class="material-symbols-outlined">account_balance</span>SOURCE</button><button class="flex-1 min-w-[120px] font-bold text-label-md bg-[#ffe083] text-[#231b00] border-2 border-on-background p-3 neo-interactive flex flex-col items-center gap-1 shadow-[4px_4px_0px_0px_#191b23]"><span class="material-symbols-outlined">tag</span>NUMBER</button><button class="flex-1 min-w-[120px] font-bold text-label-md bg-[#e1e2ed] text-[#434655] border-2 border-on-background p-3 neo-interactive flex flex-col items-center gap-1 shadow-[4px_4px_0px_0px_#191b23]"><span class="material-symbols-outlined">warning</span>HEDGE</button><button class="flex-1 min-w-[120px] font-bold text-label-md bg-[#ffdad6] text-[#93000a] border-2 border-on-background p-3 neo-interactive flex flex-col items-center gap-1 shadow-[4px_4px_0px_0px_#191b23]"><span class="material-symbols-outlined">public</span>SCOPE</button><button class="flex-1 min-w-[120px] font-bold text-label-md bg-[#b4c5ff] text-[#00174b] border-2 border-on-background p-3 neo-interactive flex flex-col items-center gap-1 shadow-[4px_4px_0px_0px_#191b23]"><span class="material-symbols-outlined">link</span>CAUSE</button></div></div></div>
+</div>
+</div>
+<!-- Variant Builder -->
+<div class="bg-surface border-4 border-on-background neo-shadow flex flex-col mt-4">
+<div class="bg-secondary-container text-on-secondary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+<h2 class="font-headline-lg text-headline-lg-mobile uppercase flex items-center gap-2">
+<span class="material-symbols-outlined">call_split</span>
+                        Variant Builder
+                    </h2>
+</div>
+<div class="p-6 flex flex-col gap-6">
+<!-- Hop 1 -->
+<div class="border-2 border-on-background bg-surface-container-low p-4 relative">
+<div class="absolute -top-3 -left-3 bg-on-background text-surface font-code-sm text-code-sm px-2 py-1 border-2 border-on-background">HOP 1</div>
+<textarea class="w-full h-24 bg-surface border-2 border-on-background neo-inset p-3 mt-2 font-body-md text-body-md focus:outline-none" placeholder="Enter degraded claim variant...">A new study says adults need 8 hours of sleep or they will face cognitive decline soon.</textarea>
+<div class="flex items-center gap-4 mt-4">
+<span class="font-label-md text-label-md uppercase">Pressure Applied:</span>
+<select class="bg-surface border-2 border-on-background px-3 py-1 font-code-sm text-code-sm neo-inset focus:outline-none">
+<option>Brevity (Simplification)</option>
+<option>Sensationalism</option>
+<option>Generalization</option>
+</select>
+</div>
+</div>
+<!-- Hop 2 -->
+<div class="border-2 border-on-background bg-surface-container-low p-4 relative">
+<div class="absolute -top-3 -left-3 bg-on-background text-surface font-code-sm text-code-sm px-2 py-1 border-2 border-on-background">HOP 2</div>
+<textarea class="w-full h-24 bg-surface border-2 border-on-background neo-inset p-3 mt-2 font-body-md text-body-md focus:outline-none" placeholder="Enter degraded claim variant...">Scientists say if you don't sleep 8 hours you lose your mind.</textarea>
+<div class="flex items-center gap-4 mt-4">
+<span class="font-label-md text-label-md uppercase">Pressure Applied:</span>
+<select class="bg-surface border-2 border-on-background px-3 py-1 font-code-sm text-code-sm neo-inset focus:outline-none">
+<option>Sensationalism</option>
+<option>Brevity (Simplification)</option>
+<option>Generalization</option>
+</select>
+</div>
+</div>
+<button class="self-start font-label-md text-label-md uppercase bg-surface text-on-background border-2 border-on-background px-4 py-2 neo-interactive flex items-center gap-2 border-dashed">
+<span class="material-symbols-outlined">add</span> ADD HOP
+                    </button>
+</div>
+</div>
+</div>
+<!-- Integrity Panel (Right Sidebar) -->
+<aside class="w-80 flex-shrink-0 flex flex-col gap-6 hidden lg:flex">
+<div class="bg-surface border-4 border-on-background neo-shadow p-6">
+<h3 class="font-headline-lg text-headline-lg-mobile uppercase mb-6 flex items-center gap-2 border-b-2 border-on-background pb-2">
+<span class="material-symbols-outlined">fact_check</span>
+                    Integrity Check
+                </h3>
+<ul class="flex flex-col gap-4">
+<li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-tertiary-fixed border-2 border-on-background"></div>
+<span class="font-label-md text-label-md">Source Atom</span>
+</div>
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</li>
+<li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-secondary-fixed border-2 border-on-background"></div>
+<span class="font-label-md text-label-md">Number Atom</span>
+</div>
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</li>
+<li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-surface-variant border-2 border-on-background"></div>
+<span class="font-label-md text-label-md">Hedge Atom</span>
+</div>
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</li>
+<li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-error-container border-2 border-on-background"></div>
+<span class="font-label-md text-label-md">Scope Atom</span>
+</div>
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</li>
+<li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 bg-primary-fixed border-2 border-on-background"></div>
+<span class="font-label-md text-label-md">Cause Atom</span>
+</div>
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</li>
+</ul>
+<div class="mt-6 pt-4 border-t-2 border-on-background">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md uppercase">Structural Health</span>
+<span class="font-code-sm text-code-sm bg-on-background text-surface px-2">100%</span>
+</div>
+<!-- Pixel Block Progress -->
+<div class="flex gap-1 h-4">
+<div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+<div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+<div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+<div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+<div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+</div>
+</div>
+</div>
+<!-- Publish Action -->
+<button class="mt-auto w-full bg-tertiary text-on-tertiary font-headline-lg text-headline-lg-mobile py-6 px-4 border-4 border-on-background neo-interactive flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">publish</span>
+                SAVE &amp; PUBLISH PACK
+            </button>
+</aside>
+</main>
+<!-- JSON Component: Footer -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-16rem)] z-30 flex justify-between items-center px-gutter py-2 h-12 border-t-2 border-on-background dark:border-on-surface bg-surface-container-highest dark:bg-surface-container-low hidden md:flex">
+<div class="font-label-md text-label-md font-bold text-on-surface dark:text-on-surface">SYSTEM STATUS: VERIFIED</div>
+<div class="flex gap-6">
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Protocol</a>
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Source Code</a>
+</div>
+</footer>
+</body></html>

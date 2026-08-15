@@ -1,0 +1,341 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SABOTAGE DETECTED - Brick-by-Brick</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#faf8ff",
+                        "on-primary-fixed": "#00174b",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f3f3fe",
+                        "surface-variant": "#e1e2ed",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe083",
+                        "on-surface-variant": "#434655",
+                        "on-secondary-fixed": "#231b00",
+                        "error": "#ba1a1a",
+                        "background": "#faf8ff",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c1ffc5",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#fed01b",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-primary-container": "#eeefff",
+                        "on-secondary-container": "#6f5900",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "surface": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#d9d9e5",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-background": "#191b23",
+                        "surface-tint": "#0053db",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-fixed": "#002109",
+                        "tertiary-container": "#007e37",
+                        "secondary-fixed-dim": "#eec200",
+                        "surface-container-high": "#e7e7f3",
+                        "inverse-surface": "#2e3039",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-surface": "#191b23",
+                        "outline": "#737686",
+                        "primary-fixed": "#dbe1ff",
+                        "primary": "#004ac6",
+                        "tertiary": "#006229",
+                        "surface-container": "#ededf9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "margin": "32px",
+                        "offset-lg": "8px",
+                        "offset-md": "4px",
+                        "offset-sm": "2px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "body-md": ["Work Sans"],
+                        "body-lg": ["Work Sans"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-xl": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "500" }],
+                        "code-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neo-brutal-btn {
+            border: 2px solid #191b23;
+            box-shadow: 4px 4px 0px 0px #191b23;
+            transition: all 0.1s ease-in-out;
+        }
+        .neo-brutal-btn:hover {
+            box-shadow: 6px 6px 0px 0px #191b23;
+            transform: translate(-2px, -2px);
+        }
+        .neo-brutal-btn:active {
+            box-shadow: 0px 0px 0px 0px #191b23;
+            transform: translate(4px, 4px);
+        }
+        
+        .neo-brutal-card {
+            border: 2px solid #191b23;
+            box-shadow: 4px 4px 0px 0px #191b23;
+        }
+        
+        .neo-brutal-panel {
+            border: 4px solid #191b23;
+            box-shadow: 8px 8px 0px 0px #191b23;
+        }
+
+        .suspect-card.selected {
+            border-color: #ba1a1a;
+            background-color: #ffdad6;
+        }
+        .suspect-card.selected .vote-btn {
+            background-color: #ba1a1a;
+            color: #ffffff;
+        }
+
+        @keyframes pulse-warning {
+            0% { background-color: #fed01b; }
+            50% { background-color: #ffe083; }
+            100% { background-color: #fed01b; }
+        }
+        .warning-pulse {
+            animation: pulse-warning 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-screen w-screen overflow-hidden flex flex-col selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="w-full h-20 border-b-4 border-on-background bg-primary-container text-on-primary-container shadow-[0px_4px_0px_0px_#191b23] z-40 flex justify-between items-center px-gutter flex-shrink-0">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">dashboard_customize</span>
+<span class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container hidden md:inline-block">BRICK-BY-BRICK</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-black tracking-tighter text-on-primary-container md:hidden">B-B-B</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-label-md text-label-md bg-on-background text-surface px-3 py-1 rounded-sm hidden md:inline-block">Room: BX-99</span>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-primary/10 transition-colors rounded-sm active:opacity-90 text-on-primary-container/80 hover:text-on-primary-container">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 hover:bg-primary/10 transition-colors rounded-sm active:opacity-90 text-on-primary-container/80 hover:text-on-primary-container">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex-1 flex overflow-hidden">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex bg-surface w-64 h-full border-r-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] flex-col p-margin gap-4 z-30 flex-shrink-0">
+<div class="mb-8">
+<div class="font-headline-lg text-headline-lg font-bold text-primary mb-1">CONTROL DECK</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-container"></div>
+                    System Active
+                </div>
+</div>
+<button class="neo-brutal-btn bg-primary text-on-primary font-label-md text-label-md py-3 px-4 mb-6 flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">add_box</span>
+                NEW CLAIM
+            </button>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md bg-secondary-container text-on-secondary-container border-2 border-on-background translate-x-1 translate-y-1 shadow-none" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                    Main Canvas
+                </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                    Decay Ledger
+                </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                    Pack Studio
+                </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors border-2 border-transparent" href="#">
+<span class="material-symbols-outlined">lock</span>
+                    Vault
+                </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-surface-container-low p-gutter pb-24 md:pb-gutter flex flex-col items-center">
+<div class="w-full max-w-5xl mx-auto flex flex-col gap-6">
+<!-- Sabotage Header Banner -->
+<div class="neo-brutal-panel bg-secondary-container p-6 flex flex-col md:flex-row justify-between items-center gap-4 warning-pulse relative overflow-hidden">
+<!-- Overlay pattern for texture -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #191b23 0, #191b23 2px, transparent 2px, transparent 8px);"></div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="bg-on-background text-secondary-container p-3 border-2 border-on-background rounded-sm shadow-[2px_2px_0px_0px_#191b23]">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-background">SABOTAGE DETECTED</h1>
+<p class="font-label-md text-label-md text-on-secondary-container mt-1 bg-surface/50 inline-block px-2 py-1 border-2 border-on-background">A property was lost on purpose. Who is the bad faith actor?</p>
+</div>
+</div>
+<div class="relative z-10 bg-surface border-4 border-on-background p-3 flex flex-col items-center min-w-[120px] shadow-[4px_4px_0px_0px_#191b23]">
+<span class="font-code-sm text-code-sm font-bold text-error mb-1">VOTING ENDS IN</span>
+<div class="font-headline-lg text-headline-lg text-on-background flex items-center gap-1" id="timer"><span class="material-symbols-outlined text-error animate-pulse">timer</span> 12s</div>
+</div>
+</div>
+<!-- Suspect Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
+<!-- Suspect 1 -->
+<div class="neo-brutal-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+<div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A stylized, neo-brutal avatar illustration of a character named Alex with spiky blue hair, wearing a high-tech forensic vest, drawn with thick black outlines and flat vibrant colors against a stark white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTA7OL9ihz64BaAl3n0qk3EIRj1RRSlXqRMnnV3IofQZXkSzfVgu4gHBqqAEGYJlZlTC7aI5IDL8agYbJ_NyTFNg7Bos7De-CNHI6_Mbo9DkHshEVnJdirHOxb31oB--yV62NOzMTv6cNbJ7sIxj60phgvUpWJmQBRGCyz2lytlkICJz7a9cl3WUwmsit_G0n7tBKJJY_9QDZ-c5GQb7GbHBEl5vSsqN2Zwp5ZKoKHejlIFUZcS2B4tQ">
+<div class="absolute inset-0 bg-error/20 hidden group-[.selected]:block"></div>
+</div>
+<div class="text-center w-full">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Alex</h3>
+<div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: ALX-442</div>
+</div>
+<button class="neo-brutal-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">
+                            VOTE
+                        </button>
+</div>
+<!-- Suspect 2 -->
+<div class="neo-brutal-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+<div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A stylized, neo-brutal avatar illustration of a character named Jordan wearing a heavy yellow construction helmet and a tactical turtleneck, drawn with thick black outlines and bold flat colors on a white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrmQLsTHIIrqE_YAHBWmTbLZbj2CAaYkpoxJ0o5yJpQGNPjFklySaRGG7DmHF_RcirAbemLfehAu6gxsff6VrHn5VLqz5U7N4CcxMhJoiqdjYpceB2yKFswZmoDQn5ssUs8JCoX381IV4oDoea2gIVfpe6NoNYwAC6OQQz1rnLa-coBIFjLwikQtVbE-wXUyma2p4JiOXflrKGAuoJymrx9-m_rHJEwljzh21u6QUHlxYYjUtNguU1cA">
+</div>
+<div class="text-center w-full">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Jordan</h3>
+<div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: JDN-911</div>
+</div>
+<button class="neo-brutal-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">
+                            VOTE
+                        </button>
+</div>
+<!-- Suspect 3 -->
+<div class="neo-brutal-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+<div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A stylized, neo-brutal avatar illustration of a character named Sam with oversized round glasses and a neon green forensic lab coat, depicted with chunky black borders and vivid flat colors against a simple background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACYGGf6BQlgAFN0pSW7bBdNwB-EiJHlsB32bezQqXNg0lJIDHURcngzezxb-mB13DlF7QvMF95SEarF6_jkP_g1wi6MqOldn0icMvmWv0wCUE2T3ggOwNcnKsyOeQULwPAkBxIXX8f5JhwskL_aexoFJAdoYZNsQ6nE5rgcBujEFugSkYjw1_CfbyiK5p4MKHpOtLqu3KLBEjKNisc1FFNNduE-hQYpao67U-AduNaM0OeGN23sLZGrA">
+</div>
+<div class="text-center w-full">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Sam</h3>
+<div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: SAM-007</div>
+</div>
+<button class="neo-brutal-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">
+                            VOTE
+                        </button>
+</div>
+<!-- Suspect 4 -->
+<div class="neo-brutal-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+<div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+<img class="w-full h-full object-cover" data-alt="A stylized, neo-brutal avatar illustration of a character named Riley wearing a dark tactical beanie and a heavy mechanical exoskeleton arm, illustrated with thick unrefined black lines and stark flat shading." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgYGBVs_0K_6tRQKewWQ1ZVU2Jn6LhiX60QA3v1asvzvUs-HPTvImQhP7PrZVMSLU0XyS-uj4fYCXt2PyHbcQFZ6zBv-WE2YJXNoAZie7QytyG6wXNsme9_TMizBBfFh5Nl3r1KneVZnUI5NAv-bvje8IHCdr-H7Z0WAmcVGuud9IQLhpQkWQehil7w5Sztu55DTJqXOEufOFRBGLXXESXqzh0jF_zkNFFj2NcAlwzFUUY-VEM7cc4eQ">
+</div>
+<div class="text-center w-full">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Riley</h3>
+<div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: RLY-334</div>
+</div>
+<button class="neo-brutal-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">
+                            VOTE
+                        </button>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="mt-8 flex justify-center">
+<button class="neo-brutal-btn bg-surface-variant text-on-surface-variant font-headline-lg-mobile text-headline-lg-mobile py-4 px-12 opacity-50 cursor-not-allowed flex items-center gap-3" id="lock-vote-btn">
+<span class="material-symbols-outlined text-3xl">how_to_vote</span>
+                        LOCK IN VOTE
+                    </button>
+</div>
+<!-- Evidence Context Window (Decorative) -->
+<div class="mt-12 neo-brutal-panel bg-surface">
+<div class="bg-primary-container border-b-4 border-on-background p-2 flex justify-between items-center">
+<span class="font-label-md text-label-md text-on-primary-container font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">terminal</span>
+                            SYS_LOG: INCIDENT #8849
+                        </span>
+<div class="flex gap-2">
+<div class="w-3 h-3 bg-surface border-2 border-on-background rounded-full"></div>
+<div class="w-3 h-3 bg-surface border-2 border-on-background rounded-full"></div>
+</div>
+</div>
+<div class="p-4 font-code-sm text-code-sm text-on-surface whitespace-pre-wrap leading-relaxed">
+&gt; Analyzing sector B-7...
+&gt; Block validation failed at T-minus 40s.
+&gt; Forceful removal of property signature detected.
+&gt; Consensus broken intentionally.
+&gt; Awaiting player adjudication to proceed.
+                    </div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        function selectSuspect(selectedCard) {
+            // Remove selected class from all
+            document.querySelectorAll('.suspect-card').forEach(card => {
+                card.classList.remove('selected');
+                card.querySelector('.vote-btn').innerText = 'VOTE';
+                card.querySelector('.vote-btn').classList.remove('bg-error', 'text-white');
+                card.querySelector('.vote-btn').classList.add('bg-surface-container-highest', 'text-on-surface');
+            });
+
+            // Add selected class to clicked
+            selectedCard.classList.add('selected');
+            const btn = selectedCard.querySelector('.vote-btn');
+            btn.innerText = 'SELECTED';
+            
+            // Enable main action button
+            const lockBtn = document.getElementById('lock-vote-btn');
+            lockBtn.classList.remove('bg-surface-variant', 'text-on-surface-variant', 'opacity-50', 'cursor-not-allowed');
+            lockBtn.classList.add('bg-error', 'text-on-error', 'cursor-pointer');
+            lockBtn.innerHTML = '<span class="material-symbols-outlined text-3xl" style="font-variation-settings: \'FILL\' 1;">lock</span> CONFIRM LOCK';
+        }
+
+        // Simple timer decrement for effect
+        let timeLeft = 15;
+        const timerElement = document.getElementById('timer');
+        const interval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft >= 0) {
+                timerElement.innerHTML = `<span class="material-symbols-outlined text-error animate-pulse">timer</span> ${timeLeft}s`;
+            } else {
+                clearInterval(interval);
+                timerElement.innerHTML = `<span class="material-symbols-outlined text-error">timer_off</span> 0s`;
+                timerElement.classList.add('text-error');
+            }
+        }, 1000);
+    </script>
+</body></html>
