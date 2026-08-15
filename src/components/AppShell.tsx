@@ -31,6 +31,9 @@ interface NavItem {
   also?: ScreenId[];
 }
 
+/** Screens that lay panels out side by side rather than reading as a column. */
+const WIDE_SCREENS: ScreenId[] = ['lobby', 'packStudio'];
+
 const NAV: NavItem[] = [
   { screen: 'lobby', label: 'Play', short: 'Play', icon: 'grid', also: ['joinRoom'] },
   { screen: 'packStudio', label: 'Pack Studio', short: 'Studio', icon: 'inventory' },
@@ -96,7 +99,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <main className={`app-content${inPlay ? ' bg-grid' : ' bg-dots'}`}>{children}</main>
+        {/* Two column widths. A round is one thing at a time and reads as a
+            column; the lobby and the studio are workbenches and need the
+            room to lay panels side by side. */}
+        <main className={`app-content${inPlay ? ' bg-grid' : ' bg-dots'}`}>
+          <div className={`shell${WIDE_SCREENS.includes(screen) ? ' shell-wide' : ''}`}>
+            {children}
+          </div>
+        </main>
 
         <footer className="statusbar">
           <span className="statusbar-state">

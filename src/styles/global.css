@@ -122,6 +122,7 @@
 
   /* -- layout ------------------------------------------------------------- */
   --shell-max: 1440px;
+  --shell-wide: 1180px;
   --reading-max: 820px;
   --sidebar: 256px;
   --topbar: 80px;
@@ -885,6 +886,12 @@ a {
   padding: var(--gutter) 16px calc(var(--gutter) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+  flex: 1;
+}
+
+/* Workbench screens — the lobby and the studio lay panels side by side. */
+.shell-wide {
+  max-width: var(--shell-wide);
 }
 
 .screen {
@@ -1596,9 +1603,364 @@ select.field {
 
 /* -- lobby ------------------------------------------------------------------ */
 
+.lobby-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Stitch's "SESSION INITIATED" plate. States the machine is idle and ready
+   without pretending anything is happening yet. */
+.lobby-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: 6px 14px;
+}
+
+/* -- mode cards -------------------------------------------------------------
+   The only choice on this screen that changes what the room learns, so it
+   gets the full width and the heaviest treatment. One colour per mode, held
+   consistently: blue chain, red bad faith, green crowd recall. */
+
+.modegrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.modecard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 26px 20px 20px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.modecard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-3-hover);
+}
+
+/* Picked sits DOWN on its shadow — the same physical language as a pressed
+   button, so "chosen" and "pressed" read as the same state.
+
+   Deliberately a 4px travel, not the full 8px the shadow would allow: at
+   card scale a full press drops the card far enough out of line with its
+   neighbours that the row reads as broken rather than as one card chosen. */
+.modecard.is-picked {
+  transform: translate(4px, 4px);
+  box-shadow: var(--shadow-1);
+}
+
+.modecard-accent {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 14px;
+  border-bottom: var(--border-1) solid var(--ink);
+}
+
+.modecard-chain .modecard-accent {
+  background: var(--primary);
+}
+
+.modecard-badfaith .modecard-accent {
+  background: var(--red);
+}
+
+.modecard-crowd .modecard-accent {
+  background: var(--teal-container);
+}
+
+.modecard-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-top: 10px;
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+}
+
+.modecard-chain .modecard-icon {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+
+.modecard-badfaith .modecard-icon {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.modecard-crowd .modecard-icon {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.modecard-name {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.modecard-sub {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.modecard-chain .modecard-sub {
+  color: var(--primary);
+}
+
+.modecard-badfaith .modecard-sub {
+  color: var(--red);
+}
+
+.modecard-crowd .modecard-sub {
+  color: var(--teal);
+}
+
+.modecard-note {
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  flex: 1;
+}
+
+.modecard-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--surface-highest);
+  color: var(--ink-soft);
+}
+
+.modecard.is-picked .modecard-pick {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* -- lobby panels ------------------------------------------------------------ */
+
+.lobby-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.lobby-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-addrow {
+  flex-wrap: nowrap;
+}
+
 .lobby-name {
   flex: 1;
   min-width: 0;
+}
+
+.lobby-you {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+}
+
+/* The gap in the roster, stated rather than left blank. */
+.lobby-empty {
+  margin: 0;
+  padding: 14px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--outline);
+  background: var(--surface-low);
+  border: var(--border-1) dashed var(--outline-variant);
+  border-radius: var(--radius);
+}
+
+.lobby-deck {
+  font-size: var(--text-label);
+  line-height: 1.5;
+}
+
+.lobby-numbers {
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.lobby-numbers .lobby-setting {
+  flex: 1;
+}
+
+.lobby-numbers .field {
+  max-width: none;
+}
+
+/* -- terminal ---------------------------------------------------------------
+   The one control that starts a round, in the frame Stitch gave it: a window
+   with a title bar, the session identity spelled out large, and a single
+   commitment underneath. */
+
+.lobby-uplink {
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lobby-terminal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.lobby-code {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+  padding: 18px 28px;
+  text-align: center;
+}
+
+/* Pass-and-play has no code to show, so it names the play style instead —
+   quieter, because it is a fact rather than something to read out. */
+.lobby-code.is-local {
+  font-size: var(--text-headline-md);
+  background: var(--surface-highest);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+}
+
+.lobby-terminal-body .lobby-warning,
+.lobby-terminal-body .btn-block {
+  width: 100%;
+}
+
+.lobby-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .lobby-code {
+    font-size: 72px;
+    padding: 22px 40px;
+  }
+}
+
+@media (min-width: 900px) {
+  .modegrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .lobby-cols {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+/* -- join room --------------------------------------------------------------- */
+
+.joinroom-tabs {
+  display: flex;
+  gap: 0;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.joinroom-tab {
+  flex: 1;
+  min-height: var(--tap);
+  padding: 10px 16px;
+  background: var(--surface-lowest);
+  color: var(--ink-soft);
+  border: 0;
+  border-right: var(--border-1) solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.joinroom-tab:last-child {
+  border-right: 0;
+}
+
+.joinroom-tab.is-active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+/* Four letters, read aloud across a classroom. Nothing else on the screen is
+   set this large. */
+.joinroom-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-headline-lg);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .lobby-players {
@@ -2025,7 +2387,11 @@ select.field {
   padding-bottom: 0;
 }
 
+/* All five line up whatever their length, so the column reads as a list. */
 .howto-atom-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
@@ -2034,9 +2400,8 @@ select.field {
   background: var(--amber-soft);
   border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
-  padding: 3px 8px;
-  min-width: 5.6em;
-  text-align: center;
+  padding: 5px 9px;
+  min-width: 7.2em;
 }
 
 .howto-atom-note {
@@ -2055,12 +2420,15 @@ select.field {
 
 /* The one rule. Nothing competes with it. */
 .howto-rule-card {
-  background: var(--amber);
-  border: var(--border-2) solid var(--ink);
-  box-shadow: var(--shadow-3);
-  border-left: var(--border-2) solid var(--ink);
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+  padding: 24px;
 }
 
 .howto-rule {
