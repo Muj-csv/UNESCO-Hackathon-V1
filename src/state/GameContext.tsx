@@ -11,7 +11,6 @@ import { projectSimView } from './simultaneousRound';
 import { textInFrontOfPlayer } from './gameReducer';
 import { getCard } from '../data/cards';
 import ResumePrompt from '../components/ResumePrompt';
-import RoomStatusBar from '../components/RoomStatusBar';
 import rawClaims from '../data/claims.en.json';
 import { PackDecodeError, decodePack, readPackFragment } from '../engine/packCodec';
 
@@ -361,12 +360,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  return (
-    <GameContext.Provider value={value}>
-      <RoomStatusBar />
-      {children}
-    </GameContext.Provider>
-  );
+  /* RoomStatusBar used to be mounted here so it could sit above every screen.
+     It is now rendered by AppShell instead, which puts it under the top bar
+     where a system message belongs — and lets it read `screen` to decide
+     whether it has anything to say at all. */
+  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
 
 export function useGame(): GameContextValue {

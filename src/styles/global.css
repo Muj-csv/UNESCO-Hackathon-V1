@@ -372,6 +372,512 @@ a {
    4. LAYOUT
    ========================================================================== */
 
+/* -- the shell ------------------------------------------------------------
+   Sidebar + main column. The sidebar is sticky rather than fixed, so the
+   main column owns the page scroll and no margin arithmetic is needed to
+   keep them apart. */
+
+.app {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -- top bar --------------------------------------------------------------
+   Always present, always blue. It is the one element that never changes
+   between beats, which is what makes the rest of the app feel like one
+   machine rather than a sequence of pages. */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 16px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border-bottom: var(--border-2) solid var(--ink);
+  box-shadow: 0 4px 0 0 var(--ink);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-word,
+.topbar-word-short {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--on-primary-container);
+}
+
+.topbar-word {
+  display: none;
+  font-size: var(--text-headline-md);
+}
+
+.topbar-word-short {
+  font-size: var(--text-body-lg);
+}
+
+.topbar-badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.topbar-room {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: 6px 10px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.icon-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
+}
+
+.icon-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* -- the mark -------------------------------------------------------------- */
+
+.brickmark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+}
+
+.brickmark-lg {
+  width: 44px;
+  height: 44px;
+}
+
+.brickmark-solid {
+  fill: var(--amber);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.brickmark-ghost {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* -- sidebar ---------------------------------------------------------------
+   Hidden below 1024px. Nothing lives here that is not also reachable from
+   the main column, so a phone loses no capability with it gone. */
+
+.sidebar {
+  display: none;
+  position: sticky;
+  top: 0;
+  width: var(--sidebar);
+  flex: none;
+  height: 100vh;
+  height: 100dvh;
+  flex-direction: column;
+  gap: 20px;
+  padding: var(--gutter) 20px;
+  background: var(--surface-lowest);
+  border-right: var(--border-2) solid var(--ink);
+  overflow-y: auto;
+}
+
+.sidebar-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: var(--border-2) solid var(--ink);
+}
+
+.sidebar-mark {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.sidebar-title {
+  font-size: var(--text-headline-md);
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.sidebar-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.sidebar-state-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-container);
+}
+
+.sidebar-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: transparent;
+  color: var(--ink-soft);
+  border: var(--border-1) solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--surface-high);
+  border-color: var(--ink);
+  color: var(--ink);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
+}
+
+.sidebar-link.is-active {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border-color: var(--ink);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
+.sidebar-foot {
+  margin: 0;
+  padding-top: 16px;
+  border-top: var(--border-1) solid var(--outline-variant);
+  font-size: var(--text-code);
+  line-height: 1.5;
+  color: var(--outline);
+}
+
+/* -- stage rail ------------------------------------------------------------
+   Where the room is. Inert on purpose: nothing here navigates, because the
+   route is walked in step by every device in the room. */
+
+.stagerail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stagerail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.stagerail-marker {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-lowest);
+}
+
+.stagerail-item.is-done {
+  color: var(--teal);
+}
+
+.stagerail-item.is-done .stagerail-marker {
+  background: var(--teal-fixed);
+  border-color: var(--ink);
+  color: var(--on-teal-fixed);
+}
+
+.stagerail-item.is-current {
+  color: var(--ink);
+}
+
+.stagerail-item.is-current .stagerail-marker {
+  background: var(--amber);
+  border-color: var(--ink);
+  color: var(--on-amber-deep);
+}
+
+.stagerail-label {
+  min-width: 0;
+}
+
+.stagerail-detail {
+  margin-left: auto;
+  background: var(--ink);
+  color: var(--surface);
+  border-radius: var(--radius);
+  padding: 2px 6px;
+}
+
+/* Vertical, in the sidebar: a connector runs between the markers. */
+.stagerail-rail .stagerail-item {
+  padding-bottom: 14px;
+  position: relative;
+}
+
+.stagerail-rail .stagerail-item::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  bottom: 0;
+  width: 2px;
+  background: var(--outline-variant);
+}
+
+.stagerail-rail .stagerail-item:last-child {
+  padding-bottom: 0;
+}
+
+.stagerail-rail .stagerail-item:last-child::before {
+  display: none;
+}
+
+.stagerail-rail .stagerail-item.is-done::before {
+  background: var(--teal-container);
+}
+
+/* Horizontal, on a phone: scrolls sideways inside itself rather than
+   wrapping, so the current stage can always be scrolled to. */
+.stagerail-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.stagerail-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.stagerail-strip .stagerail-item {
+  flex: none;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+
+.stagerail-strip .stagerail-item.is-current {
+  border-color: var(--ink);
+  background: var(--amber);
+  color: var(--on-amber-deep);
+}
+
+.stagerail-strip .stagerail-item.is-done {
+  border-color: var(--teal-container);
+}
+
+.stagerail-strip .stagerail-marker {
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  border: 0;
+  background: transparent;
+}
+
+.stagerail-mobile {
+  padding: 10px 16px;
+  background: var(--surface-high);
+  border-bottom: var(--border-1) solid var(--ink);
+}
+
+/* -- status bar ------------------------------------------------------------- */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px var(--gutter);
+  background: var(--surface-highest);
+  border-top: var(--border-1) solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  color: var(--ink-soft);
+}
+
+.statusbar-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  flex: none;
+}
+
+.statusbar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-container);
+}
+
+.statusbar-note {
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* -- phone navigation -------------------------------------------------------
+   Absent mid-round: there is nowhere to go that is not abandoning the room. */
+
+.mobilenav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  background: var(--surface-lowest);
+  border-top: var(--border-2) solid var(--ink);
+}
+
+.mobilenav-item {
+  flex: 1;
+  min-height: var(--tap);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  background: transparent;
+  border: var(--border-1) solid transparent;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.mobilenav-item.is-active {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border-color: var(--ink);
+}
+
 .shell {
   width: 100%;
   max-width: var(--reading-max);
@@ -433,9 +939,59 @@ a {
   -webkit-overflow-scrolling: touch;
 }
 
+/* -- responsive ------------------------------------------------------------
+   Three widths: phone (single column, bottom nav), tablet (wider gutters,
+   full wordmark), desktop (the Control Deck appears). */
+
+/* Clearance for the fixed phone nav — only when one is actually rendered. */
+.app.has-mobilenav .app-main {
+  padding-bottom: 72px;
+}
+
+.statusbar {
+  flex-wrap: wrap;
+}
+
+.statusbar-note {
+  display: none;
+}
+
 @media (min-width: 768px) {
   .shell {
     padding: var(--margin) var(--gutter) var(--margin);
+  }
+
+  .topbar {
+    min-height: var(--topbar);
+    padding: 12px var(--gutter);
+  }
+
+  .topbar-word {
+    display: inline;
+  }
+
+  .topbar-word-short {
+    display: none;
+  }
+
+  .statusbar-note {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+  }
+
+  /* The rail is in the sidebar at this width; the strip would repeat it. */
+  .stagerail-mobile,
+  .mobilenav {
+    display: none;
+  }
+
+  .app.has-mobilenav .app-main {
+    padding-bottom: 0;
   }
 }
 
@@ -1737,29 +2293,34 @@ select.field {
 }
 
 /* -- rooms (T7) -------------------------------------------------------------
-   Mounted globally, not per screen — a connection problem has to stay
-   visible and actionable from wherever the room happens to be. */
+   Rendered by AppShell under the top bar, and only when it has something to
+   say or do — the room code and connection dot live in the bar itself. */
 
 .room-status {
-  position: sticky;
-  top: 0;
-  z-index: 40;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  background: var(--ink);
-  color: var(--on-surface-inverse);
+  gap: 12px;
+  padding: 10px var(--gutter);
+  background: var(--surface-highest);
+  color: var(--ink);
   border-bottom: var(--border-1) solid var(--ink);
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  flex-wrap: wrap;
 }
 
-.room-status .btn {
-  box-shadow: none;
+.room-status.is-troubled {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.room-status-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .room-status-dot {
