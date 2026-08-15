@@ -113,6 +113,13 @@ export interface Verification {
 export type AtomOverride = 'alive' | 'lost';
 export type LedgerOverrides = Partial<Record<Atom, AtomOverride>>;
 
+/** T9. A tap during the reveal. Ephemeral — the reducer keeps only a short
+    rolling window, never counted and never the basis of a superlative. */
+export interface Reaction {
+  hopIndex: number;
+  emoji: string;
+}
+
 /* ------------------------------------------------------------------ modes -- */
 
 export type Mode = 'chain' | 'badfaith' | 'crowd';
@@ -220,6 +227,8 @@ export interface RoundState {
   verifyChoice: Atom | null;
   /** T9. Per player name, which atom they think dies first. Never ranked. */
   predictions: Record<string, Atom>;
+  /** T9. A short rolling window of reveal taps. Ephemeral — never counted. */
+  reactions: Reaction[];
   /** T8. */
   imposter: ImposterAssignment | null;
   accusation: string | null;

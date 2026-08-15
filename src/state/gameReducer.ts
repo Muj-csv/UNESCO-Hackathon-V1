@@ -36,7 +36,11 @@ import type { RoomSnapshot } from './roomProtocol';
    ========================================================================== */
 
 /** Bump when the shape of GameState changes. T5 discards on mismatch. */
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
+
+/** T9 — how many recent reveal taps `round.reactions` keeps. Ephemeral flair,
+    not a record; old ones fall off the front as new ones land. */
+const REACTION_WINDOW = 24;
 
 /* ------------------------------------------------------------------ routes -- */
 /* The full route exists from day one. Screens whose feature is not built yet
@@ -138,6 +142,7 @@ export function emptyRound(): RoundState {
     terminalDecision: null,
     verifyChoice: null,
     predictions: {},
+    reactions: [],
     imposter: null,
     accusation: null,
     aiHopIndexes: [],
@@ -453,9 +458,16 @@ export function gameReducer(state: GameState, action: Action): GameState {
         },
       };
 
-    case 'ADD_REACTION':
-      /* T9 — ephemeral. Never stored, never counted. */
-      return state;
+    case 'ADD_REACTION': {
+      /* T9 — ephemeral. A rolling window only, capped so a chatty room can't
+         grow the synced state without bound. Never counted, never the basis
+         of a superlative — see ReactionBar.tsx. */
+      const reactions = [
+        ...state.round.reactions,
+        { hopIndex: action.hopIndex, emoji: action.reaction },
+      ].slice(-REACTION_WINDOW);
+      return { ...state, round: { ...state.round, reactions } };
+    }
 
     default:
       return state;

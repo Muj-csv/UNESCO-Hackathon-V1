@@ -1421,3 +1421,68 @@ select.field {
   text-transform: uppercase;
   color: var(--amber);
 }
+
+/* ============================================================================
+   T9 — prediction stake and live reactions.
+
+   The reaction bar sits under each reveal step. Taps are ephemeral: the pop
+   animation is the only record of one ever having happened, and it's the
+   same wash of feeling Gartic Phone's reveal gets from real-time reactions.
+   ========================================================================== */
+
+.reactionbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.reactionbar-feed {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  min-height: 1.6em;
+}
+
+.reactionbar-pop {
+  font-size: 1.1rem;
+  line-height: 1;
+  animation: reactionbar-pop 900ms ease-out forwards;
+}
+
+@keyframes reactionbar-pop {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px) scale(1.15);
+  }
+}
+
+.reactionbar-row {
+  justify-content: center;
+}
+
+.reactionbar-btn {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 6px 10px;
+  font-size: 1.2rem;
+  line-height: 1;
+  background: var(--paper);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.reactionbar-btn:hover {
+  border-color: var(--amber);
+}
+
+.reactionbar-btn:active {
+  transform: scale(0.92);
+}
