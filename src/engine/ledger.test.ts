@@ -254,3 +254,131 @@ describe('shipped claims', () => {
     expect(lostAtoms(result)).toEqual([atom]);
   });
 });
+
+/* ==========================================================================
+   T2 — the four fields the diagnostic block reads off a verdict.
+
+   The signature screen renders trigger, original phrase and final phrase
+   straight from these. A field the engine leaves undefined does not throw
+   anywhere; it renders the word "undefined" on the one screen the whole
+   project is judged on, so the contract is asserted here instead.
+   ========================================================================== */
+describe('computeLedger — what the diagnostic block reads', () => {
+  it.each(
+    CLAIMS.flatMap((c) => ATOMS.map((a) => [c.id, a, c] as const)),
+  )('%s degraded.%s carries a complete death row', (_id, atom, claim) => {
+    const v = computeLedger(claim, [hop(claim.degraded[atom])])[atom];
+
+    expect(v.alive).toBe(false);
+    expect(v.deathHop).toBe(0);
+    expect(v.deathKind === 'overreach' || v.deathKind === 'dropped').toBe(true);
+
+    /* "Original:" — authored, never derived from the hop text. */
+    expect(typeof v.originalPhrase).toBe('string');
+    expect(v.originalPhrase).toBeTruthy();
+
+    if (v.deathKind === 'overreach') {
+      /* "Final:" — the phrase that actually matched, so the room can see the
+         word that did it rather than being told a category died. */
+      expect(claim.atoms[atom].overreach).toContain(v.finalPhrase);
+    } else {
+      /* Rendered as `dropped` in muted type. Strictly null, never undefined. */
+      expect(v.finalPhrase).toBeNull();
+    }
+  });
+
+  it('never fills in a death row for an atom that survived', () => {
+    const v = computeLedger(rainfall, [hop(rainfall.originalText)]).SCOPE;
+    expect(v.alive).toBe(true);
+    expect(v.deathHop).toBeNull();
+    expect(v.deathKind).toBeNull();
+    expect(v.deathCardId).toBeNull();
+    expect(v.deathPlayer).toBeNull();
+    expect(v.finalPhrase).toBeNull();
+  });
+
+  /* "Trigger:" names the pressure the claim died under. Reading it off the
+     wrong hop would put a card in front of a player who never held it. */
+  it('takes the trigger from the hop that killed it, not the last hop', () => {
+    const hops = [
+      hop(rainfall.originalText, { player: 'Dan', cardId: 'chars' }),
+      hop(rainfall.degraded.CAUSE, { player: 'Rowena', cardId: 'certain' }),
+      hop(rainfall.degraded.CAUSE, { player: 'Kiel', cardId: 'land' }),
+    ];
+    const v = computeLedger(rainfall, hops).CAUSE;
+    expect(v.deathHop).toBe(1);
+    expect(v.deathCardId).toBe('certain');
+    expect(v.deathPlayer).toBe('Rowena');
+  });
+
+  /* The ledger attributes this one to "(AI participant)". It reads isAI off
+     the hop, so the verdict must point at the right index for that to work. */
+  it('points at a machine hop the same way it points at anyone else', () => {
+    const hops = [
+      hop(rainfall.originalText, { player: 'Dan' }),
+      hop(rainfall.degraded.HEDGE, { player: 'Auto-summariser', isAI: true, cardId: 'headline' }),
+    ];
+    const v = computeLedger(rainfall, hops).HEDGE;
+    expect(v.deathHop).toBe(1);
+    expect(hops[v.deathHop].isAI).toBe(true);
+  });
+});
+
+/* ==========================================================================
+   T2 part C — the engine proposes, the room decides.
+
+   Only uncertain rows are worth asking about. Prompting on every row turns
+   the payoff screen into a form, and prompting on none of them hands a
+   keyword match more authority than it has earned.
+   ========================================================================== */
+describe('computeLedger — which rows the room is asked about', () => {
+  /* What T10's authoring produces before anyone has tagged keywords: a claim
+     the engine cannot read at all. It must say so rather than assert. */
+  const untagged: Claim = {
+    id: 'untagged-pack-claim',
+    topic: 'Test',
+    lang: 'en',
+    originalText: 'A claim from a pack whose atoms have not been tagged yet.',
+    atoms: ATOMS.reduce((acc, atom) => {
+      acc[atom] = { truth: `what ${atom} holds` };
+      return acc;
+    }, {} as Claim['atoms']),
+    degraded: ATOMS.reduce((acc, atom) => {
+      acc[atom] = 'A shorter version.';
+      return acc;
+    }, {} as Claim['degraded']),
+  };
+
+  it('asks about an atom it has nothing to match against', () => {
+    const result = computeLedger(untagged, [hop('Something else entirely.')]);
+    expect(result.CAUSE.alive).toBe(true);
+    expect(result.CAUSE.confidence).toBe('uncertain');
+    expect(uncertainAtoms(result)).toEqual([...ATOMS]);
+  });
+
+  it('does not let a mid-chain check launder an atom it still cannot read', () => {
+    const result = computeLedger(untagged, [hop('Something else entirely.')], [
+      { hopIndex: 0, atoms: ['CAUSE'] },
+    ]);
+    expect(result.CAUSE.confidence).toBe('uncertain');
+  });
+
+  /* A matched overreach is evidence, however much text went with it. */
+  it('is confident about an overreach even when the hop cut most of the text', () => {
+    const result = computeLedger(rainfall, [hop('Rainfall causes flooding.')]);
+    expect(result.CAUSE.deathKind).toBe('overreach');
+    expect(result.CAUSE.confidence).toBe('matched');
+    expect(uncertainAtoms(result)).not.toContain('CAUSE');
+  });
+
+  it('settles an uncertain row the way the room called it', () => {
+    const hops = [hop('Flooding is up this year.')];
+    const proposed = computeLedger(rainfall, hops);
+    expect(proposed.SCOPE.confidence).toBe('uncertain');
+
+    const decided = computeLedger(rainfall, hops, [], { SCOPE: 'alive' });
+    expect(decided.SCOPE.alive).toBe(true);
+    expect(decided.SCOPE.confidence).toBe('override');
+    expect(uncertainAtoms(decided)).not.toContain('SCOPE');
+  });
+});

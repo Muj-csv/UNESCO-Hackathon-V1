@@ -71,7 +71,10 @@ function verdictForAtom(
       deathHop = null;
       deathKind = null;
       finalPhrase = null;
-      confidence = 'matched';
+      /* A check restores the atom, but it cannot make an unreadable one
+         readable: with nothing authored to match against, the engine still
+         has no opinion and the row still belongs to the room (T2 part C). */
+      confidence = judgeable ? 'matched' : 'uncertain';
       continue;
     }
 
