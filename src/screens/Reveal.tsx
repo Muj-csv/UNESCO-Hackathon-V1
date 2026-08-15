@@ -1,6 +1,7 @@
 import { useGame } from '../state/GameContext';
 import { cardName } from '../data/cards';
 import StageBar from '../components/StageBar';
+import ReactionBar from '../components/ReactionBar';
 
 /* The chain, one version at a time. Watching it arrive in order is what makes
    the loss legible — a diff would show the same thing and land for nobody. */
@@ -33,6 +34,9 @@ export default function Reveal() {
           <p className="paper-text">{hop.text}</p>
         </div>
       ))}
+
+      {/* T9 fills this in — reactions as each version lands. */}
+      <ReactionBar />
 
       {!done ? (
         <button
