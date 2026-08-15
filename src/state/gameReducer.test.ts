@@ -339,9 +339,11 @@ describe('prepareRound', () => {
     expect(prepareRound(state, CLAIMS).claim).toBeTruthy();
   });
 
-  it('leaves the AI hops and the imposter to their own tasks', () => {
+  /* T6 now deals the machine's hops here — see aiHops.test.ts for where they
+     may land. The imposter is still T8's to assign. */
+  it('deals the machine its hops and leaves the imposter to its own task', () => {
     const setup = prepareRound(withPlayers(5), CLAIMS);
-    expect(setup.aiHopIndexes).toEqual([]);
+    expect(setup.aiHopIndexes.length).toBeGreaterThan(0);
     expect(setup.imposter).toBe(null);
   });
 });

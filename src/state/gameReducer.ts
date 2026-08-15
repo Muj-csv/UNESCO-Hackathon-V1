@@ -337,9 +337,34 @@ export function gameReducer(state: GameState, action: Action): GameState {
          device, so this drops players too, unlike NEW_GAME. */
       return initialState;
 
-    case 'SET_AI_HOP':
-      /* T6 — the machine's rewrite, audited by the same ledger as everyone. */
-      return state;
+    case 'SET_AI_HOP': {
+      /* T6 — the machine's rewrite, audited by the same ledger as everyone.
+
+         This carries the hop index it was generated for, and SUBMIT_HOP does
+         not. That matters because the machine's turn is the only one that
+         arrives over the network: a slow response can land after the room has
+         already moved on, and submitting it at whatever `currentHop` happens
+         to be by then would write the machine's text into a person's hop. */
+      const { hopIndex, text } = action;
+      if (hopIndex !== state.round.currentHop) return state;
+      if (hopIndex >= state.settings.chainLength) return state;
+      if (!state.round.aiHopIndexes.includes(hopIndex)) return state;
+
+      const hop: Hop = {
+        player: hopPlayerName(state, hopIndex),
+        text,
+        cardId: state.round.dealtCards[hopIndex] ?? null,
+        isAI: true,
+      };
+
+      const currentHop = hopIndex + 1;
+      const done = currentHop >= state.settings.chainLength;
+      return {
+        ...state,
+        screen: done ? 'terminal' : state.screen,
+        round: { ...state.round, hops: [...state.round.hops, hop], currentHop },
+      };
+    }
 
     case 'SET_TURING_GUESS':
       /* T6 — which hop the room voted was the machine. */
@@ -505,6 +530,25 @@ export function buildSplitAssignments(claim: Claim, players: Player[]): SplitAss
   });
 }
 
+/**
+ * Which hops the machine takes.
+ *
+ * Never first and never last, for two different reasons. Not first, because
+ * the first hop is the only one that sees the claim itself and handing that to
+ * a summariser skips the human step the round is about. Not last, because the
+ * final version is what the terminal reader judges, and a machine writing it
+ * turns the ending into a demo of a summariser rather than a record of a room.
+ *
+ * A chain too short to have a middle simply has no machine hop.
+ */
+export function pickAIHopIndexes(count: number, chainLength: number): number[] {
+  if (count <= 0) return [];
+  const eligible: number[] = [];
+  for (let i = 1; i < chainLength - 1; i++) eligible.push(i);
+  if (!eligible.length) return [];
+  return shuffle(eligible).slice(0, Math.min(count, eligible.length)).sort((a, b) => a - b);
+}
+
 /** Everything random about a round, decided in one place, outside the reducer. */
 export function prepareRound(state: GameState, claims: Claim[]): RoundSetup {
   const playedIds = state.session.results.map((r) => r.claimId);
@@ -513,8 +557,11 @@ export function prepareRound(state: GameState, claims: Claim[]): RoundSetup {
   return {
     claim,
     dealtCards: dealCards(state.settings.cardIds, state.settings.chainLength),
-    /* T6 places the machine's hops here — randomised, never first or last. */
-    aiHopIndexes: [],
+    /* CROWD RECALL has no chain to place a hop in — everyone reads at once. */
+    aiHopIndexes:
+      state.settings.mode === 'crowd'
+        ? []
+        : pickAIHopIndexes(state.settings.aiHops, state.settings.chainLength),
     splitAssignments:
       state.settings.mode === 'crowd' ? buildSplitAssignments(claim, state.players) : [],
     /* T8 assigns the imposter here — exactly one, never first or last. */
