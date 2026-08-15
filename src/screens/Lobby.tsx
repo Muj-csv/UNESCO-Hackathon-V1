@@ -24,11 +24,12 @@ const MODES: { id: Mode; name: string; note: string; ready: boolean }[] = [
 ];
 
 export default function Lobby() {
-  const { state, dispatch, startRound } = useGame();
-  const { players, settings } = state;
+  const { state, dispatch, startRound, roomStatus } = useGame();
+  const { players, settings, room } = state;
   const [name, setName] = useState('');
   const warnings = selectLobbyWarnings(state);
   const canStart = players.length >= 2;
+  const inRoom = !!room.code;
 
   const addPlayer = () => {
     const trimmed = name.trim();
@@ -36,6 +37,18 @@ export default function Lobby() {
     dispatch({ type: 'ADD_PLAYER', name: trimmed });
     setName('');
   };
+
+  const goCreateRoom = () => {
+    window.location.hash = '';
+    dispatch({ type: 'GO_TO', screen: 'joinRoom' });
+  };
+
+  const goJoinRoom = () => {
+    window.location.hash = 'join';
+    dispatch({ type: 'GO_TO', screen: 'joinRoom' });
+  };
+
+  const leaveRoom = () => dispatch({ type: 'NEW_GAME' });
 
   return (
     <div className="screen">
@@ -52,6 +65,31 @@ export default function Lobby() {
         How to play
       </button>
 
+      {inRoom ? (
+        <section className="stack">
+          <p className="eyebrow">Room</p>
+          <div className="row">
+            <span className="mono lobby-seat">{room.code}</span>
+            <span className="muted">
+              {roomStatus === 'connected' ? 'Connected' : roomStatus === 'error' ? 'Reconnecting…' : 'Connecting…'}
+            </span>
+          </div>
+          {players.length > 0 && (
+            <ul className="lobby-players">
+              {players.map((p, i) => (
+                <li key={p.id}>
+                  <span className="mono lobby-seat">{i + 1}</span>
+                  <span>{p.name}</span>
+                  {p.id === room.playerId && <span className="muted"> (you)</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+          <button className="btn btn-ghost btn-small" onClick={leaveRoom}>
+            Leave room
+          </button>
+        </section>
+      ) : (
       <section className="stack">
         <p className="eyebrow">Who is playing</p>
         <div className="row">
@@ -86,6 +124,7 @@ export default function Lobby() {
           </ul>
         )}
       </section>
+      )}
 
       <section className="stack">
         <p className="eyebrow">Mode</p>
@@ -202,17 +241,27 @@ export default function Lobby() {
         </div>
       ))}
 
-      <button className="btn btn-primary btn-block" disabled={!canStart} onClick={startRound}>
-        {canStart ? 'Start the round' : 'Add at least two players'}
-      </button>
+      {inRoom && !room.isHost ? (
+        <button className="btn btn-primary btn-block" disabled>
+          Waiting for the host to start…
+        </button>
+      ) : (
+        <button className="btn btn-primary btn-block" disabled={!canStart} onClick={startRound}>
+          {canStart ? 'Start the round' : 'Add at least two players'}
+        </button>
+      )}
 
       <div className="row lobby-later">
-        <button className="btn btn-ghost btn-small" disabled>
-          Create room
-        </button>
-        <button className="btn btn-ghost btn-small" disabled>
-          Join room
-        </button>
+        {!inRoom && (
+          <>
+            <button className="btn btn-ghost btn-small" onClick={goCreateRoom}>
+              Create room
+            </button>
+            <button className="btn btn-ghost btn-small" onClick={goJoinRoom}>
+              Join room
+            </button>
+          </>
+        )}
         <button className="btn btn-ghost btn-small" disabled>
           Pack Studio
         </button>

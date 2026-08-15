@@ -18,6 +18,8 @@ import type {
 } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { DEFAULT_PRESET_ID, cardsForPreset, getPreset } from '../data/presets';
+import { isSharedGameState } from './roomProtocol';
+import type { RoomSnapshot } from './roomProtocol';
 
 /* ============================================================================
    Every state transition in the game.
@@ -383,13 +385,50 @@ export function gameReducer(state: GameState, action: Action): GameState {
          scored: the room does not win by finding it, and most rooms do not. */
       return { ...state, round: { ...state.round, turingGuess: action.hopIndex } };
 
-    case 'JOIN_ROOM':
-      /* T7 — code, playerId, host flag. */
-      return state;
+    case 'JOIN_ROOM': {
+      /* T7 — code, playerId, host flag. From here the server is the source
+         of truth for the player roster and shared round state, reconciled
+         on every SYNC_ROOM_STATE.
 
-    case 'SYNC_ROOM_STATE':
-      /* T7 — reconcile the 1.5s poll against optimistic local state. */
-      return state;
+         An empty code means "go offline" — the failure-handling fallback
+         ("continue in pass-and-play with current state") dispatches this
+         shape rather than a dedicated action, since only actions the
+         reducer already declares may be added to here. Round, session, and
+         players are deliberately untouched: the whole point is to keep
+         playing with what's already on screen. */
+      if (!action.code) {
+        return { ...state, room: { code: null, playerId: null, isHost: false, status: 'offline', lastSyncAt: null } };
+      }
+      return {
+        ...state,
+        room: {
+          code: action.code,
+          playerId: action.playerId,
+          isHost: action.isHost,
+          status: 'connected',
+          lastSyncAt: Date.now(),
+        },
+      };
+    }
+
+    case 'SYNC_ROOM_STATE': {
+      /* T7 — reconcile the 1.5s poll against optimistic local state. The
+         payload is a RoomSnapshot (see roomProtocol.ts): `players` replaces
+         the local roster (room membership is server-owned, not ADD_PLAYER),
+         and `game` — when someone has pushed one — replaces the shared
+         slice of state. `room` itself is connection info and stays local. */
+      const snapshot = action.payload as Partial<RoomSnapshot>;
+      const players: Player[] = Array.isArray(snapshot.players)
+        ? snapshot.players.map((p) => ({ id: p.id, name: p.name }))
+        : state.players;
+      const shared = isSharedGameState(snapshot.game) ? snapshot.game : {};
+      return {
+        ...state,
+        ...shared,
+        players,
+        room: { ...state.room, lastSyncAt: Date.now() },
+      };
+    }
 
     case 'ASSIGN_IMPOSTER':
       /* T8 — exactly one, never first or last hop. */
@@ -427,6 +466,19 @@ function makePlayerId(name: string, index: number): string {
 export function hopPlayerName(state: GameState, index: number): string {
   if (!state.players.length) return `Player ${index + 1}`;
   return state.players[index % state.players.length].name;
+}
+
+/**
+ * The id of whoever takes hop `index` — mirrors `hopPlayerName`.
+ *
+ * T7: lets a room device check "is the current hop actually mine" against
+ * `state.room.playerId`, rather than trusting whichever device happens to
+ * tap the handoff button. Pass-and-play has no id to check against — the
+ * tap itself is the identity confirmation there, unchanged.
+ */
+export function hopPlayerId(state: GameState, index: number): string | null {
+  if (!state.players.length) return null;
+  return state.players[index % state.players.length].id;
 }
 
 /** The card in front of the player right now. */

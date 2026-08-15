@@ -4,6 +4,7 @@ import type { ScreenId } from './types/contracts';
 import { useGame, useGameDispatch } from './state/GameContext';
 
 import Lobby from './screens/Lobby';
+import JoinRoom from './screens/JoinRoom';
 import HowToPlay from './screens/HowToPlay';
 import Brief from './screens/Brief';
 import Prediction from './screens/Prediction';
@@ -41,6 +42,7 @@ import PackStudio from './screens/PackStudio';
 
 export const SCREENS: Partial<Record<ScreenId, ComponentType>> = {
   lobby: Lobby,
+  joinRoom: JoinRoom, //             T7 — not in the round route, reached via GO_TO
   howToPlay: HowToPlay, //           T3
   brief: Brief, //                   T3
   prediction: Prediction, //         T9  — skips itself
@@ -58,8 +60,6 @@ export const SCREENS: Partial<Record<ScreenId, ComponentType>> = {
   splitDistribute: SplitDistribute,
   splitReconstruct: SplitReconstruct,
   packStudio: PackStudio, //         T10
-  /* joinRoom is T7's. It is not in the round route, and SelfSkip returns to
-     the lobby until that screen exists. */
 };
 
 export default function App() {

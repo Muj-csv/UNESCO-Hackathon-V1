@@ -1341,6 +1341,44 @@ select.field {
   color: var(--ink-text-soft);
 }
 
+/* ============================================================ T7 — rooms */
+/* Mounted globally (see GameContext.tsx), not screen-specific — Round.tsx is
+   frozen, so a connection problem or a stuck turn has to stay visible and
+   actionable from wherever the room happens to be. */
+
+.room-status {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--ink);
+  color: var(--ink-text);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+
+.room-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-line);
+}
+
+.room-status-dot.is-connected {
+  background: var(--teal-on-ink);
+}
+
+.room-status-dot.is-connecting {
+  background: var(--amber-on-ink);
+}
+
+.room-status-dot.is-error {
+  background: var(--red-on-ink);
+}
+
 /* ------------------------------------------------------ T6 turing hop -- */
 /* Every version, offered as a choice. Nothing here is marked right or wrong:
    the room's pick is outlined, the machine's hop is named, and that is all.  */

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
-import { hopPlayerName, textInFrontOfPlayer } from '../state/gameReducer';
+import { hopPlayerId, hopPlayerName, textInFrontOfPlayer } from '../state/gameReducer';
 import { getCard } from '../data/cards';
 import StageBar from '../components/StageBar';
 import AIHopBeat from '../components/AIHopBeat';
@@ -26,6 +26,14 @@ import HopInput, { hopInputValid } from '../components/HopInput';
 
    Skipping the gate also leaves `handedOver` false for a machine hop, which
    is what keeps the timer from starting and auto-submitting underneath it.
+
+   T7 CHANGE, APPROVED BEFORE MAKING IT: in a room, every device polls the
+   same state, so without a check every device showed the same "Pass the
+   device to <player>" screen — any of them could tap "I'm <player>" and
+   write that player's hop. The gate now also asks "is this device that
+   player's?" (`isMyTurn`, below) and renders a passive waiting view instead
+   of the button when it isn't. Pass-and-play has no room id to check
+   against, so `isMyTurn` is always true there — unchanged from before.
    ========================================================================== */
 
 export default function Round() {
@@ -37,6 +45,9 @@ export default function Round() {
   const player = hopPlayerName(state, index);
   const card = getCard(round.dealtCards[index] ?? null);
   const source = textInFrontOfPlayer(state);
+  /* T7: which device this hop actually belongs to. No room means pass-and-play
+     — one shared device, so it's always "this one". */
+  const isMyTurn = !state.room.code || hopPlayerId(state, index) === state.room.playerId;
 
   /* Component state, not reducer state. The prototype kept _draft, _passHidden
      and _cardShownFor in the store because it rebuilt the DOM every render. */
@@ -79,6 +90,18 @@ export default function Round() {
   if (!round.claim) return null;
 
   if (!handedOver && !isMachineHop) {
+    if (!isMyTurn) {
+      return (
+        <div className="screen">
+          <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} />
+          <div className="handoff">
+            <p className="eyebrow">Waiting on</p>
+            <h1>{player}</h1>
+            <p className="muted">This isn't your device's turn — sit tight.</p>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="screen">
         <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} />

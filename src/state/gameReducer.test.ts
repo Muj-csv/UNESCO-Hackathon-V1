@@ -7,10 +7,12 @@ import {
   dealCards,
   gameReducer,
   hopsForLedger,
+  hopPlayerId,
   initialState,
   prepareRound,
   routeFor,
   selectLobbyWarnings,
+  settingsForPreset,
 } from './gameReducer';
 import rawClaims from '../data/claims.en.json';
 
@@ -432,6 +434,121 @@ describe('SET_VERIFY_CHOICE', () => {
     let state = run(started(5), { type: 'SET_VERIFY_CHOICE', atom: 'SCOPE' });
     state = run(state, { type: 'BEGIN_ROUND', setup: prepareRound(state, CLAIMS) });
     expect(state.round.verifyChoice).toBeNull();
+  });
+});
+
+/* T7: backs Round.tsx's per-device turn check — a room device must be able
+   to tell whether the current hop is actually its player's before it shows
+   the "I'm <player>" button. */
+describe('hopPlayerId', () => {
+  it('returns the id of whoever takes that hop, cycling like hopPlayerName', () => {
+    const withRoom = withPlayers(3);
+    const ids = withRoom.players.map((p) => p.id);
+    expect(hopPlayerId(withRoom, 0)).toBe(ids[0]);
+    expect(hopPlayerId(withRoom, 1)).toBe(ids[1]);
+    expect(hopPlayerId(withRoom, 3)).toBe(ids[0]); // wraps
+  });
+
+  it('returns null with no players, rather than throwing', () => {
+    expect(hopPlayerId(initialState, 0)).toBeNull();
+  });
+});
+
+describe('JOIN_ROOM', () => {
+  it('records the connection and marks it connected', () => {
+    const state = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true });
+    expect(state.room).toMatchObject({ code: 'ABCD', playerId: 'p1', isHost: true, status: 'connected' });
+    expect(state.room.lastSyncAt).not.toBeNull();
+  });
+
+  it('does not touch players or settings by itself', () => {
+    const withRoom = withPlayers(2);
+    const state = run(withRoom, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    expect(state.players).toEqual(withRoom.players);
+    expect(state.settings).toEqual(withRoom.settings);
+  });
+
+  /* T7 failure handling: "continue in pass-and-play with current state" is
+     an empty-code JOIN_ROOM rather than a new action — see the reducer case. */
+  it('treats an empty code as going offline, keeping everything else', () => {
+    const midRound = run(
+      started(5),
+      { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true },
+      { type: 'SUBMIT_HOP', text: 'A version.' },
+    );
+    const state = run(midRound, { type: 'JOIN_ROOM', code: '', playerId: '', isHost: false });
+
+    expect(state.room).toEqual({ code: null, playerId: null, isHost: false, status: 'offline', lastSyncAt: null });
+    expect(state.round).toEqual(midRound.round);
+    expect(state.screen).toBe(midRound.screen);
+    expect(state.players).toEqual(midRound.players);
+  });
+});
+
+describe('SYNC_ROOM_STATE', () => {
+  type SnapshotPlayer = { id: string; name: string; isHost: boolean; connected: boolean };
+  const snapshot = (over: Partial<{ players: SnapshotPlayer[]; game: unknown }> = {}) => ({
+    code: 'ABCD',
+    hostId: 'p1',
+    players: [{ id: 'p1', name: 'Ana', isHost: true, connected: true }],
+    createdAt: 0,
+    updatedAt: 0,
+    expiresAt: 0,
+    seq: 1,
+    game: null,
+    ...over,
+  });
+
+  it('replaces the player roster from the room, not ADD_PLAYER', () => {
+    const state = run(
+      initialState,
+      { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true },
+      {
+        type: 'SYNC_ROOM_STATE',
+        payload: snapshot({
+          players: [
+            { id: 'p1', name: 'Ana', isHost: true, connected: true },
+            { id: 'p2', name: 'Ben', isHost: false, connected: true },
+          ],
+        }),
+      },
+    );
+    expect(state.players).toEqual([
+      { id: 'p1', name: 'Ana' },
+      { id: 'p2', name: 'Ben' },
+    ]);
+  });
+
+  it('leaves screen/round/settings alone when nobody has pushed a shared state yet', () => {
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot({ game: null }) });
+    expect(state.screen).toBe(withRoom.screen);
+    expect(state.round).toEqual(withRoom.round);
+  });
+
+  it('applies a shared game payload once someone has pushed one', () => {
+    const shared = {
+      screen: 'round',
+      settings: settingsForPreset('standard', 'chain'),
+      round: { ...initialState.round, currentHop: 2 },
+      session: initialState.session,
+      briefSeen: true,
+      packClaims: null,
+    };
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot({ game: shared }) });
+
+    expect(state.screen).toBe('round');
+    expect(state.round.currentHop).toBe(2);
+    expect(state.briefSeen).toBe(true);
+  });
+
+  it('keeps connection info local rather than adopting anything from the payload', () => {
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p2', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot() });
+    expect(state.room.code).toBe('ABCD');
+    expect(state.room.playerId).toBe('p2');
+    expect(state.room.isHost).toBe(false);
   });
 });
 
