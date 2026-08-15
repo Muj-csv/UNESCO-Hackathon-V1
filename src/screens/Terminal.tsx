@@ -2,15 +2,30 @@ import { useState } from 'react';
 import type { Atom, TerminalDecision } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { finalText } from '../state/gameReducer';
+import { ATOM_ICON } from '../data/atoms';
+import Icon from '../components/Icon';
+import type { IconName } from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* The last reader. They see only what reached them — no original, no chain.
    Exactly the position anyone is in when something lands in their feed. */
 
-const CHOICES: { id: TerminalDecision; label: string; note: string }[] = [
-  { id: 'share', label: 'Share it', note: 'Pass it on as it stands.' },
-  { id: 'flag', label: 'Flag it', note: "Something about it doesn't sit right." },
-  { id: 'verify', label: 'Check it first', note: 'Find out before doing anything.' },
+const CHOICES: { id: TerminalDecision; label: string; note: string; icon: IconName; tone: string }[] = [
+  { id: 'share', label: 'Share it', note: 'Pass it on as it stands.', icon: 'send', tone: 'share' },
+  {
+    id: 'flag',
+    label: 'Flag it',
+    note: "Something about it doesn't sit right.",
+    icon: 'alert',
+    tone: 'flag',
+  },
+  {
+    id: 'verify',
+    label: 'Check it first',
+    note: 'Find out before doing anything.',
+    icon: 'search',
+    tone: 'verify',
+  },
 ];
 
 /* T4 — worded as a person would actually ask it, not as the atom's name.
@@ -43,31 +58,55 @@ export default function Terminal() {
 
   return (
     <div className="screen">
-      <StageBar label="It reaches you" />
+      <StageBar label="It reaches you" note="No chain, no original" />
+
       <p className="lede">This turned up on your phone. You have not seen anything else about it.</p>
 
-      <div className="paper paper-final">
+      {/* The version that reached the end, alone on the screen — because that
+          is all a real reader ever gets. */}
+      <div className="paper paper-final terminal-claim">
         <p className="paper-text">{finalText(state)}</p>
       </div>
 
       {asking ? (
         <>
           <p className="eyebrow">You chose to check it first. What would you check?</p>
-          {VERIFY_QUESTIONS.map((q) => (
-            <button key={q.atom} className="lobby-option" onClick={() => chooseAtom(q.atom)}>
-              <span className="lobby-option-name">{q.label}</span>
-            </button>
-          ))}
+          <div className="atomgrid">
+            {VERIFY_QUESTIONS.map((q) => (
+              <button
+                key={q.atom}
+                type="button"
+                className="atomcard"
+                onClick={() => chooseAtom(q.atom)}
+              >
+                <span className={`atomcard-icon atomcard-${q.atom.toLowerCase()}`}>
+                  <Icon name={ATOM_ICON[q.atom]} size={22} />
+                </span>
+                <span className="atomcard-name">{q.atom}</span>
+                <span className="atomcard-note">{q.label}</span>
+              </button>
+            ))}
+          </div>
         </>
       ) : (
         <>
           <p className="eyebrow">What do you do?</p>
-          {CHOICES.map((c) => (
-            <button key={c.id} className="lobby-option" onClick={() => choose(c.id)}>
-              <span className="lobby-option-name">{c.label}</span>
-              <span className="lobby-option-note">{c.note}</span>
-            </button>
-          ))}
+          <div className="decisiongrid">
+            {CHOICES.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className={`decisioncard decisioncard-${c.tone}`}
+                onClick={() => choose(c.id)}
+              >
+                <span className="decisioncard-icon">
+                  <Icon name={c.icon} size={26} />
+                </span>
+                <span className="decisioncard-label">{c.label}</span>
+                <span className="decisioncard-note">{c.note}</span>
+              </button>
+            ))}
+          </div>
         </>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state/GameContext';
 import { cardName } from '../data/cards';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* Only reached when the room played with authors hidden. The room argues about
@@ -24,26 +25,46 @@ export default function BlackboxGuess() {
 
   return (
     <div className="screen">
-      <StageBar label="Black box" />
-      <p className="lede">Who wrote which one? Say it out loud before anyone taps anything.</p>
+      <StageBar label="Black box" note={revealed ? 'Revealed' : 'Authors hidden'} />
 
-      {round.hops.map((hop, i) => (
-        <div key={i} className="paper">
-          <p className="eyebrow">
-            Hop {i + 1} · {cardName(hop.cardId)}
-            {revealed && <> · {hop.isAI ? 'AI participant' : hop.player}</>}
-          </p>
-          <p className="paper-text">{hop.text}</p>
+      <div className="verdict-banner">
+        <span className="verdict-banner-mark" aria-hidden="true">
+          <Icon name="search" size={26} />
+        </span>
+        <div>
+          <h2>Who wrote which one?</h2>
+          <p className="muted">Say it out loud before anyone taps anything.</p>
         </div>
-      ))}
+      </div>
+
+      <div className="chain">
+        {round.hops.map((hop, i) => (
+          <article
+            key={i}
+            className={`chainblock${revealed && hop.isAI ? ' is-machine' : ''}`}
+          >
+            <header className="chainblock-head">
+              <span className="chainblock-n">{String(i + 1).padStart(2, '0')}</span>
+              <span className="chainblock-card">{cardName(hop.cardId)}</span>
+              {revealed && (
+                <span className="chainblock-who">{hop.isAI ? 'AI participant' : hop.player}</span>
+              )}
+            </header>
+            <p className="paper-text">{hop.text}</p>
+          </article>
+        ))}
+      </div>
 
       {!revealed ? (
-        <button className="btn btn-primary btn-block" onClick={() => setRevealed(true)}>
+        <button className="btn btn-primary btn-lg btn-block" onClick={() => setRevealed(true)}>
           Show who wrote what
         </button>
       ) : (
-        <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
-          Continue
+        <button
+          className="btn btn-primary btn-lg btn-block"
+          onClick={() => dispatch({ type: 'ADVANCE' })}
+        >
+          Continue <Icon name="arrowForward" />
         </button>
       )}
     </div>

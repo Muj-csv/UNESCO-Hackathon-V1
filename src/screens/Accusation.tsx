@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import { cardName } from '../data/cards';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -18,6 +19,11 @@ import StageBar from '../components/StageBar';
    the ledger is about to show that the person they hunted did less damage
    than the people who were trying to help. Marking the vote right or wrong
    would put a small win in front of that and let the room stop there.
+
+   PHASE 5 NOTE: the Stitch prototype put a fifteen-second countdown on this
+   screen. It is deliberately absent. A clock would end the argument, and the
+   argument is the entire value of the beat — so the plate where the timer sat
+   says so instead.
 
    CROWD RECALL never reaches this screen, and must never gain one.
    ========================================================================== */
@@ -40,50 +46,68 @@ export default function Accusation() {
 
   return (
     <div className="screen">
-      <StageBar label="Who was it?" />
+      <StageBar label="Who was it?" note={voted ? 'Revealed' : 'No clock on this'} />
 
-      {!voted ? (
-        <>
-          <h2>One of you was given a different brief.</h2>
+      {/* Stitch's alert banner. Yellow, because in this palette yellow is
+          pressure and attention — not red, which would read as a verdict on
+          a person before the room has even argued. */}
+      <div className={`verdict-banner${voted ? ' is-settled' : ''}`}>
+        <span className="verdict-banner-mark" aria-hidden="true">
+          <Icon name="mask" size={26} />
+        </span>
+        <div>
+          <h2>
+            {voted ? `It was ${imposter.player}.` : 'One of you was given a different brief.'}
+          </h2>
           <p className="muted">
-            They were asked to make one property disappear, and to keep it believable. Read the
-            chain again and argue it out. There is no clock on this, and no points for getting it
-            right.
+            {voted
+              ? named
+                ? `The room named ${imposter.player}, who was asked to make ${imposter.targetAtom} disappear at hop ${imposter.hopIndex + 1}.`
+                : `The room named ${accused}. ${imposter.player} was asked to make ${imposter.targetAtom} disappear at hop ${imposter.hopIndex + 1}.`
+              : 'They were asked to make one property disappear, and to keep it believable. Read the chain again and argue it out.'}
           </p>
-        </>
-      ) : (
-        <>
-          <h2>It was {imposter.player}.</h2>
-          <p className="muted">
-            {named
-              ? `The room named ${imposter.player}, who was asked to make ${imposter.targetAtom} disappear at hop ${imposter.hopIndex + 1}.`
-              : `The room named ${accused}. ${imposter.player} was asked to make ${imposter.targetAtom} disappear at hop ${imposter.hopIndex + 1}.`}
-          </p>
-        </>
-      )}
-
-      {round.hops.map((hop, i) => (
-        <div key={i} className={`paper${voted && hop.isImposter ? ' accuse-hop' : ''}`}>
-          <p className="eyebrow">
-            Hop {i + 1} · {cardName(hop.cardId)} · {hop.isAI ? 'AI participant' : hop.player}
-            {voted && hop.isImposter && <> · the different brief</>}
-          </p>
-          <p className="paper-text">{hop.text}</p>
         </div>
-      ))}
+        {!voted && <span className="verdict-noclock">No clock<br />no points</span>}
+      </div>
+
+      <div className="chain">
+        {round.hops.map((hop, i) => (
+          <article
+            key={i}
+            className={`chainblock${voted && hop.isImposter ? ' accuse-hop' : ''}${
+              hop.isAI ? ' is-machine' : ''
+            }`}
+          >
+            <header className="chainblock-head">
+              <span className="chainblock-n">{String(i + 1).padStart(2, '0')}</span>
+              <span className="chainblock-card">{cardName(hop.cardId)}</span>
+              <span className="chainblock-who">{hop.isAI ? 'AI participant' : hop.player}</span>
+              {voted && hop.isImposter && (
+                <span className="chainblock-flag">The different brief</span>
+              )}
+            </header>
+            <p className="paper-text">{hop.text}</p>
+          </article>
+        ))}
+      </div>
 
       {!voted ? (
         <>
           <p className="eyebrow">The room's vote</p>
-          <div className="accuse-options">
-            {players.map((player) => (
+          <div className="suspects">
+            {players.map((player, i) => (
               <button
                 key={player.id}
                 type="button"
-                className="accuse-option"
+                className="suspect"
                 onClick={() => dispatch({ type: 'CAST_ACCUSATION', player: player.name })}
               >
-                {player.name}
+                <span className="suspect-mark" aria-hidden="true">
+                  {player.name.slice(0, 2).toUpperCase()}
+                </span>
+                <span className="suspect-name">{player.name}</span>
+                <span className="suspect-id">{seatId(player.name, i)}</span>
+                <span className="suspect-vote">Name them</span>
               </button>
             ))}
           </div>
@@ -96,12 +120,23 @@ export default function Accusation() {
       )}
 
       <button
-        className="btn btn-primary btn-block"
+        className="btn btn-primary btn-lg btn-block"
         disabled={!voted}
         onClick={() => dispatch({ type: 'ADVANCE', from: 'accusation' })}
       >
         {voted ? 'Continue' : 'Name someone to continue'}
+        {voted && <Icon name="arrowForward" />}
       </button>
     </div>
   );
+}
+
+/**
+ * A seat tag, in the machine-readable style the rest of the chrome uses.
+ * Derived from the name and the seat, so it needs nothing stored and cannot
+ * survive the round — there are no accounts in this game and no ids to leak.
+ */
+function seatId(name: string, index: number): string {
+  const letters = name.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase().padEnd(3, 'X');
+  return `${letters}-${String(index + 1).padStart(2, '0')}`;
 }

@@ -1,6 +1,7 @@
 import type { GameState } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { finalText } from '../state/gameReducer';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -57,6 +58,15 @@ export default function Thesis() {
         <p className="paper-text">{claim.originalText}</p>
       </div>
 
+      {/* The distance between the two, made into an object you can see. */}
+      <div className="thesis-gap" aria-hidden="true">
+        <span className="thesis-gap-line" />
+        <span className="thesis-gap-mark">
+          <Icon name="arrowForward" />
+        </span>
+        <span className="thesis-gap-line" />
+      </div>
+
       <div className="paper paper-final">
         <p className="eyebrow">{isCrowd ? 'What the room rebuilt' : 'What came out'}</p>
         <p className="paper-text">{finalText(state)}</p>
@@ -64,8 +74,11 @@ export default function Thesis() {
 
       <p className="thesis-line">{thesisLineFor(state)}</p>
 
-      <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
-        See what it cost
+      <button
+        className="btn btn-primary btn-lg btn-block"
+        onClick={() => dispatch({ type: 'ADVANCE' })}
+      >
+        See what it cost <Icon name="arrowForward" />
       </button>
     </div>
   );

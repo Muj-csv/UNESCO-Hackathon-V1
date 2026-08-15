@@ -1513,6 +1513,112 @@ select.field {
       transparent 4px 8px);
 }
 
+/* -- chain blocks -----------------------------------------------------------
+   One retelling, as a brick in the chain. Used by the reveal, the black box,
+   the Turing hop and the accusation — the same version has to look like the
+   same object on all four, because the room is comparing them across screens.
+
+   The connector between blocks is what makes it a chain rather than a list.
+   ========================================================================== */
+
+/* One continuous line drawn BEHIND the blocks, rather than a pseudo-element
+   on each block reaching up into the gap. The blocks are opaque, so the line
+   only shows where they don't — and this way it cannot be clipped by a block
+   that happens to be a <button> (the Turing hop renders them that way). */
+.chain {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.chain::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 24px;
+  bottom: 24px;
+  width: 4px;
+  background: var(--ink);
+  z-index: 0;
+}
+
+.chainblock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--surface-container);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  width: 100%;
+  text-align: left;
+}
+
+.chain > .chainblock + .chainblock {
+  margin-top: 26px;
+}
+
+/* Above the line, and opaque, so the line reads as passing behind them. */
+.chain > .chainblock {
+  position: relative;
+  z-index: 1;
+}
+
+.chainblock-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The hop number, as a stamped tile. */
+.chainblock-n {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 26px;
+  padding: 0 6px;
+  background: var(--ink);
+  color: var(--surface);
+  border-radius: var(--radius);
+}
+
+.chainblock-card {
+  color: var(--on-amber);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+}
+
+.chainblock-who {
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+
+/* Violet, as everywhere the machine appears. */
+.chainblock.is-machine .chainblock-n {
+  background: var(--violet);
+  color: var(--on-violet);
+}
+
+.chainblock.is-machine .chainblock-who {
+  color: var(--violet);
+}
+
+/* What reached the end. */
+.chainblock.is-final {
+  border-left: 6px solid var(--red);
+}
+
 /* -- the Decay Ledger ------------------------------------------------------
    The only fidelity signal in the game. There is no score anywhere. */
 
@@ -2787,6 +2893,35 @@ select.field {
   gap: 16px;
 }
 
+/* The distance between what went in and what came out, as an object. */
+.thesis-gap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 0;
+}
+
+.thesis-gap-line {
+  flex: 1;
+  height: 4px;
+  background: repeating-linear-gradient(90deg,
+      var(--ink) 0 6px,
+      transparent 6px 12px);
+}
+
+.thesis-gap-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+  background: var(--ink);
+  color: var(--surface);
+  border-radius: var(--radius);
+  transform: rotate(90deg);
+}
+
 .thesis-line {
   margin: 8px 0 4px;
   font-family: var(--font-display);
@@ -3030,6 +3165,280 @@ select.field {
   border-radius: var(--radius);
   padding: 3px 8px;
   align-self: flex-start;
+}
+
+/* -- verdict banner ---------------------------------------------------------
+   The alert plate at the top of a beat where the room is about to decide
+   something. Yellow, because in this palette yellow is pressure and
+   attention — red would read as a verdict on a person before the room has
+   even argued, which is exactly what this game refuses to do. */
+
+.verdict-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+}
+
+.verdict-banner h2 {
+  margin: 0 0 4px;
+  font-size: var(--text-headline-md);
+}
+
+.verdict-banner .muted {
+  color: var(--on-amber);
+}
+
+/* Once the room has decided, the plate stops shouting. */
+.verdict-banner.is-settled {
+  background: var(--surface-highest);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+}
+
+.verdict-banner.is-settled .muted {
+  color: var(--ink-soft);
+}
+
+.verdict-banner-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--ink);
+  color: var(--amber);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.verdict-banner-mark.is-violet {
+  color: var(--violet-container);
+}
+
+/* Where the prototype put a countdown. The absence is the point, so it is
+   stated rather than left as an empty corner. */
+.verdict-noclock {
+  margin-left: auto;
+  flex: none;
+  align-self: center;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  background: var(--surface);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  padding: 8px 12px;
+}
+
+/* -- suspects ----------------------------------------------------------------
+   Names to point at. Nothing here is coloured for right or wrong before the
+   vote, and nothing is marked correct after it. */
+
+.suspects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.suspect {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 14px 14px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+}
+
+.suspect:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+  background: var(--red-container);
+}
+
+.suspect:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+/* Initials, not a photograph. There are no accounts in this game and nothing
+   to load from anywhere. */
+.suspect-mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius-pill);
+}
+
+.suspect-name {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+}
+
+.suspect-id {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  background: var(--surface-highest);
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+}
+
+.suspect-vote {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--surface-highest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.suspect:hover .suspect-vote {
+  background: var(--red);
+  color: var(--on-red);
+}
+
+/* The hop that carried the different brief. A fact about the brief, not a
+   verdict on the person — so it is amber (attention), never red (lost). */
+.chainblock-flag {
+  color: var(--on-amber-deep);
+  background: var(--amber);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+}
+
+/* -- terminal reader ---------------------------------------------------------- */
+
+.terminal-claim .paper-text {
+  font-size: var(--text-headline-md);
+  line-height: 1.35;
+}
+
+.decisiongrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.decisioncard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 16px;
+  row-gap: 2px;
+  align-items: center;
+  text-align: left;
+  padding: 16px 18px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.decisioncard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+}
+
+.decisioncard:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.decisioncard-icon {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+/* No option is styled as the right one. Sharing is not punished and checking
+   is not rewarded — the ledger says what happened and the player decides. */
+.decisioncard-share .decisioncard-icon {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+
+.decisioncard-flag .decisioncard-icon {
+  background: var(--amber-soft);
+  color: var(--on-amber-deep);
+}
+
+.decisioncard-verify .decisioncard-icon {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.decisioncard-label {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+}
+
+.decisioncard-note {
+  font-size: var(--text-label);
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+@media (min-width: 720px) {
+  .decisiongrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .decisioncard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    row-gap: 8px;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .decisioncard-icon {
+    grid-row: auto;
+  }
 }
 
 /* -- accusation (T8) --------------------------------------------------------
