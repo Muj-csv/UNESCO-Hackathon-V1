@@ -90,7 +90,8 @@ export interface RoundSetup {
 
 export type Action =
   /* -------- core, settled in T0 -------- */
-  | { type: 'ADVANCE' }
+  /** `from` makes the step idempotent — see the reducer case. */
+  | { type: 'ADVANCE'; from?: ScreenId }
   | { type: 'GO_TO'; screen: ScreenId }
   | { type: 'ADD_PLAYER'; name: string }
   | { type: 'REMOVE_PLAYER'; id: string }
@@ -176,6 +177,13 @@ export const initialState: GameState = {
 export function gameReducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'ADVANCE': {
+      /* A screen that skips itself dispatches this from an effect, and React
+         StrictMode runs effects twice on mount. Without `from`, the second
+         run steps a second time and a screen gets skipped that nobody meant
+         to skip — CROWD RECALL lost its whole distribute beat this way.
+         Naming the screen you are leaving makes a repeat dispatch a no-op. */
+      if (action.from && action.from !== state.screen) return state;
+
       const route = routeFor(state.settings.mode);
       const at = route.indexOf(state.screen);
       if (at < 0) return { ...state, screen: 'lobby' };
@@ -208,10 +216,12 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, settings: { ...state.settings, ...action.patch } };
 
     case 'BEGIN_ROUND': {
-      const route = routeFor(state.settings.mode);
+      /* Straight to the brief. `howToPlay` sits in the route so it has a
+         registered place, but it is reached from the lobby on request — a
+         round should not open with the explainer every time. */
       return {
         ...state,
-        screen: route[1] ?? 'round',
+        screen: 'brief',
         round: {
           ...emptyRound(),
           claim: action.setup.claim,

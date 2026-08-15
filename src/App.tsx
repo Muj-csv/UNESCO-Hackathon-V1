@@ -1,150 +1,87 @@
-/* Phase 3 state harness.
-   Phase 5 replaces this with the screen registry that reads `screen` from
-   context. Until then it drives the reducer directly so the transitions,
-   the bug fixes, and the derived warnings can be exercised in a browser. */
+import { useEffect } from 'react';
+import type { ComponentType } from 'react';
+import type { ScreenId } from './types/contracts';
+import { useGame, useGameDispatch } from './state/GameContext';
 
-import { useGame } from './state/GameContext';
-import { currentCardId, hopPlayerName, selectLobbyWarnings, textInFrontOfPlayer } from './state/gameReducer';
-import { cardName } from './data/cards';
-import { PRESETS } from './data/presets';
+import Lobby from './screens/Lobby';
+import HowToPlay from './screens/HowToPlay';
+import Brief from './screens/Brief';
+import Prediction from './screens/Prediction';
+import Round from './screens/Round';
+import Terminal from './screens/Terminal';
+import Reveal from './screens/Reveal';
+import BlackboxGuess from './screens/BlackboxGuess';
+import TuringHop from './screens/TuringHop';
+import Accusation from './screens/Accusation';
+import Thesis from './screens/Thesis';
+import Ledger from './screens/Ledger';
+import Debrief from './screens/Debrief';
+import Superlatives from './screens/Superlatives';
+import SessionReadout from './screens/SessionReadout';
+import SplitDistribute from './screens/SplitDistribute';
+import SplitReconstruct from './screens/SplitReconstruct';
+import PackStudio from './screens/PackStudio';
 
-const SAMPLE_NAMES = ['Mika', 'Dan', 'Rowena', 'Kiel', 'Ari', 'Noel', 'Trish', 'Paolo'];
+/* ============================================================================
+   The screen registry.
+
+   SHARED FILE — DO NOT EDIT.
+
+   The full route is registered here, including screens whose feature nobody
+   has built. Each of those skips itself, so adding a feature means filling in
+   your own file and never opening this one or the router.
+
+   lobby → howToPlay → brief → prediction → round → terminal
+         → reveal → blackboxGuess → turingHop → accusation
+         → thesis → ledger → debrief → superlatives → sessionReadout
+
+   CROWD RECALL diverges after the brief:
+   … brief → splitDistribute → splitReconstruct → thesis → ledger → …
+   ========================================================================== */
+
+export const SCREENS: Partial<Record<ScreenId, ComponentType>> = {
+  lobby: Lobby,
+  howToPlay: HowToPlay, //           T3
+  brief: Brief, //                   T3
+  prediction: Prediction, //         T9  — skips itself
+  round: Round,
+  terminal: Terminal,
+  reveal: Reveal,
+  blackboxGuess: BlackboxGuess, //       skips itself unless black box is on
+  turingHop: TuringHop, //           T6  — skips itself
+  accusation: Accusation, //         T8  — skips itself
+  thesis: Thesis, //                 T3
+  ledger: Ledger,
+  debrief: Debrief,
+  superlatives: Superlatives,
+  sessionReadout: SessionReadout,
+  splitDistribute: SplitDistribute,
+  splitReconstruct: SplitReconstruct,
+  packStudio: PackStudio, //         T10
+  /* joinRoom is T7's. It is not in the round route, and SelfSkip returns to
+     the lobby until that screen exists. */
+};
 
 export default function App() {
-  const { state, dispatch, claims, startRound } = useGame();
-  const { round, settings, session } = state;
-  const warnings = selectLobbyWarnings(state);
-  const chainDone = round.currentHop >= settings.chainLength;
+  const { state } = useGame();
+  const Screen = SCREENS[state.screen];
 
   return (
-    <div className="shell">
-      <div className="screen">
-        <div>
-          <p className="eyebrow eyebrow-amber">State harness · phase 3</p>
-          <h1>TruthChain</h1>
-        </div>
-
-        <div className="card">
-          <p className="eyebrow">Reducer</p>
-          <p className="mono muted">
-            screen <strong>{state.screen}</strong> · mode <strong>{settings.mode}</strong> · round{' '}
-            <strong>{session.roundNumber}</strong> · hop{' '}
-            <strong>
-              {Math.min(round.currentHop + 1, settings.chainLength)}/{settings.chainLength}
-            </strong>{' '}
-            · results <strong>{session.results.length}</strong> · checks left{' '}
-            <strong>{round.verificationsLeft}</strong>
-          </p>
-          <div className="wire">
-            {Array.from({ length: settings.chainLength }).map((_, i) => (
-              <span key={i} style={{ display: 'contents' }}>
-                {i > 0 && <span className={`wire-link${i <= round.currentHop ? ' is-done' : ''}`} />}
-                <span
-                  className={`wire-node${
-                    i < round.currentHop ? ' is-done' : i === round.currentHop ? ' is-current' : ''
-                  }`}
-                />
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="row">
-          <button
-            className="btn btn-small"
-            onClick={() => dispatch({ type: 'ADD_PLAYER', name: SAMPLE_NAMES[state.players.length % 8] })}
-          >
-            + player ({state.players.length})
-          </button>
-          <button className="btn btn-small btn-primary" onClick={startRound}>
-            Begin round
-          </button>
-          <button className="btn btn-small btn-ghost" onClick={() => dispatch({ type: 'ADVANCE' })}>
-            Advance
-          </button>
-          <button className="btn btn-small btn-ghost" onClick={() => dispatch({ type: 'NEW_GAME' })}>
-            New game
-          </button>
-        </div>
-
-        <div className="row">
-          {PRESETS.map((p) => (
-            <button
-              key={p.id}
-              className={`btn btn-small ${settings.presetId === p.id ? '' : 'btn-ghost'}`}
-              onClick={() => dispatch({ type: 'SET_PRESET', presetId: p.id })}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-
-        {warnings.map((w) => (
-          <div key={w.kind} className="constraint">
-            <span className="constraint-name">{w.kind}</span>
-            <span className="constraint-note">{w.message}</span>
-          </div>
-        ))}
-
-        {round.claim && (
-          <>
-            <div className="paper paper-original">
-              <p className="eyebrow">In front of {hopPlayerName(state, round.currentHop)}</p>
-              <p className="paper-text">{textInFrontOfPlayer(state)}</p>
-            </div>
-
-            {!chainDone && (
-              <div className="constraint">
-                <span className="constraint-name">{cardName(currentCardId(state))}</span>
-                <span className="constraint-note">
-                  Dealt: {round.dealtCards.map((c) => cardName(c)).join(' · ')}
-                </span>
-              </div>
-            )}
-
-            <div className="row">
-              <button
-                className="btn btn-small btn-primary"
-                disabled={chainDone}
-                onClick={() =>
-                  dispatch({
-                    type: 'SUBMIT_HOP',
-                    text: `${textInFrontOfPlayer(state)} (hop ${round.currentHop + 1})`,
-                  })
-                }
-              >
-                Submit hop
-              </button>
-              <button
-                className="btn btn-small btn-ghost"
-                disabled={round.verificationsLeft <= 0}
-                onClick={() =>
-                  dispatch({
-                    type: 'SPEND_VERIFICATION',
-                    hopIndex: round.currentHop,
-                    atoms: ['HEDGE'],
-                  })
-                }
-              >
-                Spend check
-              </button>
-            </div>
-
-            {round.hops.map((h, i) => (
-              <div key={i} className="paper">
-                <p className="eyebrow">
-                  Hop {i + 1} · {h.player} · {cardName(h.cardId)}
-                </p>
-                <p className="muted">{h.text}</p>
-              </div>
-            ))}
-          </>
-        )}
-
-        <p className="muted mono">
-          {claims.length} claims loaded · {state.players.map((p) => p.name).join(', ') || 'no players'}
-        </p>
-      </div>
-    </div>
+    <div className="shell">{Screen ? <Screen /> : <SelfSkip from={state.screen} />}</div>
   );
+}
+
+/**
+ * Last resort for a ScreenId with no component yet. Steps to the next screen
+ * in the route rather than rendering nothing.
+ *
+ * `from` is not optional: StrictMode runs this effect twice, and without it
+ * the second run skips a screen that was meant to render.
+ */
+function SelfSkip({ from }: { from: ScreenId }) {
+  const dispatch = useGameDispatch();
+  useEffect(() => {
+    dispatch({ type: 'ADVANCE', from });
+  }, [dispatch, from]);
+  return null;
 }

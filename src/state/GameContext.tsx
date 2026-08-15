@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer } from 'react';
 import type { Dispatch, ReactNode } from 'react';
-import type { Claim, GameState } from '../types/contracts';
+import type { Claim, GameState, ScreenId } from '../types/contracts';
 import type { Action } from './gameReducer';
 import { gameReducer, initialState, prepareRound } from './gameReducer';
 import rawClaims from '../data/claims.en.json';
@@ -68,8 +68,12 @@ export function useGameDispatch(): Dispatch<Action> {
  * Screens whose feature has not been built yet call this to step straight to
  * the next screen in the route. That is what keeps the full route registered
  * from day one without any later task editing the router.
+ *
+ * Pass your own ScreenId whenever you call this from an effect. StrictMode
+ * runs effects twice, and an unguarded ADVANCE steps two screens — which is
+ * how CROWD RECALL silently lost its distribute beat.
  */
-export function useAdvance(): () => void {
+export function useAdvance(from?: ScreenId): () => void {
   const dispatch = useGameDispatch();
-  return useCallback(() => dispatch({ type: 'ADVANCE' }), [dispatch]);
+  return useCallback(() => dispatch({ type: 'ADVANCE', from }), [dispatch, from]);
 }
