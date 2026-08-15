@@ -1,63 +1,138 @@
 /* ============================================================================
-   TruthChain — global stylesheet
-   ----------------------------------------------------------------------------
-   The visual identity is settled. Palette and typography are carried over
-   verbatim from the project proposal sheet (TruthChain.html).
+   BRICK-BY-BRICK — global stylesheet
 
-   Do not restyle. Later tasks APPEND a feature-prefixed block at the bottom
-   of this file and never edit another feature's block.
+   Neo-brutalist design system, ported from
+   stitch_truthchain_diagnostic_utility/. Hand-written CSS, no Tailwind.
+
+   The rules of the system:
+     - Depth is never ambient. No blur, no gradient. Depth is a 100%-opacity
+       block of ink offset down-right, and a pressed element TRANSLATES ONTO
+       its own shadow.
+     - Every interactive surface carries a >= 2px ink border. Panels get 4px.
+     - Spacing is a multiple of 4px.
+     - Type: Space Grotesk headlines, Work Sans body, JetBrains Mono for any
+       label, count, id, or piece of machine output.
+
+   Structure of this file:
+     1. tokens          palette, type scale, spacing, elevation
+     2. base            reset, document, headings
+     3. primitives      .neo-* — the reusable brutalist surfaces
+     4. layout          shell, screen, stack, row
+     5. components      buttons, fields, chips, meters, patterns
+     6. game surfaces   card / paper / ledger / wire / constraint / timer
+     7. feature blocks  one per screen family
    ========================================================================== */
 
-/* ---------------------------------------------------------------- tokens -- */
+/* ==========================================================================
+   1. TOKENS
+   ========================================================================== */
 
 :root {
-  /* Ink — dark chrome. Everything that is the machinery of the game. */
-  --ink: #14181c;
-  --ink-soft: #5b6672;
-  --ink-line: #ddd6c4;
+  /* -- ink ---------------------------------------------------------------
+     One black. Every border, every shadow, most text. Nothing else. */
+  --ink: #191b23;
+  --ink-soft: #434655;
+  --outline: #737686;
+  --outline-variant: #c3c6d7;
 
-  /* Paper — anything that represents claim text. */
-  --paper: #f7f4ec;
-  --paper-text: #2c343d;
-  --cream: #e6e1d4;
+  /* -- surfaces ---------------------------------------------------------- */
+  --bg: #faf8ff;
+  --surface: #faf8ff;
+  --surface-lowest: #ffffff;
+  --surface-low: #f3f3fe;
+  --surface-container: #ededf9;
+  --surface-high: #e7e7f3;
+  --surface-highest: #e1e2ed;
+  --surface-dim: #d9d9e5;
+  --surface-inverse: #2e3039;
+  --on-surface-inverse: #f0f0fb;
 
-  /* Accents. One per meaning, never decorative. */
-  --amber: #b0762a;
-  /* pressure, constraint, attention */
-  --teal: #2f6f62;
-  /* survived, verified, intact */
-  --red: #a63c35;
-  /* lost, degraded, over the limit */
-  --violet: #6d4f8c;
-  /* the AI participant */
+  /* -- primary: actions, the chain, the machinery ------------------------ */
+  --primary: #004ac6;
+  --primary-container: #2563eb;
+  --on-primary: #ffffff;
+  --on-primary-container: #eeefff;
+  --primary-fixed: #dbe1ff;
+  --primary-fixed-dim: #b4c5ff;
+  --on-primary-fixed: #00174b;
 
-  /* Tints of the accents, for fills. */
-  --amber-bg: #f5ead6;
-  --teal-bg: #e0ebe7;
-  --red-bg: #f6e3e1;
-  --violet-bg: #ece5f3;
+  /* -- secondary / yellow: PRESSURE, constraint, attention ---------------- */
+  --amber: #fed01b;
+  --amber-strong: #eec200;
+  --amber-soft: #ffe083;
+  --on-amber: #6f5900;
+  --on-amber-deep: #231b00;
 
-  /* On-ink variants — the accents lifted for legibility on dark chrome. */
-  --amber-on-ink: #e0a03c;
-  --teal-on-ink: #7fa89b;
-  --red-on-ink: #d4635b;
-  --violet-on-ink: #a98cc8;
-  --ink-text: #e6e0ce;
-  --ink-text-soft: #8a8677;
-  --ink-rule: #2c343d;
+  /* -- tertiary / green: SURVIVED, verified, intact ----------------------- */
+  --teal: #006229;
+  --teal-container: #007e37;
+  --teal-fixed: #6bff8f;
+  --teal-fixed-dim: #4ae176;
+  --on-teal: #ffffff;
+  --on-teal-container: #c1ffc5;
+  --on-teal-fixed: #002109;
 
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* -- error / red: LOST, degraded, over the limit ------------------------ */
+  --red: #ba1a1a;
+  --red-container: #ffdad6;
+  --on-red: #ffffff;
+  --on-red-container: #93000a;
 
-  --radius: 5px;
-  --radius-lg: 10px;
-  --shell: 640px;
+  /* -- violet: THE AI PARTICIPANT ----------------------------------------
+     Not in the Stitch palette — the machine needs a colour of its own that
+     no action, no pressure and no verdict ever borrows. Tuned to sit in the
+     same tonal system as the rest. */
+  --violet: #5b3fa8;
+  --violet-container: #e6ddff;
+  --on-violet: #ffffff;
+  --on-violet-container: #21005d;
+
+  /* -- type -------------------------------------------------------------- */
+  --font-display: 'Space Grotesk', 'Arial Black', system-ui, sans-serif;
+  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+
+  --text-headline-xl: 48px;
+  --text-headline-lg: 32px;
+  --text-headline-md: 24px;
+  --text-body-lg: 18px;
+  --text-body-md: 16px;
+  --text-label: 14px;
+  --text-code: 12px;
+
+  /* -- geometry ----------------------------------------------------------
+     Soft, not sharp. Chunky-friendly, never aggressive. */
+  --radius: 4px;
+  --radius-btn: 8px;
+  --radius-pill: 9999px;
+
+  /* -- elevation ---------------------------------------------------------
+     Three tiers. Offsets, never blurs. */
+  --border-1: 2px;
+  --border-2: 4px;
+  --shadow-1: 2px 2px 0 0 var(--ink);
+  --shadow-2: 4px 4px 0 0 var(--ink);
+  --shadow-3: 8px 8px 0 0 var(--ink);
+  --shadow-2-hover: 6px 6px 0 0 var(--ink);
+  --shadow-3-hover: 10px 10px 0 0 var(--ink);
+
+  /* -- spacing ------------------------------------------------------------ */
+  --gutter: 24px;
+  --margin: 32px;
+
+  /* -- layout ------------------------------------------------------------- */
+  --shell-max: 1440px;
+  --reading-max: 820px;
+  --sidebar: 256px;
+  --topbar: 80px;
+  --statusbar: 48px;
   --tap: 44px;
   /* minimum touch target. Not negotiable — phones in classrooms. */
 }
 
-/* ------------------------------------------------------------------ base -- */
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
 
 *,
 *::before,
@@ -76,36 +151,55 @@ html {
 }
 
 body {
-  background: var(--cream);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: var(--text-body-md);
+  font-weight: 400;
+  line-height: 1.5;
   min-height: 100vh;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--on-amber-deep);
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
   line-height: 1.15;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: var(--text-headline-md);
+  text-transform: uppercase;
 }
 
 h2 {
-  font-size: 1.35rem;
+  font-size: var(--text-headline-md);
 }
 
 h3 {
-  font-size: 1.05rem;
+  font-size: var(--text-body-lg);
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: var(--text-headline-xl);
+  }
+
+  h2 {
+    font-size: var(--text-headline-lg);
+  }
 }
 
 p {
@@ -117,7 +211,7 @@ p:last-child {
 }
 
 strong {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 button {
@@ -125,19 +219,164 @@ button {
   color: inherit;
 }
 
+a {
+  color: var(--primary);
+}
+
 :focus-visible {
-  outline: 2px solid var(--amber);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
-/* ---------------------------------------------------------------- layout -- */
+/* Chunky scrollbars, in-system. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-left: var(--border-1) solid var(--ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border: var(--border-1) solid var(--ink);
+}
+
+/* ==========================================================================
+   3. PRIMITIVES — the brutalist surfaces
+   ========================================================================== */
+
+/* Tier 2. The default raised surface. */
+.neo-card {
+  border: var(--border-1) solid var(--ink);
+  box-shadow: var(--shadow-2);
+  border-radius: var(--radius);
+  background: var(--surface-lowest);
+}
+
+/* Tier 3. Top-level panels and anything that reads as a window. */
+.neo-panel {
+  border: var(--border-2) solid var(--ink);
+  box-shadow: var(--shadow-3);
+  border-radius: var(--radius);
+  background: var(--surface-lowest);
+}
+
+/* Lifts toward the reader on hover. Only for surfaces that are clickable. */
+.neo-hover {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.neo-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+}
+
+.neo-panel.neo-hover:hover {
+  box-shadow: var(--shadow-3-hover);
+}
+
+/* Recessed. Inputs are pushed INTO the page, never raised off it. */
+.neo-inset {
+  border-top: var(--border-1) solid var(--ink);
+  border-left: var(--border-1) solid var(--ink);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  border-right: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  background: var(--surface-lowest);
+}
+
+/* A panel's title bar. Colour it by meaning with a modifier below. */
+.neo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: var(--border-1) solid var(--ink);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.neo-panel > .neo-head {
+  border-bottom-width: var(--border-2);
+}
+
+.neo-head-amber {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+}
+
+.neo-head-teal {
+  background: var(--teal-container);
+  color: var(--on-teal);
+}
+
+.neo-head-red {
+  background: var(--red);
+  color: var(--on-red);
+}
+
+.neo-head-violet {
+  background: var(--violet);
+  color: var(--on-violet);
+}
+
+.neo-head-plain {
+  background: var(--surface-highest);
+  color: var(--ink);
+}
+
+/* The small mono tag that sits inside a title bar (counts, ids, stage). */
+.neo-tag {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--surface-lowest);
+  color: var(--ink);
+}
+
+.neo-body {
+  padding: var(--gutter);
+}
+
+/* The three window dots. Pure decoration, marks a surface as "a window". */
+.neo-dots {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.neo-dots span {
+  width: 12px;
+  height: 12px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: 50%;
+  background: var(--surface-lowest);
+}
+
+/* ==========================================================================
+   4. LAYOUT
+   ========================================================================== */
 
 .shell {
-  max-width: var(--shell);
+  width: 100%;
+  max-width: var(--reading-max);
   margin: 0 auto;
-  padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
-  min-height: 100vh;
-  min-height: 100dvh;
+  padding: var(--gutter) 16px calc(var(--gutter) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
 }
@@ -145,453 +384,26 @@ button {
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   flex: 1;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .spacer {
   flex: 1;
 }
-
-/* The small mono label that sits above a block and names it. */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 0;
-}
-
-.eyebrow-amber {
-  color: var(--amber);
-}
-
-.lede {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-style: italic;
-  color: var(--paper-text);
-  line-height: 1.4;
-}
-
-.muted {
-  color: var(--ink-soft);
-  font-size: 0.88rem;
-}
-
-.rule {
-  height: 1px;
-  background: var(--ink-line);
-  border: 0;
-  margin: 4px 0;
-}
-
-/* ------------------------------------------------- card — the dark chrome -- */
-/* Anything that is the game talking: instructions, status, the ledger.        */
-
-.card {
-  background: var(--ink);
-  color: var(--ink-text);
-  border-radius: var(--radius-lg);
-  padding: 18px 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card h1,
-.card h2,
-.card h3 {
-  color: var(--paper);
-}
-
-.card .eyebrow {
-  color: var(--ink-text-soft);
-}
-
-.card .muted {
-  color: var(--ink-text-soft);
-}
-
-.card .rule {
-  background: var(--ink-rule);
-}
-
-/* ------------------------------------------ paper — anything claim-shaped -- */
-/* If it represents the claim itself, at any hop, it is paper.                 */
-
-.paper {
-  background: var(--paper);
-  color: var(--paper-text);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  box-shadow: 0 1px 2px rgba(20, 24, 28, 0.09);
-}
-
-.paper-text {
-  font-family: var(--font-display);
-  font-size: 1.08rem;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.paper-original {
-  border-left: 3px solid var(--teal);
-}
-
-.paper-final {
-  border-left: 3px solid var(--red);
-}
-
-/* --------------------------------------------------------------- buttons -- */
-
-.btn {
-  appearance: none;
-  border: 1.5px solid var(--ink);
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: var(--radius);
-  min-height: var(--tap);
-  padding: 11px 18px;
-  font-family: var(--font-body);
-  font-size: 0.94rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: opacity 0.12s ease, transform 0.06s ease;
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-.btn-primary {
-  background: var(--amber);
-  border-color: var(--amber);
-  color: #fff;
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-}
-
-.btn-danger {
-  background: var(--red);
-  border-color: var(--red);
-  color: #fff;
-}
-
-.btn-small {
-  min-height: 34px;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-}
-
-/* On dark chrome, ghost buttons invert. */
-.card .btn-ghost {
-  border-color: var(--ink-rule);
-  color: var(--ink-text);
-}
-
-/* ---------------------------------------------------------------- inputs -- */
-
-.field {
-  width: 100%;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1.5px solid var(--ink-line);
-  border-radius: var(--radius);
-  padding: 11px 13px;
-  min-height: var(--tap);
-}
-
-.field:focus {
-  border-color: var(--amber);
-  outline: none;
-}
-
-textarea.field {
-  resize: vertical;
-  min-height: 120px;
-  line-height: 1.5;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-}
-
-.field-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 5px;
-}
-
-select.field {
-  cursor: pointer;
-}
-
-/* ------------------------------------------------- the constraint cards -- */
-/* Six pressures. None of them instructs anyone to distort anything.          */
-
-.constraint {
-  background: var(--amber-bg);
-  border: 1.5px solid var(--amber);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.constraint-name {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #6b4a12;
-}
-
-.constraint-note {
-  font-size: 0.86rem;
-  color: var(--paper-text);
-  line-height: 1.45;
-}
-
-/* ------------------------------------------------------------ atom chips -- */
-
-.atom-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.07em;
-  padding: 4px 9px;
-  border-radius: 3px;
-  background: var(--ink-line);
-  color: var(--paper-text);
-}
-
-.atom-chip.is-alive {
-  background: var(--teal-bg);
-  color: var(--teal);
-}
-
-.atom-chip.is-lost {
-  background: var(--red-bg);
-  color: var(--red);
-}
-
-/* -------------------------------------------------------- the AI marker -- */
-/* The model is a participant under observation. It is never an assistant.    */
-
-.ai-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--violet);
-  background: var(--violet-bg);
-  padding: 3px 8px;
-  border-radius: 3px;
-}
-
-.card .ai-tag {
-  color: var(--violet-on-ink);
-  background: rgba(169, 140, 200, 0.15);
-}
-
-/* ----------------------------------------------------------------- timer -- */
-
-.timer {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  color: var(--ink);
-}
-
-.timer.is-warning {
-  color: var(--red);
-}
-
-.timer-track {
-  height: 3px;
-  background: var(--ink-line);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.timer-fill {
-  height: 100%;
-  background: var(--amber);
-  transition: width 0.9s linear;
-}
-
-.timer-fill.is-warning {
-  background: var(--red);
-}
-
-/* ----------------------------------------------------- the hop chain wire -- */
-/* The spine of the whole game: a wire of hops, sparking where an atom died.   */
-
-.wire {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 6px 0;
-}
-
-.wire-node {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--ink-line);
-  flex-shrink: 0;
-}
-
-.wire-node.is-done {
-  background: var(--teal);
-}
-
-.wire-node.is-current {
-  background: var(--amber);
-  box-shadow: 0 0 0 4px var(--amber-bg);
-}
-
-.wire-node.is-ai {
-  background: var(--violet);
-}
-
-/* The spark. Where the atom stopped being true. */
-.wire-node.is-spark {
-  background: var(--red);
-  box-shadow: 0 0 0 3px var(--red-bg), 0 0 10px 2px rgba(166, 60, 53, 0.5);
-}
-
-.wire-link {
-  flex: 1;
-  height: 2px;
-  background: var(--ink-line);
-  min-width: 8px;
-}
-
-.wire-link.is-done {
-  background: var(--teal);
-}
-
-.wire-link.is-broken {
-  background: repeating-linear-gradient(90deg,
-      var(--red) 0 4px,
-      transparent 4px 8px);
-}
-
-/* On dark chrome the wire lifts. */
-.card .wire-node {
-  background: var(--ink-rule);
-}
-
-.card .wire-link {
-  background: var(--ink-rule);
-}
-
-.card .wire-node.is-done {
-  background: var(--teal-on-ink);
-}
-
-.card .wire-link.is-done {
-  background: var(--teal-on-ink);
-}
-
-.card .wire-node.is-spark {
-  background: var(--red-on-ink);
-  box-shadow: 0 0 10px 3px rgba(212, 99, 91, 0.45);
-}
-
-.card .wire-node.is-ai {
-  background: var(--violet-on-ink);
-}
-
-/* ------------------------------------------------------- the Decay Ledger -- */
-/* The only fidelity signal in the game. There is no score anywhere.           */
-
-.ledger {
-  background: var(--ink);
-  color: var(--ink-text);
-  border-radius: var(--radius-lg);
-  padding: 16px 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.ledger-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--ink-rule);
-}
-
-.ledger-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.ledger-head {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--amber-on-ink);
-}
-
-.ledger-head.is-alive {
-  color: var(--teal-on-ink);
-}
-
-.alive-note {
-  font-size: 0.84rem;
-  color: var(--ink-text-soft);
-  line-height: 1.45;
-}
-
-/* -------------------------------------------------------------- utility -- */
 
 .center {
   text-align: center;
@@ -621,45 +433,612 @@ select.field {
   -webkit-overflow-scrolling: touch;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 768px) {
   .shell {
-    padding: 32px 24px 48px;
-  }
-
-  h1 {
-    font-size: 2.4rem;
+    padding: var(--margin) var(--gutter) var(--margin);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ============================================================================
-   APPEND-ONLY BELOW THIS LINE
-   Later tasks add their own feature-prefixed block here (redact-, ledger-diag-,
-   verify-, brief-, room-, …). Never edit another feature's block.
+/* ==========================================================================
+   5. COMPONENTS
    ========================================================================== */
 
-/* --- screens (T0) --------------------------------------------------------- */
+/* -- type roles ------------------------------------------------------------
+   `.eyebrow` is the mono label that names a block. It is the single most
+   used class in the app and it is what makes the whole thing read as
+   instrumentation rather than as a website. */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.eyebrow-amber {
+  color: var(--on-amber);
+}
+
+.lede {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.muted {
+  color: var(--ink-soft);
+  font-size: var(--text-body-md);
+}
+
+.rule {
+  height: var(--border-1);
+  background: var(--ink);
+  border: 0;
+  margin: 4px 0;
+}
+
+/* -- buttons ---------------------------------------------------------------
+   Border, hard shadow, and a press that lands the button exactly on top of
+   its own shadow. That travel is the entire feel of the system. */
+
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius-btn);
+  background: var(--surface-lowest);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+  min-height: var(--tap);
+  padding: 12px 20px;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: var(--shadow-1);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-danger {
+  background: var(--red);
+  color: var(--on-red);
+}
+
+.btn-go {
+  background: var(--teal-container);
+  color: var(--on-teal);
+}
+
+.btn-amber {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+}
+
+/* Quiet, but still a physical object. */
+.btn-ghost {
+  background: var(--surface-lowest);
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-high);
+  box-shadow: var(--shadow-2);
+}
+
+.btn-small {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: var(--text-code);
+  letter-spacing: 0.06em;
+  box-shadow: var(--shadow-1);
+}
+
+.btn-small:hover:not(:disabled) {
+  box-shadow: var(--shadow-2);
+}
+
+.btn-small:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* The one big commitment on a screen. Tier 3 weight. */
+.btn-lg {
+  border-width: var(--border-2);
+  box-shadow: var(--shadow-3);
+  min-height: 60px;
+  padding: 16px 32px;
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  letter-spacing: 0.04em;
+}
+
+.btn-lg:hover:not(:disabled) {
+  box-shadow: var(--shadow-3-hover);
+}
+
+.btn-lg:active:not(:disabled) {
+  transform: translate(8px, 8px);
+  box-shadow: none;
+}
+
+/* -- fields ----------------------------------------------------------------
+   Recessed, mono label above, never a floating placeholder. */
+
+.field {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  color: var(--ink);
+  background: var(--surface-lowest);
+  border-top: var(--border-1) solid var(--ink);
+  border-left: var(--border-1) solid var(--ink);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  border-right: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  min-height: var(--tap);
+}
+
+.field:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 1px;
+  border-color: var(--ink);
+}
+
+textarea.field {
+  resize: vertical;
+  min-height: 128px;
+  line-height: 1.5;
+  font-size: var(--text-body-lg);
+}
+
+select.field {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+/* -- chips ---------------------------------------------------------------- */
+
+.atom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--surface-highest);
+  color: var(--ink);
+}
+
+.atom-chip.is-alive {
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+}
+
+.atom-chip.is-lost {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+/* The machine. Violet, here and nowhere else. */
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-violet-container);
+  background: var(--violet-container);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+}
+
+/* -- pixel meter -----------------------------------------------------------
+   Segmented blocks, never a smooth fill. Early-2000s software, on purpose. */
+
+.pixel-meter {
+  display: flex;
+  gap: 3px;
+  height: 18px;
+}
+
+.pixel-block {
+  flex: 1;
+  min-width: 8px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: 1px;
+  background: transparent;
+}
+
+.pixel-block.is-on {
+  background: var(--primary);
+}
+
+.pixel-block.is-amber {
+  background: var(--amber);
+}
+
+.pixel-block.is-teal {
+  background: var(--teal-container);
+}
+
+.pixel-block.is-red {
+  background: var(--red);
+}
+
+/* -- backdrops -------------------------------------------------------------
+   Applied to a screen wrapper, never to body — different beats want
+   different ground. */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(25, 27, 35, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(25, 27, 35, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-dots {
+  background-image: radial-gradient(var(--surface-highest) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+/* -- icons ----------------------------------------------------------------- */
+
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
+
+.icon-lg {
+  font-size: 24px;
+}
+
+.icon-xl {
+  font-size: 32px;
+}
+
+/* ==========================================================================
+   6. GAME SURFACES
+   ========================================================================== */
+
+/* -- .card — the game talking ---------------------------------------------
+   Instructions, status, telemetry. In the old identity this was dark chrome;
+   in this one it is a raised white panel, because dark is reserved for the
+   terminal log and nothing else. */
+
+.card {
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card h1,
+.card h2,
+.card h3 {
+  color: var(--ink);
+}
+
+/* -- .paper — anything claim-shaped ----------------------------------------
+   If it represents the claim itself, at any hop, it is paper: recessed,
+   tinted away from the page, and always in the body face at reading size. */
+
+.paper {
+  background: var(--surface-container);
+  color: var(--ink);
+  border-top: var(--border-1) solid var(--ink);
+  border-left: var(--border-1) solid var(--ink);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  border-right: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paper-text {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* What entered play. */
+.paper-original {
+  border-left: 6px solid var(--teal-container);
+}
+
+/* What came out. */
+.paper-final {
+  border-left: 6px solid var(--red);
+}
+
+/* -- constraint card — the pressure ---------------------------------------
+   Yellow is pressure. It is the loudest thing on the hop screen because it
+   is the thing acting on the claim. */
+
+.constraint {
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.constraint-name {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.constraint-note {
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  line-height: 1.45;
+  color: var(--on-amber);
+}
+
+/* -- timer ----------------------------------------------------------------- */
+
+.timer {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.timer.is-warning {
+  color: var(--red);
+}
+
+.timer-track {
+  height: 16px;
+  background: var(--surface-highest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 2px;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 1px;
+  transition: width 0.9s linear;
+}
+
+.timer-fill.is-warning {
+  background: var(--red);
+}
+
+/* -- the hop chain wire ----------------------------------------------------
+   The spine of the game: a run of blocks, sparking where an atom died.
+   Square, not round — these are bricks in a chain. */
+
+.wire {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 4px 0;
+}
+
+.wire-node {
+  width: 16px;
+  height: 16px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: 2px;
+  background: var(--surface-lowest);
+  flex-shrink: 0;
+}
+
+.wire-node.is-done {
+  background: var(--teal-fixed);
+}
+
+.wire-node.is-current {
+  background: var(--amber);
+}
+
+.wire-node.is-ai {
+  background: var(--violet-container);
+}
+
+/* Where the atom stopped being true. */
+.wire-node.is-spark {
+  background: var(--red);
+  box-shadow: 0 0 0 3px var(--red-container);
+}
+
+.wire-link {
+  flex: 1;
+  height: 4px;
+  background: var(--outline-variant);
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  min-width: 8px;
+}
+
+.wire-link.is-done {
+  background: var(--teal-fixed);
+}
+
+.wire-link.is-broken {
+  background: repeating-linear-gradient(90deg,
+      var(--red) 0 4px,
+      transparent 4px 8px);
+}
+
+/* -- the Decay Ledger ------------------------------------------------------
+   The only fidelity signal in the game. There is no score anywhere. */
+
+.ledger {
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ledger-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  border-bottom: var(--border-1) solid var(--ink);
+}
+
+.ledger-row:last-child {
+  border-bottom: 0;
+}
+
+.ledger-head {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-red-container);
+  margin: 0;
+}
+
+.ledger-head.is-alive {
+  color: var(--teal);
+}
+
+.alive-note {
+  font-size: var(--text-body-md);
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   7. FEATURE BLOCKS
+   ========================================================================== */
+
+/* -- stage bar -------------------------------------------------------------
+   The thin line at the top of every screen saying where the room is. */
 
 .stage-bar {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--ink-line);
+  padding: 10px 14px;
+  background: var(--surface-highest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
 }
 
-/* Lobby */
+/* -- handoff ---------------------------------------------------------------
+   "Pass the device to X." One name, nothing else on the screen. */
+
+.handoff {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+  padding: 48px 20px;
+  background: var(--surface-lowest);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+}
+
+.handoff h1 {
+  font-size: var(--text-headline-lg);
+  color: var(--primary);
+  word-break: break-word;
+}
+
+@media (min-width: 768px) {
+  .handoff h1 {
+    font-size: var(--text-headline-xl);
+  }
+}
+
+/* -- lobby ------------------------------------------------------------------ */
 
 .lobby-name {
   flex: 1;
@@ -672,77 +1051,101 @@ select.field {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
 }
 
 .lobby-players li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--ink-line);
-}
-
-.lobby-players li:last-child {
-  border-bottom: 0;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
 }
 
 .lobby-seat {
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
   color: var(--ink-soft);
-  min-width: 1.4em;
+  min-width: 1.6em;
 }
 
 .lobby-players li span:nth-child(2) {
   flex: 1;
+  font-weight: 600;
 }
 
+/* A pickable option: mode, preset, decision, verify question. */
 .lobby-option {
   appearance: none;
   text-align: left;
-  background: var(--paper);
-  border: 1.5px solid var(--ink-line);
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  box-shadow: var(--shadow-2);
+  padding: 16px 18px;
   min-height: var(--tap);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   width: 100%;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
+}
+
+.lobby-option:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+}
+
+.lobby-option:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: none;
 }
 
 .lobby-option.is-picked {
-  border-color: var(--amber);
-  background: var(--amber-bg);
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.lobby-option.is-picked .lobby-option-note {
+  color: var(--on-amber);
 }
 
 .lobby-option:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: var(--shadow-1);
 }
 
 .lobby-option-name {
-  font-weight: 600;
-  font-size: 0.98rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-body-lg);
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .lobby-option-note {
-  font-size: 0.86rem;
+  font-size: var(--text-body-md);
   color: var(--ink-soft);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .lobby-soon {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.07em;
+  font-size: var(--text-code);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  font-weight: 400;
+  color: var(--outline);
+  font-weight: 700;
 }
 
 .lobby-setting {
@@ -752,24 +1155,28 @@ select.field {
 
 .lobby-setting .field {
   max-width: 8em;
+  font-family: var(--font-mono);
 }
 
 .lobby-toggle {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   min-height: var(--tap);
-  padding: 6px 0;
+  padding: 12px 14px;
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
   cursor: pointer;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .lobby-toggle input {
-  margin-top: 3px;
-  width: 18px;
-  height: 18px;
+  margin-top: 2px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  accent-color: var(--amber);
+  accent-color: var(--primary);
 }
 
 .lobby-toggle.is-disabled {
@@ -777,44 +1184,37 @@ select.field {
   cursor: not-allowed;
 }
 
+/* A thing the room should know before it starts. */
 .lobby-warning {
-  background: var(--amber-bg);
-  border-left: 3px solid var(--amber);
+  background: var(--amber-soft);
+  color: var(--on-amber-deep);
+  border: var(--border-1) solid var(--ink);
+  border-left: 6px solid var(--amber-strong);
   border-radius: var(--radius);
-  padding: 11px 14px;
-  font-size: 0.88rem;
-  color: var(--paper-text);
+  box-shadow: var(--shadow-1);
+  padding: 14px 16px;
+  font-size: var(--text-body-md);
 }
 
 .lobby-later {
   justify-content: center;
 }
 
-/* Round */
-
-.handoff {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  text-align: center;
-  padding: 40px 0 20px;
-}
-
-.handoff h1 {
-  color: var(--amber);
-}
+/* -- round ------------------------------------------------------------------ */
 
 .round-clock {
-  align-items: baseline;
+  align-items: center;
 }
 
 .round-checked {
-  border-left: 3px solid var(--teal);
+  border-left: 6px solid var(--primary);
 }
 
 .hop-count {
-  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--ink-soft);
   text-align: right;
   margin: 0;
@@ -822,73 +1222,11 @@ select.field {
 
 .hop-count.is-over {
   color: var(--red);
-  font-weight: 500;
 }
 
-/* Debrief */
-
-.debrief-questions {
-  margin: 0;
-  padding-left: 1.2em;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.debrief-questions li {
-  line-height: 1.5;
-}
-
-.debrief-questions li::marker {
-  color: var(--amber-on-ink);
-}
-
-/* Session readout */
-
-.readout-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.readout-atom {
-  font-size: 0.68rem;
-  letter-spacing: 0.07em;
-  color: var(--ink-text);
-  min-width: 5.6em;
-}
-
-.readout-bar {
-  flex: 1;
-  height: 8px;
-  background: var(--ink-rule);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.readout-fill {
-  display: block;
-  height: 100%;
-  background: var(--red-on-ink);
-  border-radius: 4px;
-}
-
-.readout-count {
-  font-size: 0.68rem;
-  color: var(--ink-text-soft);
-  min-width: 2.6em;
-  text-align: right;
-}
-
-/* Crowd recall */
-
-.split-input {
-  min-height: 160px;
-}
-/* ------------------------------------------------------ T1 redact editor -- */
-/* Tap-to-remove word editor for the compression cards. Removed words stay
-   visible, struck through, so the loss is something the player watches
-   happen rather than a quiet omission.                                       */
+/* -- redact editor (T1) -----------------------------------------------------
+   Tap a word to cut it. Removed words stay visible, struck through, so the
+   loss is something the player watches happen. */
 
 .redact-words {
   display: flex;
@@ -898,171 +1236,182 @@ select.field {
 
 .redact-word {
   appearance: none;
-  border: 1.5px solid var(--ink-line);
-  background: var(--paper);
-  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
+  background: var(--surface-lowest);
+  color: var(--ink);
+  box-shadow: var(--shadow-1);
   min-height: var(--tap);
-  min-width: var(--tap);
   padding: 8px 12px;
-  font-family: var(--font-display);
-  font-size: 1rem;
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  font-weight: 500;
   line-height: 1.3;
   cursor: pointer;
-  transition: opacity 0.12s ease, transform 0.06s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.redact-word:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-2);
 }
 
 .redact-word:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .redact-word.is-removed {
   text-decoration: line-through;
-  color: var(--ink-soft);
-  opacity: 0.5;
-  background: var(--cream);
-  border-color: var(--ink-line);
+  text-decoration-thickness: 2px;
+  color: var(--outline);
+  background: var(--surface-highest);
+  box-shadow: none;
+  transform: translate(2px, 2px);
 }
 
 .redact-preview {
-  border-left: 3px solid var(--amber);
+  border-left: 6px solid var(--amber-strong);
 }
 
-/* ============================================================================
-   T2 — the death row.
-
-   Trigger, original phrase, final phrase. The phrases are set in mono because
-   they are evidence: the exact words that entered play and the exact words
-   that replaced them, quoted rather than described.
-
-   Two columns on a 375px screen, and the value column is allowed to wrap for
-   as long as it needs to. Nothing here scrolls sideways.
-   ========================================================================== */
+/* -- the death row (T2) -----------------------------------------------------
+   Trigger, original phrase, final phrase. The phrases are mono because they
+   are evidence: the exact words in, the exact words out. */
 
 .ledger-diag {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 10px;
-  row-gap: 5px;
+  column-gap: 12px;
+  row-gap: 6px;
   align-items: baseline;
   margin: 0;
 }
 
 .ledger-diag-label {
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-text-soft);
+  color: var(--outline);
 }
 
 .ledger-diag-value {
-  margin: 0; /* dd */
+  margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--ink-text);
-  /* A long unbroken phrase breaks rather than pushing the row off the screen. */
+  font-size: var(--text-label);
+  line-height: 1.5;
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 
-/* The pressure, not the person. Amber is this palette's colour for pressure. */
+/* The pressure, not the person. Hugs its own text rather than filling the
+   grid cell — a full-width plate reads as a banner, and the trigger is a
+   value in a row, not a headline. */
 .ledger-diag-trigger {
-  color: var(--amber-on-ink);
+  color: var(--on-amber);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 2px 8px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  justify-self: start;
+  max-width: 100%;
 }
 
 /* The player sits in parentheses, in the quietest colour on the row. */
 .ledger-diag-who {
-  color: var(--ink-text-soft);
+  color: var(--ink-soft);
   text-transform: none;
   letter-spacing: 0;
+  font-weight: 400;
 }
 
 .ledger-diag-original {
-  color: var(--ink-text-soft);
+  color: var(--ink-soft);
 }
 
 .ledger-diag-final {
-  color: var(--red-on-ink);
+  color: var(--on-red-container);
+  font-weight: 700;
 }
 
 /* Nothing replaced it. A word, not an empty cell. */
 .ledger-diag-dropped {
-  color: var(--ink-text-soft);
+  color: var(--outline);
   font-style: italic;
 }
 
 /* The engine proposed, the room decided. */
 .ledger-diag-room {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: var(--ink-text-soft);
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
-
-/* Only on rows the engine could not read. Two taps, neither of them marked
-   right — the noticing is the learning, and nothing here is scored. */
 
 .ledger-diag-ask {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 2px;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface-low);
+  border: var(--border-1) dashed var(--outline);
+  border-radius: var(--radius);
 }
 
 .ledger-diag-ask-note {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: var(--ink-text-soft);
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
 
 .ledger-diag-choices {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* Two taps, neither marked right. Nothing here is scored. */
 .ledger-diag-choice {
   flex: 1;
   min-height: var(--tap);
-  padding: 8px 10px;
-  background: transparent;
-  border: 1px solid var(--ink-rule);
+  padding: 10px 12px;
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-text-soft);
+  color: var(--ink);
   cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .ledger-diag-choice:hover {
-  border-color: var(--ink-text-soft);
-  color: var(--ink-text);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-2);
 }
 
-/* Teal is this palette's colour for intact, red for lost. The picked state
-   says what the room decided, never whether it was correct. */
 .ledger-diag-choice.is-alive {
-  border-color: var(--teal-on-ink);
-  color: var(--teal-on-ink);
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .ledger-diag-choice.is-lost {
-  border-color: var(--red-on-ink);
-  color: var(--red-on-ink);
+  background: var(--red-container);
+  color: var(--on-red-container);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
-/* ============================================================================
-   T3 — how to play.
-
-   Read once, before a first round, by someone who has been given no context.
-   Everything here is sized for scanning: a numbered beat, a short line, and
-   the five atoms named in the same mono the ledger will use for them.
-   ========================================================================== */
+/* -- how to play (T3) ------------------------------------------------------- */
 
 .howto-steps {
   list-style: none;
@@ -1070,25 +1419,33 @@ select.field {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   counter-reset: howto-step;
 }
 
 .howto-steps li {
   display: flex;
-  gap: 10px;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: var(--text-body-md);
+  line-height: 1.5;
   counter-increment: howto-step;
 }
 
 .howto-steps li::before {
   content: counter(howto-step);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  line-height: 1.8;
-  color: var(--amber-on-ink);
   flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  background: var(--primary);
+  color: var(--on-primary);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
 }
 
 .howto-atoms {
@@ -1101,68 +1458,91 @@ select.field {
 .howto-atom {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 12px;
+  column-gap: 14px;
   align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: var(--border-1) solid var(--outline-variant);
+}
+
+.howto-atom:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 
 .howto-atom-name {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-code);
+  font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--amber-on-ink);
-  /* All five line up whatever their length, so the column reads as a list. */
-  min-width: 4.6em;
+  color: var(--on-amber);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  min-width: 5.6em;
+  text-align: center;
 }
 
 .howto-atom-note {
   margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: var(--ink-text);
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  color: var(--ink);
 }
 
 .howto-atom-dies {
   display: block;
-  font-size: 0.8rem;
-  color: var(--ink-text-soft);
+  font-size: var(--text-label);
+  color: var(--ink-soft);
+  margin-top: 2px;
 }
 
 /* The one rule. Nothing competes with it. */
-
 .howto-rule-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-left: 3px solid var(--amber);
+  background: var(--amber);
+  border: var(--border-2) solid var(--ink);
+  box-shadow: var(--shadow-3);
+  border-left: var(--border-2) solid var(--ink);
+  padding: 24px;
+  gap: 12px;
 }
 
 .howto-rule {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  line-height: 1.2;
-  color: var(--ink);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--on-amber-deep);
+  text-transform: uppercase;
 }
 
-.howto-rule-card .muted {
-  color: var(--paper-text);
+.howto-rule-card .muted,
+.howto-rule-card .eyebrow {
+  color: var(--on-amber);
 }
 
-/* The sample row sits inside a card, so it drops the ledger's own padding. */
-.howto-sample {
-  padding: 0;
-  background: transparent;
-}
-
-@media (min-width: 560px) {
+@media (min-width: 768px) {
   .howto-rule {
-    font-size: 1.75rem;
+    font-size: var(--text-headline-lg);
   }
 }
 
-/* ------------------------------------------------------------ T3 brief -- */
-/* Thirty seconds before the first hop. Three lines, then the one sentence
-   the rest of the session depends on.                                       */
+/* The sample ledger row sits inside a card, so it drops its own frame. */
+.howto-sample {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.howto-sample .ledger-row {
+  border-bottom: 0;
+  padding: 0;
+}
+
+/* -- brief (T3) ------------------------------------------------------------- */
 
 .brief-lines {
   list-style: none;
@@ -1174,134 +1554,141 @@ select.field {
 }
 
 .brief-lines li {
-  font-size: 0.95rem;
-  line-height: 1.45;
-  padding-left: 14px;
-  border-left: 2px solid var(--ink-rule);
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  padding: 10px 14px;
+  background: var(--surface-low);
+  border-left: 6px solid var(--primary);
+  border-radius: var(--radius);
 }
 
+/* The sentence the whole session depends on. */
 .brief-anchor {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-left: 3px solid var(--amber);
+  background: var(--amber);
+  border: var(--border-2) solid var(--ink);
+  box-shadow: var(--shadow-3);
+  padding: 24px;
+  gap: 12px;
 }
 
 .brief-anchor-line {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  line-height: 1.25;
-  color: var(--ink);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--on-amber-deep);
 }
 
-.brief-anchor .muted {
-  color: var(--paper-text);
+.brief-anchor .muted,
+.brief-anchor .eyebrow {
+  color: var(--on-amber);
 }
 
-@media (min-width: 560px) {
+@media (min-width: 768px) {
   .brief-anchor-line {
-    font-size: 1.6rem;
+    font-size: var(--text-headline-lg);
   }
 }
 
-/* ----------------------------------------------------------- T3 thesis -- */
-/* Two versions of the same claim and one sentence. Nothing else belongs on
-   this screen — the ledger answers it in full on the very next one.          */
+/* -- thesis (T3) -----------------------------------------------------------
+   Two versions and one sentence. Deliberately nearly empty. */
 
 .thesis {
-  /* The two papers sit closer to each other than to the line, so they read
-     as a pair being compared rather than three stacked blocks. */
-  gap: 14px;
+  gap: 16px;
 }
 
 .thesis-line {
-  margin: 10px 0 4px;
+  margin: 8px 0 4px;
   font-family: var(--font-display);
-  font-size: 1.45rem;
-  line-height: 1.22;
-  letter-spacing: -0.015em;
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--ink);
   text-wrap: balance;
-  /* Arrives a beat after the two versions, so the eye compares them first and
-     reads the line as the conclusion. Killed by the reduced-motion block. */
+  /* Arrives a beat after the two versions, so the eye compares them first
+     and reads the line as the conclusion. Killed by reduced-motion. */
   animation: thesis-settle 620ms ease-out 220ms both;
 }
 
 @keyframes thesis-settle {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: none;
   }
 }
 
-@media (min-width: 560px) {
+@media (min-width: 768px) {
   .thesis-line {
-    font-size: 1.9rem;
+    font-size: var(--text-headline-xl);
   }
 }
 
-/* ============================================================================
-   T6 — the machine's turn.
-
-   Violet is this palette's colour for the AI participant, and it is used here
-   and nowhere else in the beat. The panel covers the hop editor: whoever is
-   holding the device is not meant to be writing this one.
-   ========================================================================== */
+/* -- the machine's turn (T6) -----------------------------------------------
+   A window-in-window over the hop editor. Whoever holds the device is not
+   meant to be writing this one. */
 
 .aihop {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px 16px;
-  background: color-mix(in srgb, var(--ink) 92%, transparent);
-}
-
-/* color-mix is recent; older engines get a flat ink wash rather than none. */
-@supports not (background: color-mix(in srgb, red 50%, transparent)) {
-  .aihop {
-    background: var(--ink);
-  }
+  background: rgba(25, 27, 35, 0.75);
 }
 
 .aihop-panel {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 22px 20px 24px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--ink-rule);
-  background: var(--ink);
-  text-align: center;
+  gap: 0;
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-3);
+  background: var(--surface-lowest);
+  overflow: hidden;
 }
 
-.aihop-panel .eyebrow {
-  color: var(--ink-text-soft);
+.aihop-head {
+  background: var(--violet);
+  color: var(--on-violet);
+}
+
+.aihop-body {
+  padding: 24px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
 }
 
 .aihop-name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  line-height: 1.2;
-  color: var(--violet-on-ink);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--violet);
 }
 
 .aihop-status {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  color: var(--ink-text);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
 /* Three dots that fill and clear. The room needs to see time passing. */
@@ -1314,12 +1701,15 @@ select.field {
   0% {
     content: '';
   }
+
   25% {
     content: '.';
   }
+
   50% {
     content: '..';
   }
+
   75% {
     content: '...';
   }
@@ -1328,60 +1718,72 @@ select.field {
 .aihop-card {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--amber-on-ink);
+  color: var(--on-amber);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 6px 10px;
 }
 
 .aihop-note {
   margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--ink-text-soft);
+  font-size: var(--text-label);
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
 
-/* ============================================================ T7 — rooms */
-/* Mounted globally (see GameContext.tsx), not screen-specific — Round.tsx is
-   frozen, so a connection problem or a stuck turn has to stay visible and
-   actionable from wherever the room happens to be. */
+/* -- rooms (T7) -------------------------------------------------------------
+   Mounted globally, not per screen — a connection problem has to stay
+   visible and actionable from wherever the room happens to be. */
 
 .room-status {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
+  gap: 10px;
+  padding: 8px 16px;
   background: var(--ink);
-  color: var(--ink-text);
-  font-size: 0.78rem;
+  color: var(--on-surface-inverse);
+  border-bottom: var(--border-1) solid var(--ink);
   font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.room-status .btn {
+  box-shadow: none;
 }
 
 .room-status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--on-surface-inverse);
   border-radius: 50%;
-  background: var(--ink-line);
+  background: var(--outline);
 }
 
 .room-status-dot.is-connected {
-  background: var(--teal-on-ink);
+  background: var(--teal-fixed-dim);
 }
 
 .room-status-dot.is-connecting {
-  background: var(--amber-on-ink);
+  background: var(--amber);
 }
 
 .room-status-dot.is-error {
-  background: var(--red-on-ink);
+  background: var(--red);
 }
 
-/* ------------------------------------------------------ T6 turing hop -- */
-/* Every version, offered as a choice. Nothing here is marked right or wrong:
-   the room's pick is outlined, the machine's hop is named, and that is all.  */
+/* -- turing hop (T6) --------------------------------------------------------
+   Every version offered as a choice. Nothing marked right or wrong. */
 
 .turing-option {
   display: flex;
@@ -1391,140 +1793,229 @@ select.field {
   text-align: left;
   font: inherit;
   cursor: pointer;
-  border: 1px solid transparent;
-  /* The claim-shaped background comes from .paper; only the edge changes. */
-  transition: border-color 0.12s ease;
+  box-shadow: var(--shadow-1);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .turing-option:hover:not(:disabled) {
-  border-color: var(--ink-line);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
 }
 
 .turing-option:disabled {
   cursor: default;
 }
 
-/* What the room chose. Amber is attention, not correctness. */
+/* What the room chose. Attention, not correctness. */
 .turing-option.is-picked {
-  border-color: var(--amber);
+  border-color: var(--ink);
+  outline: 3px solid var(--amber-strong);
+  outline-offset: 2px;
 }
 
-/* Where the machine actually was. Violet, as everywhere else it appears. */
+/* Where the machine actually was. Violet, as everywhere else. */
 .turing-option.is-machine {
-  border-left: 3px solid var(--violet);
+  border-left: 6px solid var(--violet);
 }
 
 .turing-tag {
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: var(--text-code);
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--on-amber);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  align-self: flex-start;
 }
 
-/* ============================================================================
-   T8 — the accusation.
-
-   Names to point at, and afterwards one hop marked as the one that carried a
-   different brief. Nothing here is coloured for right or wrong: the room's
-   vote earns nothing, and the mark on the hop is a fact about the brief, not
-   a verdict on the person.
-   ========================================================================== */
+/* -- accusation (T8) --------------------------------------------------------
+   Names to point at. Nothing here is coloured for right or wrong: the vote
+   earns nothing, and the mark on a hop is a fact about the brief, not a
+   verdict on the person. */
 
 .accuse-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
 }
 
 .accuse-option {
   appearance: none;
-  flex: 1 1 auto;
-  min-width: 6.5em;
-  min-height: var(--tap);
-  padding: 10px 16px;
-  border: 1.5px solid var(--ink-line);
+  min-height: 64px;
+  padding: 14px 16px;
+  border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
-  background: var(--paper);
+  background: var(--surface-lowest);
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
+  box-shadow: var(--shadow-2);
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
 }
 
 .accuse-option:hover {
-  border-color: var(--ink);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+  background: var(--red-container);
 }
 
 .accuse-option:active {
-  transform: translateY(1px);
+  transform: translate(4px, 4px);
+  box-shadow: none;
 }
 
 /* The hop that carried the different brief, once the room has voted. */
 .accuse-hop {
-  border-left: 3px solid var(--amber);
+  border-left: 6px solid var(--amber-strong);
 }
 
-/* The number the mode exists to produce. Two rows, read as a comparison —
-   the counts line up so the difference is the thing you see first. */
-
+/* The number the mode exists to produce. Two rows, read as a comparison. */
 .intent-split {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 14px;
-  row-gap: 10px;
+  column-gap: 16px;
+  row-gap: 14px;
   margin: 0;
   align-items: baseline;
 }
 
 .intent-split-label {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-text-soft);
+  color: var(--outline);
 }
 
 .intent-split-value {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   margin: 0;
 }
 
 .intent-split-count {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  line-height: 1.2;
-  color: var(--ink-text);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
 }
 
 .intent-split-count.is-none {
-  color: var(--ink-text-soft);
+  color: var(--outline);
 }
 
 .intent-split-atoms {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  line-height: 1.45;
-  color: var(--amber-on-ink);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--on-amber);
   overflow-wrap: anywhere;
 }
 
-/* ============================================================================
-   T9 — prediction stake and live reactions.
+/* -- debrief ---------------------------------------------------------------- */
 
-   The reaction bar sits under each reveal step. Taps are ephemeral: the pop
-   animation is the only record of one ever having happened, and it's the
-   same wash of feeling Gartic Phone's reveal gets from real-time reactions.
-   ========================================================================== */
+.debrief-questions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  counter-reset: debrief-q;
+}
+
+.debrief-questions li {
+  counter-increment: debrief-q;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.5;
+  padding: 12px 14px;
+  background: var(--surface-low);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.debrief-questions li::before {
+  content: 'Q' counter(debrief-q);
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  color: var(--on-primary);
+  background: var(--primary);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 7px;
+}
+
+/* -- session readout --------------------------------------------------------- */
+
+.readout-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.readout-atom {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  min-width: 6em;
+}
+
+.readout-bar {
+  flex: 1;
+  height: 18px;
+  background: var(--surface-highest);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 2px;
+}
+
+.readout-fill {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  border-radius: 1px;
+}
+
+.readout-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  color: var(--ink-soft);
+  min-width: 3em;
+  text-align: right;
+}
+
+/* -- crowd recall ------------------------------------------------------------ */
+
+.split-input {
+  min-height: 176px;
+}
+
+/* -- reactions (T9) ----------------------------------------------------------
+   Taps are ephemeral. The pop animation is the only record of one. */
 
 .reactionbar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -1533,11 +2024,11 @@ select.field {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
-  min-height: 1.6em;
+  min-height: 1.8em;
 }
 
 .reactionbar-pop {
-  font-size: 1.1rem;
+  font-size: 20px;
   line-height: 1;
   animation: reactionbar-pop 900ms ease-out forwards;
 }
@@ -1547,9 +2038,10 @@ select.field {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   to {
     opacity: 0;
-    transform: translateY(-14px) scale(1.15);
+    transform: translateY(-16px) scale(1.2);
   }
 }
 
@@ -1561,55 +2053,67 @@ select.field {
   min-width: var(--tap);
   min-height: var(--tap);
   padding: 6px 10px;
-  font-size: 1.2rem;
+  font-size: 22px;
   line-height: 1;
-  background: var(--paper);
-  border: 1px solid var(--ink-line);
+  background: var(--surface-lowest);
+  border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
   cursor: pointer;
-  transition: border-color 0.12s ease, transform 0.12s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .reactionbar-btn:hover {
-  border-color: var(--amber);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
 }
 
 .reactionbar-btn:active {
-  transform: scale(0.92);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
-/* ============================================================================
-   T10 — Pack Studio, minimal claim authoring.
-
-   Young people stop being the audience for an MIL tool and become the
-   authors of one. The tagger below is a text selector standing in for
-   retyping a phrase: tap the first word, tap the last, done.
-   ========================================================================== */
+/* -- pack studio (T10) --------------------------------------------------------
+   Young people stop being the audience for an MIL tool and become its
+   authors. The tagger is tap-first: tap the first word, tap the last. */
 
 .pack-atom-tabs {
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .pack-error {
-  color: var(--red);
-  font-size: 0.86rem;
+  color: var(--on-red-container);
+  background: var(--red-container);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
   margin: 0;
 }
 
 .pack-warning {
-  color: var(--amber);
-  font-size: 0.86rem;
+  color: var(--on-amber-deep);
+  background: var(--amber-soft);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
   margin: 0;
 }
 
 .pack-issues {
-  border: 1.5px solid var(--red);
+  border: var(--border-2) solid var(--red);
 }
 
 .pack-tagger {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .pack-tagger-hint {
@@ -1619,15 +2123,16 @@ select.field {
 .pack-tagger-text {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 0;
+  gap: 6px 0;
+  align-items: center;
 }
 
 .pack-tagger-word {
   appearance: none;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  padding: 1px 3px;
+  border: var(--border-1) solid transparent;
+  border-radius: var(--radius);
+  padding: 2px 4px;
   margin: 0 2px 0 0;
   font: inherit;
   color: inherit;
@@ -1636,7 +2141,8 @@ select.field {
 }
 
 .pack-tagger-word:hover {
-  border-color: var(--ink-line);
+  border-color: var(--outline-variant);
+  background: var(--surface-high);
 }
 
 .pack-tagger-word.is-anchor {
@@ -1647,43 +2153,51 @@ select.field {
 .pack-tagger-word.is-owned {
   text-decoration: underline;
   text-decoration-style: dotted;
-  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 .pack-tagger-word.is-tagged {
-  color: #fff;
+  border-color: var(--ink);
+  font-weight: 700;
 }
 
+/* One tint per atom, matched to the atom palette. */
 .pack-tagger-word.pack-atom-source.is-tagged {
-  background: var(--teal);
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
 }
 
 .pack-tagger-word.pack-atom-number.is-tagged {
-  background: var(--amber);
+  background: var(--amber-soft);
+  color: var(--on-amber-deep);
 }
 
 .pack-tagger-word.pack-atom-hedge.is-tagged {
-  background: var(--violet);
+  background: var(--surface-highest);
+  color: var(--ink-soft);
 }
 
 .pack-tagger-word.pack-atom-scope.is-tagged {
-  background: var(--red);
+  background: var(--red-container);
+  color: var(--on-red-container);
 }
 
 .pack-tagger-word.pack-atom-cause.is-tagged {
-  background: var(--ink);
+  background: var(--primary-fixed-dim);
+  color: var(--on-primary-fixed);
 }
 
 .pack-tagger-word.pack-atom-source.is-owned {
-  color: var(--teal);
+  color: var(--primary);
 }
 
 .pack-tagger-word.pack-atom-number.is-owned {
-  color: var(--amber);
+  color: var(--on-amber);
 }
 
 .pack-tagger-word.pack-atom-hedge.is-owned {
-  color: var(--violet);
+  color: var(--ink-soft);
 }
 
 .pack-tagger-word.pack-atom-scope.is-owned {
@@ -1691,16 +2205,18 @@ select.field {
 }
 
 .pack-tagger-word.pack-atom-cause.is-owned {
-  color: var(--ink-soft);
+  color: var(--on-primary-fixed);
 }
 
 .pack-variant-status {
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .pack-notice-loaded {
-  background: var(--teal-bg);
-  border-left-color: var(--teal);
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+  border-left-color: var(--teal-container);
 }
 
 .pack-chip-remove {
@@ -1708,8 +2224,41 @@ select.field {
   background: transparent;
   border: 0;
   color: inherit;
-  font-size: 0.95rem;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1;
   cursor: pointer;
   padding: 0 0 0 4px;
+}
+
+/* ==========================================================================
+   MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Translation-on-press is feedback, not decoration — but without the
+     transition it should simply not move. */
+  .btn:hover,
+  .btn:active,
+  .lobby-option:hover,
+  .lobby-option:active,
+  .neo-hover:hover,
+  .redact-word:hover,
+  .redact-word:active,
+  .accuse-option:hover,
+  .accuse-option:active,
+  .turing-option:hover,
+  .reactionbar-btn:hover,
+  .reactionbar-btn:active {
+    transform: none;
+  }
 }
