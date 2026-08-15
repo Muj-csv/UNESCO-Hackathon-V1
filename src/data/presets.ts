@@ -1,5 +1,7 @@
 import type { CardId, ConstraintSet, ConstraintSetId, Preset } from '../types/contracts';
-import { ALL_CARD_IDS } from './cards';
+/* `.js` deliberately — see the note on the imports in src/state/gameReducer.ts.
+   This module is reached from api/room.ts and Node resolves it at runtime. */
+import { ALL_CARD_IDS } from './cards.js';
 
 /* ============================================================================
    Pressure environments.
