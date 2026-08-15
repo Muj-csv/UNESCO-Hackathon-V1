@@ -439,11 +439,20 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, round: { ...state.round, imposter: action.assignment } };
 
     case 'CAST_ACCUSATION':
-      /* T8 — the room's vote. Never scored. */
-      return state;
+      /* T8 — the room's vote. Recorded so the screen can name who was accused
+         next to who it actually was. Never scored, never counted across a
+         session: a room that names the wrong person has lost nothing, and is
+         about to find out the person they hunted did the least damage. */
+      return { ...state, round: { ...state.round, accusation: action.player } };
 
     case 'REVEAL_ROLES':
-      /* T8 — imposter and machine revealed together. */
+      /* T8 — imposter and machine revealed together.
+         Nothing to store on one device: both are already in local state, and
+         the screen reveals them the moment `accusation` is set. This exists
+         for T7, where the server withholds hop.isImposter from the room
+         payload and needs an explicit moment to stop withholding it. Wiring
+         that needs a field this file cannot add — contracts.ts is frozen — so
+         it stays a no-op here rather than pretending to do something. */
       return state;
 
     case 'SET_PREDICTION':

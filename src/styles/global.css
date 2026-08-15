@@ -1421,3 +1421,47 @@ select.field {
   text-transform: uppercase;
   color: var(--amber);
 }
+
+/* ============================================================================
+   T8 — the accusation.
+
+   Names to point at, and afterwards one hop marked as the one that carried a
+   different brief. Nothing here is coloured for right or wrong: the room's
+   vote earns nothing, and the mark on the hop is a fact about the brief, not
+   a verdict on the person.
+   ========================================================================== */
+
+.accuse-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.accuse-option {
+  appearance: none;
+  flex: 1 1 auto;
+  min-width: 6.5em;
+  min-height: var(--tap);
+  padding: 10px 16px;
+  border: 1.5px solid var(--ink-line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.accuse-option:hover {
+  border-color: var(--ink);
+}
+
+.accuse-option:active {
+  transform: translateY(1px);
+}
+
+/* The hop that carried the different brief, once the room has voted. */
+.accuse-hop {
+  border-left: 3px solid var(--amber);
+}
