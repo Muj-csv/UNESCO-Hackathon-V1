@@ -11,6 +11,8 @@
    one file.
    ========================================================================== */
 
+import type { GameState } from '../types/contracts';
+
 export interface RoomPlayerPublic {
   id: string;
   name: string;
@@ -20,12 +22,26 @@ export interface RoomPlayerPublic {
 }
 
 /**
+ * The slice of `GameState` a room syncs across devices. Connection info
+ * (`room`) and the player roster (`players`, sourced from the room's own
+ * join records — see `RoomSnapshot.players`) are deliberately excluded;
+ * they're owned elsewhere and would fight the server for authority.
+ *
+ * This is single-chain today. N-parallel simultaneous chains (the biggest
+ * piece of T7) will very likely reshape `round` here — see docs/T7.
+ */
+export type SharedGameState = Pick<
+  GameState,
+  'screen' | 'settings' | 'round' | 'session' | 'briefSeen' | 'packClaims'
+>;
+
+export function isSharedGameState(value: unknown): value is SharedGameState {
+  return !!value && typeof value === 'object' && 'screen' in value && 'settings' in value;
+}
+
+/**
  * Server-authoritative room snapshot as seen by a client. Never carries
  * `hop.isImposter` before the reveal — the server strips it per player.
- *
- * `game` is `unknown` here (not `GameState`) because what a room actually
- * syncs — one shared round vs. N parallel chains — is decided in the
- * simultaneous-chains phase. Phase 1 only needs players/host/lifecycle.
  */
 export interface RoomSnapshot {
   code: string;
@@ -36,7 +52,7 @@ export interface RoomSnapshot {
   expiresAt: number;
   /** Bumped on every accepted action, so a client can tell state moved on. */
   seq: number;
-  game: unknown;
+  game: SharedGameState | null;
 }
 
 export interface CreateRoomResponse {

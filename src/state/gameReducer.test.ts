@@ -11,6 +11,7 @@ import {
   prepareRound,
   routeFor,
   selectLobbyWarnings,
+  settingsForPreset,
 } from './gameReducer';
 import rawClaims from '../data/claims.en.json';
 
@@ -432,6 +433,88 @@ describe('SET_VERIFY_CHOICE', () => {
     let state = run(started(5), { type: 'SET_VERIFY_CHOICE', atom: 'SCOPE' });
     state = run(state, { type: 'BEGIN_ROUND', setup: prepareRound(state, CLAIMS) });
     expect(state.round.verifyChoice).toBeNull();
+  });
+});
+
+describe('JOIN_ROOM', () => {
+  it('records the connection and marks it connected', () => {
+    const state = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true });
+    expect(state.room).toMatchObject({ code: 'ABCD', playerId: 'p1', isHost: true, status: 'connected' });
+    expect(state.room.lastSyncAt).not.toBeNull();
+  });
+
+  it('does not touch players or settings by itself', () => {
+    const withRoom = withPlayers(2);
+    const state = run(withRoom, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    expect(state.players).toEqual(withRoom.players);
+    expect(state.settings).toEqual(withRoom.settings);
+  });
+});
+
+describe('SYNC_ROOM_STATE', () => {
+  type SnapshotPlayer = { id: string; name: string; isHost: boolean; connected: boolean };
+  const snapshot = (over: Partial<{ players: SnapshotPlayer[]; game: unknown }> = {}) => ({
+    code: 'ABCD',
+    hostId: 'p1',
+    players: [{ id: 'p1', name: 'Ana', isHost: true, connected: true }],
+    createdAt: 0,
+    updatedAt: 0,
+    expiresAt: 0,
+    seq: 1,
+    game: null,
+    ...over,
+  });
+
+  it('replaces the player roster from the room, not ADD_PLAYER', () => {
+    const state = run(
+      initialState,
+      { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true },
+      {
+        type: 'SYNC_ROOM_STATE',
+        payload: snapshot({
+          players: [
+            { id: 'p1', name: 'Ana', isHost: true, connected: true },
+            { id: 'p2', name: 'Ben', isHost: false, connected: true },
+          ],
+        }),
+      },
+    );
+    expect(state.players).toEqual([
+      { id: 'p1', name: 'Ana' },
+      { id: 'p2', name: 'Ben' },
+    ]);
+  });
+
+  it('leaves screen/round/settings alone when nobody has pushed a shared state yet', () => {
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot({ game: null }) });
+    expect(state.screen).toBe(withRoom.screen);
+    expect(state.round).toEqual(withRoom.round);
+  });
+
+  it('applies a shared game payload once someone has pushed one', () => {
+    const shared = {
+      screen: 'round',
+      settings: settingsForPreset('standard', 'chain'),
+      round: { ...initialState.round, currentHop: 2 },
+      session: initialState.session,
+      briefSeen: true,
+      packClaims: null,
+    };
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot({ game: shared }) });
+
+    expect(state.screen).toBe('round');
+    expect(state.round.currentHop).toBe(2);
+    expect(state.briefSeen).toBe(true);
+  });
+
+  it('keeps connection info local rather than adopting anything from the payload', () => {
+    const withRoom = run(initialState, { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p2', isHost: false });
+    const state = run(withRoom, { type: 'SYNC_ROOM_STATE', payload: snapshot() });
+    expect(state.room.code).toBe('ABCD');
+    expect(state.room.playerId).toBe('p2');
+    expect(state.room.isHost).toBe(false);
   });
 });
 

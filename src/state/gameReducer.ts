@@ -18,6 +18,8 @@ import type {
 } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { DEFAULT_PRESET_ID, cardsForPreset, getPreset } from '../data/presets';
+import { isSharedGameState } from './roomProtocol';
+import type { RoomSnapshot } from './roomProtocol';
 
 /* ============================================================================
    Every state transition in the game.
@@ -371,12 +373,38 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return state;
 
     case 'JOIN_ROOM':
-      /* T7 — code, playerId, host flag. */
-      return state;
+      /* T7 — code, playerId, host flag. From here the server is the source
+         of truth for the player roster and shared round state, reconciled
+         on every SYNC_ROOM_STATE. */
+      return {
+        ...state,
+        room: {
+          code: action.code,
+          playerId: action.playerId,
+          isHost: action.isHost,
+          status: 'connected',
+          lastSyncAt: Date.now(),
+        },
+      };
 
-    case 'SYNC_ROOM_STATE':
-      /* T7 — reconcile the 1.5s poll against optimistic local state. */
-      return state;
+    case 'SYNC_ROOM_STATE': {
+      /* T7 — reconcile the 1.5s poll against optimistic local state. The
+         payload is a RoomSnapshot (see roomProtocol.ts): `players` replaces
+         the local roster (room membership is server-owned, not ADD_PLAYER),
+         and `game` — when someone has pushed one — replaces the shared
+         slice of state. `room` itself is connection info and stays local. */
+      const snapshot = action.payload as Partial<RoomSnapshot>;
+      const players: Player[] = Array.isArray(snapshot.players)
+        ? snapshot.players.map((p) => ({ id: p.id, name: p.name }))
+        : state.players;
+      const shared = isSharedGameState(snapshot.game) ? snapshot.game : {};
+      return {
+        ...state,
+        ...shared,
+        players,
+        room: { ...state.room, lastSyncAt: Date.now() },
+      };
+    }
 
     case 'ASSIGN_IMPOSTER':
       /* T8 — exactly one, never first or last hop. */
