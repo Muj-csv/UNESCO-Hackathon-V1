@@ -119,4 +119,104 @@ describe('api/room handler', () => {
     await handler(mockReq('GET', '/api/room?code=ZZZZ'), res);
     expect(res.statusCode).toBe(404);
   });
+
+  describe('simultaneous rounds', () => {
+    async function roomOfThree() {
+      const createRes = mockRes();
+      await handler(mockReq('POST', '/api/room', { name: 'Ana' }), createRes);
+      const { code, playerId: ana } = createRes.body as { code: string; playerId: string };
+
+      const joinBen = mockRes();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=join`, { name: 'Ben' }), joinBen);
+      const ben = (joinBen.body as { playerId: string }).playerId;
+
+      const joinCara = mockRes();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=join`, { name: 'Cara' }), joinCara);
+      const cara = (joinCara.body as { playerId: string }).playerId;
+
+      return { code, ana, ben, cara };
+    }
+
+    it('lets the host begin a simultaneous round', async () => {
+      const { code, ana } = await roomOfThree();
+
+      const res = mockRes();
+      await handler(
+        mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ana, cardIds: ['chars'], timerSeconds: 30 }),
+        res,
+      );
+      expect(res.statusCode).toBe(200);
+      expect((res.body as { simView: { status: string } }).simView.status).toBe('active');
+    });
+
+    it('rejects a non-host trying to begin a round', async () => {
+      const { code, ben } = await roomOfThree();
+      const res = mockRes();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ben }), res);
+      expect(res.statusCode).toBe(403);
+    });
+
+    it('gives each player a different chain via GET with playerId', async () => {
+      const { code, ana, ben, cara } = await roomOfThree();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ana }), mockRes());
+
+      const views = await Promise.all(
+        [ana, ben, cara].map(async (playerId) => {
+          const res = mockRes();
+          await handler(mockReq('GET', `/api/room?code=${code}&playerId=${playerId}`), res);
+          return (res.body as { simView: { status: string; claim?: { id: string } } }).simView;
+        }),
+      );
+      expect(views.every((v) => v.status === 'active')).toBe(true);
+      const claimIds = views.map((v) => v.claim?.id);
+      expect(new Set(claimIds).size).toBe(3); // three players, three different chains
+    });
+
+    it('submits a chain hop via the generic act op', async () => {
+      const { code, ana, ben, cara } = await roomOfThree();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ana }), mockRes());
+
+      const submit = mockRes();
+      await handler(
+        mockReq('POST', `/api/room?code=${code}&op=act`, {
+          playerId: ana,
+          action: { type: 'SUBMIT_CHAIN_HOP', payload: { text: "Ana's version" } },
+        }),
+        submit,
+      );
+      expect(submit.statusCode).toBe(200);
+      expect((submit.body as { simView: { status: string } }).simView.status).toBe('waiting');
+
+      // wave hasn't advanced — Ben and Cara still haven't gone
+      const benView = mockRes();
+      await handler(mockReq('GET', `/api/room?code=${code}&playerId=${ben}`), benView);
+      expect((benView.body as { simView: { status: string } }).simView.status).toBe('active');
+      void cara;
+    });
+
+    it('host force-advance fills the wave without waiting out the timer', async () => {
+      const { code, ana, ben } = await roomOfThree();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ana, timerSeconds: 300 }), mockRes());
+
+      const forced = mockRes();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=forceAdvance`, { playerId: ana }), forced);
+      expect(forced.statusCode).toBe(200);
+
+      const benView = mockRes();
+      await handler(mockReq('GET', `/api/room?code=${code}&playerId=${ben}`), benView);
+      const view = (benView.body as { simView: { status: string; hopIndex?: number } }).simView;
+      // wave 0 was force-filled for everyone, so Ben is now on wave 1
+      expect(view.status).toBe('active');
+      expect(view.hopIndex).toBe(1);
+    });
+
+    it('rejects a non-host trying to force-advance', async () => {
+      const { code, ana, ben } = await roomOfThree();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=beginSim`, { playerId: ana }), mockRes());
+
+      const res = mockRes();
+      await handler(mockReq('POST', `/api/room?code=${code}&op=forceAdvance`, { playerId: ben }), res);
+      expect(res.statusCode).toBe(403);
+    });
+  });
 });

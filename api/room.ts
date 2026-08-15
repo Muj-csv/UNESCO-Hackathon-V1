@@ -9,10 +9,17 @@
    `:code/join`-style paths are conceptual — see roomProtocol.ts for why the
    real shape uses `?op=`):
 
-     POST /api/room                        create → { code, playerId, room }
-     POST /api/room?code=XXXX&op=join      { name } → { playerId, room }
-     GET  /api/room?code=XXXX              full room state   ← polled
-     POST /api/room?code=XXXX&op=act       { playerId, action } → room
+     POST /api/room                          create → { code, playerId, room }
+     POST /api/room?code=XXXX&op=join        { name } → { playerId, room }
+     GET  /api/room?code=XXXX[&playerId=Y]   full room state   ← polled
+     POST /api/room?code=XXXX&op=act         { playerId, action } → room
+     POST /api/room?code=XXXX&op=beginSim    { playerId, cardIds, timerSeconds } → room  (host only)
+     POST /api/room?code=XXXX&op=forceAdvance { playerId } → room                        (host only)
+
+   `playerId` on the GET is what makes the per-player `simView` in the
+   snapshot possible (see roomStore.ts's `toPublicSnapshot`) — the whole
+   point of simultaneous chains is that different devices are shown
+   different things from the same room.
 
    ── Constraints ──
    - Rooms expire after 4 hours. No accounts, no history, nothing identifying
@@ -22,7 +29,36 @@
      `toPublicSnapshot` is the one chokepoint for that — T8 filters there.
    ========================================================================== */
 
-import { addPlayer, applyAction, cleanName, createRoom, getRoom, toPublicSnapshot } from './_lib/roomStore';
+import type { CardId } from '../src/types/contracts';
+import { CARDS } from '../src/data/cards';
+import rawClaims from '../src/data/claims.en.json';
+import {
+  addPlayer,
+  applyAction,
+  beginSimRound,
+  cleanName,
+  createRoom,
+  forceAdvanceSimRound,
+  getRoom,
+  toPublicSnapshot,
+} from './_lib/roomStore';
+
+const CLAIMS = rawClaims as import('../src/types/contracts').Claim[];
+const VALID_CARD_IDS = new Set(Object.keys(CARDS));
+const DEFAULT_TIMER_SECONDS = 60;
+const MIN_TIMER_SECONDS = 15;
+const MAX_TIMER_SECONDS = 180;
+
+function cleanCardIds(raw: unknown): CardId[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((id): id is CardId => typeof id === 'string' && VALID_CARD_IDS.has(id));
+}
+
+function cleanTimerSeconds(raw: unknown): number {
+  const n = typeof raw === 'number' ? Math.round(raw) : NaN;
+  if (!Number.isFinite(n)) return DEFAULT_TIMER_SECONDS;
+  return Math.min(MAX_TIMER_SECONDS, Math.max(MIN_TIMER_SECONDS, n));
+}
 
 function sendError(res: any, status: number, error: string, message: string): void {
   res.status(status).json({ error, message });
@@ -72,11 +108,12 @@ export default async function handler(req: any, res: any) {
 
     if (!code) return sendError(res, 400, 'missing_code', 'A room code is required.');
 
-    /* GET /api/room?code=XXXX — polled snapshot */
+    /* GET /api/room?code=XXXX[&playerId=Y] — polled snapshot */
     if (method === 'GET') {
       const record = await getRoom(code);
       if (!record) return sendError(res, 404, 'not_found', 'No room with that code.');
-      return res.status(200).json(toPublicSnapshot(record));
+      const playerId = url.searchParams.get('playerId') ?? undefined;
+      return res.status(200).json(toPublicSnapshot(record, playerId));
     }
 
     if (method !== 'POST') return sendError(res, 405, 'method_not_allowed', 'Unsupported method.');
@@ -110,7 +147,38 @@ export default async function handler(req: any, res: any) {
       }
 
       const updated = await applyAction(record, playerId, action);
-      return res.status(200).json(toPublicSnapshot(updated));
+      return res.status(200).json(toPublicSnapshot(updated, playerId));
+    }
+
+    /* POST /api/room?code=XXXX&op=beginSim — host-only, starts a
+       simultaneous round (see api/_lib/simRound.ts). */
+    if (op === 'beginSim') {
+      const body = await readBody(req);
+      const playerId = typeof body?.playerId === 'string' ? body.playerId : null;
+      if (!playerId) return sendError(res, 400, 'invalid_request', 'playerId is required.');
+
+      const record = await getRoom(code);
+      if (!record) return sendError(res, 404, 'not_found', 'No room with that code.');
+      if (record.hostId !== playerId) return sendError(res, 403, 'not_host', 'Only the host can start a round.');
+
+      const cardIds = cleanCardIds(body?.cardIds);
+      const timerSeconds = cleanTimerSeconds(body?.timerSeconds);
+      const updated = await beginSimRound(record, CLAIMS, cardIds, timerSeconds);
+      return res.status(200).json(toPublicSnapshot(updated, playerId));
+    }
+
+    /* POST /api/room?code=XXXX&op=forceAdvance — host-only. */
+    if (op === 'forceAdvance') {
+      const body = await readBody(req);
+      const playerId = typeof body?.playerId === 'string' ? body.playerId : null;
+      if (!playerId) return sendError(res, 400, 'invalid_request', 'playerId is required.');
+
+      const record = await getRoom(code);
+      if (!record) return sendError(res, 404, 'not_found', 'No room with that code.');
+      if (record.hostId !== playerId) return sendError(res, 403, 'not_host', 'Only the host can force-advance.');
+
+      const updated = await forceAdvanceSimRound(record);
+      return res.status(200).json(toPublicSnapshot(updated, playerId));
     }
 
     return sendError(res, 404, 'not_found', 'Unknown room operation.');

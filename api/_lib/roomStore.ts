@@ -16,6 +16,10 @@
    ========================================================================== */
 
 import { Redis } from '@upstash/redis';
+import type { CardId, Claim } from '../../src/types/contracts';
+import type { SimRound } from './simRound';
+import { applyTimeouts, forceAdvanceWave, startSimRound, submitChainHop, viewForPlayer } from './simRound';
+import type { SimAssignmentView } from './simRound';
 
 export const ROOM_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours — see docs/T7
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I/O — avoids look-alikes on a shared screen
@@ -40,8 +44,13 @@ export interface RoomRecord {
   expiresAt: number;
   /** Bumped on every accepted mutation, so a client can tell state moved on. */
   seq: number;
-  /** Opaque shared game payload. Shape settles in the simultaneous-chains phase. */
+  /** Opaque shared game payload — the single-shared-round mechanism from
+      phase 3/4. Still what drives crowd recall and lobby/menu screens; a
+      client with an active `simRound` ignores this for the round itself
+      and reads its per-player assignment instead (see `simView`, below). */
   game: unknown;
+  /** Simultaneous chains (see simRound.ts). Null outside a chain-mode round. */
+  simRound: SimRound | null;
 }
 
 export type RoomAction = { type: string; payload?: unknown };
@@ -110,8 +119,23 @@ export function cleanName(raw: unknown): string | null {
   return trimmed || null;
 }
 
+/** Catches an active `simRound` up on any missed waves before returning it,
+    persisting the result — the same lazy-timeout pattern as room expiry.
+    Every read goes through this, so a stale wave gets caught up whether it's
+    discovered by a poll or by an action. */
+async function withSimTimeouts(record: RoomRecord): Promise<RoomRecord> {
+  if (!record.simRound) return record;
+  const advanced = applyTimeouts(record.simRound);
+  if (advanced === record.simRound) return record;
+  const updated: RoomRecord = { ...record, simRound: advanced, updatedAt: Date.now(), seq: record.seq + 1 };
+  await saveRoom(updated);
+  return updated;
+}
+
 export async function getRoom(code: string): Promise<RoomRecord | null> {
-  return readRoom(code.toUpperCase());
+  const record = await readRoom(code.toUpperCase());
+  if (!record) return null;
+  return withSimTimeouts(record);
 }
 
 /** Retries on the rare code collision rather than trusting one draw. */
@@ -132,6 +156,7 @@ export async function createRoom(name: string): Promise<{ record: RoomRecord; pl
       expiresAt: now + ROOM_TTL_MS,
       seq: 0,
       game: null,
+      simRound: null,
     };
     await saveRoom(record);
     return { record, playerId };
@@ -157,10 +182,42 @@ export async function addPlayer(
 }
 
 /**
- * `SYNC_GAME_STATE` is the only action semantics this phase defines: the
- * room is a shared blob, and the payload replaces it wholesale, last write
- * wins. Real per-action reducing (simultaneous chains, host force-advance,
- * conflict resolution) lands in later phases — see docs/T7.
+ * Starts a simultaneous-chains round: one chain per player, seeded from
+ * `claimsPool`, per simRound.ts. Overwrites any previous `simRound` — the
+ * caller (api/room.ts) is what checks this is the host asking.
+ */
+export async function beginSimRound(
+  record: RoomRecord,
+  claimsPool: Claim[],
+  cardIds: CardId[],
+  timerSeconds: number,
+): Promise<RoomRecord> {
+  const players = record.players.map((p) => ({ id: p.id, name: p.name }));
+  const simRound = startSimRound(players, claimsPool, cardIds, timerSeconds);
+  const updated: RoomRecord = { ...record, simRound, updatedAt: Date.now(), seq: record.seq + 1 };
+  await saveRoom(updated);
+  return updated;
+}
+
+/** Host-only "force advance" for a simultaneous round — fills the current
+    wave immediately rather than waiting out its deadline. The caller checks
+    the host precondition, same as `beginSimRound`. */
+export async function forceAdvanceSimRound(record: RoomRecord): Promise<RoomRecord> {
+  if (!record.simRound) return record;
+  const simRound = forceAdvanceWave(record.simRound);
+  if (simRound === record.simRound) return record;
+  const updated: RoomRecord = { ...record, simRound, updatedAt: Date.now(), seq: record.seq + 1 };
+  await saveRoom(updated);
+  return updated;
+}
+
+/**
+ * `SYNC_GAME_STATE` replaces the shared blob wholesale, last write wins —
+ * the single-shared-round mechanism from phase 3/4, still used for crowd
+ * recall and menu-level state. `SUBMIT_CHAIN_HOP` instead applies to
+ * whichever chain `playerId` is currently assigned to in `simRound`
+ * (simRound.ts validates the assignment; a stale or repeated submission is
+ * a no-op, not an error).
  */
 export async function applyAction(
   record: RoomRecord,
@@ -171,19 +228,34 @@ export async function applyAction(
   const players = record.players.map((p) =>
     p.id === playerId ? { ...p, connected: true, lastSeenAt: now } : p,
   );
-  const game = action.type === 'SYNC_GAME_STATE' ? action.payload : record.game;
 
-  const updated: RoomRecord = { ...record, players, game, updatedAt: now, seq: record.seq + 1 };
+  let game = record.game;
+  let simRound = record.simRound;
+  if (action.type === 'SYNC_GAME_STATE') {
+    game = action.payload;
+  } else if (action.type === 'SUBMIT_CHAIN_HOP' && simRound) {
+    const text = typeof (action.payload as { text?: unknown })?.text === 'string'
+      ? (action.payload as { text: string }).text
+      : '';
+    simRound = submitChainHop(simRound, playerId, text);
+  }
+
+  const updated: RoomRecord = { ...record, players, game, simRound, updatedAt: now, seq: record.seq + 1 };
   await saveRoom(updated);
   return updated;
 }
 
 /**
- * What a client is allowed to see. Nothing sensitive to strip yet — reserved
- * for T8, which must never let `hop.isImposter` reach a client before the
- * reveal.
+ * What a client is allowed to see. Nothing sensitive to strip for T8 yet —
+ * reserved for that task, which must never let `hop.isImposter` reach a
+ * client before the reveal.
+ *
+ * `playerId` is optional (a bare GET with no player context still needs a
+ * snapshot, e.g. before joining) — `simView` is only computed when it's
+ * supplied, and stays `null` for a room with no active simultaneous round.
  */
-export function toPublicSnapshot(record: RoomRecord) {
-  const { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game } = record;
-  return { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game };
+export function toPublicSnapshot(record: RoomRecord, playerId?: string) {
+  const { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game, simRound } = record;
+  const simView: SimAssignmentView | null = simRound && playerId ? viewForPlayer(simRound, playerId) : null;
+  return { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game, simView };
 }
