@@ -299,9 +299,21 @@ export function gameReducer(state: GameState, action: Action): GameState {
       /* The prototype pushed this from inside the ledger render, so every
          re-render counted the round again. One result per round, guarded. */
       if (state.session.results.length >= state.session.roundNumber) return state;
+
+      /* T6 — whether the room found the machine is derived here rather than
+         passed in, because the reducer is what holds both halves: the hop the
+         room voted for and the hops the machine actually took. It stays null
+         when there was no machine hop or the room never voted. */
+      const { turingGuess, aiHopIndexes } = state.round;
+      const turingCorrect =
+        turingGuess === null || !aiHopIndexes.length ? null : aiHopIndexes.includes(turingGuess);
+
       return {
         ...state,
-        session: { ...state.session, results: [...state.session.results, action.result] },
+        session: {
+          ...state.session,
+          results: [...state.session.results, { ...action.result, turingCorrect }],
+        },
       };
     }
 
@@ -369,8 +381,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
     }
 
     case 'SET_TURING_GUESS':
-      /* T6 — which hop the room voted was the machine. */
-      return state;
+      /* T6 — which hop the room voted was the machine. Recorded, never
+         scored: the room does not win by finding it, and most rooms do not. */
+      return { ...state, round: { ...state.round, turingGuess: action.hopIndex } };
 
     case 'JOIN_ROOM': {
       /* T7 — code, playerId, host flag. From here the server is the source
