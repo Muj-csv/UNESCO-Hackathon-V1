@@ -60,6 +60,8 @@ const badFaith = (over: Partial<GameState> = {}): GameState =>
     ],
     round: {
       ...initialState.round,
+      /* A dealt round always has a claim, and the show/skip rule keys on it. */
+      claim: { id: 'rainfall-alerts' } as GameState['round']['claim'],
       imposter: { player: 'Ben', hopIndex: 2, targetAtom: 'HEDGE' },
     },
     ...over,
@@ -110,6 +112,53 @@ describe('briefsFor in bad faith', () => {
     const briefs = briefsFor(badFaith({ round: { ...initialState.round, imposter: null } }));
     expect(briefs).toHaveLength(1);
     expect(briefs[0].player).toBeNull();
+  });
+});
+
+/* ==========================================================================
+   In a room, each device has its own screen — so it deals one brief, its own.
+   Dealing the whole set would hand every player everybody else's, which is
+   the leak the handoff exists to prevent.
+   ========================================================================== */
+describe('briefsFor in a room', () => {
+  const inRoom = (playerId: string, over: Partial<GameState> = {}): GameState => {
+    const base = badFaith(over);
+    return { ...base, room: { ...base.room, code: 'ABCD', playerId } };
+  };
+
+  it('deals this device exactly one brief', () => {
+    expect(briefsFor(inRoom('a'))).toHaveLength(1);
+    expect(briefsFor(inRoom('b'))).toHaveLength(1);
+  });
+
+  /* No handoff: there is nobody to pass the device to. */
+  it('shows it straight away rather than asking for a handoff', () => {
+    expect(briefsFor(inRoom('b'))[0].player).toBeNull();
+  });
+
+  it('gives the imposter their own brief', () => {
+    const [brief] = briefsFor(inRoom('b')); // Ben holds it
+    expect(brief.lines.join(' ')).toContain('HEDGE');
+  });
+
+  /* The server has already redacted the imposter for everyone else, so this
+     device has nothing to reveal even if it wanted to. */
+  it('gives everybody else the ordinary brief, with no trace of the role', () => {
+    const redacted = inRoom('a', {
+      round: { ...badFaith().round, imposter: null },
+    } as Partial<GameState>);
+    const [brief] = briefsFor(redacted);
+    expect(brief.anchor).toBe('The card is a pressure, not an instruction to distort.');
+    expect(JSON.stringify(brief)).not.toMatch(/HEDGE|disappear/i);
+  });
+
+  /* Every device must agree on whether this screen is showing, or they spend
+     the round fighting over the synced `screen`. */
+  it('shows the screen to a device that cannot see the imposter', () => {
+    const redacted = inRoom('a', {
+      round: { ...badFaith().round, imposter: null },
+    } as Partial<GameState>);
+    expect(shouldShowBrief(redacted)).toBe(true);
   });
 });
 

@@ -82,9 +82,24 @@ function honestBrief(player: string): BriefVariant {
  */
 export function briefsFor(state: GameState): BriefVariant[] {
   const { imposter } = state.round;
-  if (state.settings.mode !== 'badfaith' || !imposter || !state.players.length) {
-    return [ROOM_BRIEF];
+  if (state.settings.mode !== 'badfaith' || !state.players.length) return [ROOM_BRIEF];
+
+  /* T7: in a room every device has its own screen, so this one deals exactly
+     one brief — its own. Dealing the whole set here would hand every player
+     everybody else's, which is the same leak the handoff exists to prevent.
+     The server has already redacted the imposter for everyone but its owner
+     (api/_lib/roomStore.ts), so a device that still sees one is holding it. */
+  if (state.room.code) {
+    const me = state.players.find((p) => p.id === state.room.playerId);
+    if (!me) return [ROOM_BRIEF];
+    return [
+      imposter?.player === me.name
+        ? { ...imposterBrief(me.name, imposter.targetAtom), player: null }
+        : ROOM_BRIEF,
+    ];
   }
+
+  if (!imposter) return [ROOM_BRIEF];
 
   return state.players.map((player) =>
     player.name === imposter.player
@@ -108,7 +123,11 @@ export function briefsFor(state: GameState): BriefVariant[] {
  */
 export function shouldShowBrief(state: GameState): boolean {
   if (state.round.hops.length > 0) return false;
-  if (state.settings.mode === 'badfaith' && state.round.imposter) return true;
+  /* Keyed on the round being dealt rather than on the imposter, because in a
+     room only one device can see the imposter — and if the others skipped
+     this screen while that one stayed on it, they would spend the round
+     fighting each other over the synced `screen`. */
+  if (state.settings.mode === 'badfaith' && state.round.claim) return true;
   return state.session.roundNumber === 1;
 }
 
