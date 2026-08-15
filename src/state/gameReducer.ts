@@ -126,7 +126,9 @@ export type Action =
   | { type: 'CAST_ACCUSATION'; player: string } //                    T8
   | { type: 'REVEAL_ROLES' } //                                       T8
   | { type: 'SET_PREDICTION'; player: string; atom: Atom } //         T9
-  | { type: 'ADD_REACTION'; hopIndex: number; reaction: string }; //  T9
+  | { type: 'ADD_REACTION'; hopIndex: number; reaction: string } //  T9
+  | { type: 'LOAD_PACK'; claims: Claim[] } //                        T10
+  | { type: 'CLEAR_PACK' }; //                                       T10
 
 /* ----------------------------------------------------------- initial state -- */
 
@@ -481,6 +483,20 @@ export function gameReducer(state: GameState, action: Action): GameState {
       ].slice(-REACTION_WINDOW);
       return { ...state, round: { ...state.round, reactions } };
     }
+
+    case 'LOAD_PACK':
+      /* T10 — a pack loaded from a URL fragment, an imported file, or
+         authored right here replaces the shipped claim library for this
+         session only (GameContext's `claims` selector reads packClaims
+         first). Round in progress, if any, is untouched — this only
+         changes what a future startRound()/nextRound() picks from. Not one
+         of the pre-stubbed cases: no earlier task claimed this action name,
+         since setting packClaims genuinely belongs to T10. */
+      return { ...state, packClaims: action.claims };
+
+    case 'CLEAR_PACK':
+      /* T10 — back to the shipped claim library. */
+      return { ...state, packClaims: null };
 
     default:
       return state;

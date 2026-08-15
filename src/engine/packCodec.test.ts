@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Claim } from '../types/contracts';
-import { PackDecodeError, buildShareFragment, decodePack, encodePack, readPackFragment } from './packCodec';
+import {
+  PackDecodeError,
+  buildShareFragment,
+  decodePack,
+  encodePack,
+  parsePackJson,
+  readPackFragment,
+} from './packCodec';
 
 function claim(id: string, overrides: Partial<Claim> = {}): Claim {
   return {
@@ -75,6 +82,22 @@ describe('readPackFragment', () => {
 
   it('returns null when there is no pack param', () => {
     expect(readPackFragment('#join')).toBeNull();
+  });
+});
+
+describe('parsePackJson', () => {
+  it('parses an exported pack file back into claims', () => {
+    const claims = [claim('one'), claim('two')];
+    const parsed = parsePackJson(JSON.stringify(claims, null, 2));
+    expect(parsed).toEqual(claims);
+  });
+
+  it('rejects text that is not JSON', () => {
+    expect(() => parsePackJson('not json at all')).toThrow(PackDecodeError);
+  });
+
+  it('rejects JSON that is not a claim array', () => {
+    expect(() => parsePackJson(JSON.stringify({ hello: 'world' }))).toThrow(PackDecodeError);
   });
 });
 

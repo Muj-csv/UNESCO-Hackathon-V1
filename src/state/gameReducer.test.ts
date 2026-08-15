@@ -402,6 +402,28 @@ describe('ADD_REACTION', () => {
   });
 });
 
+describe('LOAD_PACK', () => {
+  it('replaces packClaims with the given claims', () => {
+    const state = run(initialState, { type: 'LOAD_PACK', claims: [claim] });
+    expect(state.packClaims).toEqual([claim]);
+  });
+
+  it('leaves an in-progress round untouched', () => {
+    const before = started(3);
+    const after = run(before, { type: 'LOAD_PACK', claims: [claim] });
+    expect(after.round).toEqual(before.round);
+    expect(after.screen).toBe(before.screen);
+  });
+});
+
+describe('CLEAR_PACK', () => {
+  it('drops back to the built-in claim library', () => {
+    const loaded = run(initialState, { type: 'LOAD_PACK', claims: [claim] });
+    const cleared = run(loaded, { type: 'CLEAR_PACK' });
+    expect(cleared.packClaims).toBeNull();
+  });
+});
+
 describe('the reducer is pure', () => {
   it('does not mutate the state it was given', () => {
     const before = JSON.stringify(initialState);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Atom, Claim } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGameDispatch } from '../state/GameContext';
@@ -12,6 +12,7 @@ import {
   validateClaim,
 } from '../engine/validateClaim';
 import type { ClaimDraft } from '../engine/validateClaim';
+import { MAX_LINK_CLAIMS, PackDecodeError, buildShareFragment, parsePackJson } from '../engine/packCodec';
 
 /* ============================================================================
    OWNER: T10 (pack authoring).
@@ -92,6 +93,63 @@ export default function PackStudio() {
 
   const removeClaim = (id: string) => {
     setPack((p) => p.filter((c) => c.id !== id));
+  };
+
+  /* -------------------------------------------------------------- sharing -- */
+
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const buildLink = async () => {
+    setShareError(null);
+    setCopied(false);
+    try {
+      const fragment = await buildShareFragment(pack);
+      setShareUrl(`${window.location.origin}${window.location.pathname}#${fragment}`);
+    } catch {
+      setShareError("Couldn't build a link on this browser. Try Export to file instead.");
+    }
+  };
+
+  const copyLink = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+    } catch {
+      setShareError('Copy failed — select and copy the link text instead.');
+    }
+  };
+
+  const exportFile = () => {
+    const blob = new Blob([JSON.stringify(pack, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'truthchain-pack.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFile = (file: File) => {
+    setImportError(null);
+    file
+      .text()
+      .then((text) => {
+        const imported = parsePackJson(text);
+        setPack((p) => [...p, ...imported]);
+      })
+      .catch((err) => {
+        setImportError(err instanceof PackDecodeError ? err.message : "Couldn't read that file.");
+      });
+  };
+
+  const playPack = () => {
+    dispatch({ type: 'LOAD_PACK', claims: pack });
+    dispatch({ type: 'GO_TO', screen: 'lobby' });
   };
 
   const atomDraft = draft.atoms[activeAtom];
@@ -282,6 +340,57 @@ export default function PackStudio() {
       )}
 
       {savedNote && <p className="muted center">{savedNote}</p>}
+
+      {pack.length > 0 && (
+        <section className="stack">
+          <p className="eyebrow">Share this pack</p>
+          <p className="muted">
+            Text stays in the link itself — nothing is sent to a server. A student sends this to
+            another school over Messenger; that's the whole distribution model.
+          </p>
+          {pack.length > MAX_LINK_CLAIMS && (
+            <p className="pack-warning">
+              {pack.length} claims is more than a link handles reliably — some messaging apps
+              truncate long links. Export to a file instead, or share in batches of {MAX_LINK_CLAIMS}.
+            </p>
+          )}
+          <div className="row">
+            <button className="btn btn-small" onClick={buildLink}>
+              Build share link
+            </button>
+            <button className="btn btn-small" onClick={exportFile}>
+              Export to file
+            </button>
+            <button className="btn btn-small" onClick={() => fileInputRef.current?.click()}>
+              Import from file
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) importFile(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
+          {shareUrl && (
+            <div className="stack">
+              <input className="field mono" readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
+              <button className="btn btn-primary btn-small" onClick={copyLink}>
+                {copied ? 'Copied!' : 'Copy link'}
+              </button>
+            </div>
+          )}
+          {shareError && <p className="pack-error">{shareError}</p>}
+          {importError && <p className="pack-error">{importError}</p>}
+          <button className="btn btn-primary btn-block" onClick={playPack}>
+            Play this pack
+          </button>
+        </section>
+      )}
 
       <button
         className="btn btn-ghost btn-block"

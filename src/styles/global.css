@@ -1698,6 +1698,11 @@ select.field {
   flex-wrap: wrap;
 }
 
+.pack-notice-loaded {
+  background: var(--teal-bg);
+  border-left-color: var(--teal);
+}
+
 .pack-chip-remove {
   appearance: none;
   background: transparent;

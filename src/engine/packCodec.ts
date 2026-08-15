@@ -119,6 +119,18 @@ export async function decodePack(fragment: string): Promise<Claim[]> {
   return assertClaims(parsed);
 }
 
+/** Parses an imported pack JSON file's text. Same shape check as decodePack,
+    same readable-error contract, for the "too large for a link" path. */
+export function parsePackJson(json: string): Claim[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    throw new PackDecodeError("That file isn't valid JSON.");
+  }
+  return assertClaims(parsed);
+}
+
 /** `#pack=<encoded>` — the whole fragment, ready to append to a URL. */
 export async function buildShareFragment(claims: Claim[]): Promise<string> {
   return `pack=${await encodePack(claims)}`;
