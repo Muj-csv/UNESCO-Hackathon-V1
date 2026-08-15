@@ -372,10 +372,20 @@ export function gameReducer(state: GameState, action: Action): GameState {
       /* T6 — which hop the room voted was the machine. */
       return state;
 
-    case 'JOIN_ROOM':
+    case 'JOIN_ROOM': {
       /* T7 — code, playerId, host flag. From here the server is the source
          of truth for the player roster and shared round state, reconciled
-         on every SYNC_ROOM_STATE. */
+         on every SYNC_ROOM_STATE.
+
+         An empty code means "go offline" — the failure-handling fallback
+         ("continue in pass-and-play with current state") dispatches this
+         shape rather than a dedicated action, since only actions the
+         reducer already declares may be added to here. Round, session, and
+         players are deliberately untouched: the whole point is to keep
+         playing with what's already on screen. */
+      if (!action.code) {
+        return { ...state, room: { code: null, playerId: null, isHost: false, status: 'offline', lastSyncAt: null } };
+      }
       return {
         ...state,
         room: {
@@ -386,6 +396,7 @@ export function gameReducer(state: GameState, action: Action): GameState {
           lastSyncAt: Date.now(),
         },
       };
+    }
 
     case 'SYNC_ROOM_STATE': {
       /* T7 — reconcile the 1.5s poll against optimistic local state. The

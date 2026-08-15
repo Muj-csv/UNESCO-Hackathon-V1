@@ -449,6 +449,22 @@ describe('JOIN_ROOM', () => {
     expect(state.players).toEqual(withRoom.players);
     expect(state.settings).toEqual(withRoom.settings);
   });
+
+  /* T7 failure handling: "continue in pass-and-play with current state" is
+     an empty-code JOIN_ROOM rather than a new action — see the reducer case. */
+  it('treats an empty code as going offline, keeping everything else', () => {
+    const midRound = run(
+      started(5),
+      { type: 'JOIN_ROOM', code: 'ABCD', playerId: 'p1', isHost: true },
+      { type: 'SUBMIT_HOP', text: 'A version.' },
+    );
+    const state = run(midRound, { type: 'JOIN_ROOM', code: '', playerId: '', isHost: false });
+
+    expect(state.room).toEqual({ code: null, playerId: null, isHost: false, status: 'offline', lastSyncAt: null });
+    expect(state.round).toEqual(midRound.round);
+    expect(state.screen).toBe(midRound.screen);
+    expect(state.players).toEqual(midRound.players);
+  });
 });
 
 describe('SYNC_ROOM_STATE', () => {

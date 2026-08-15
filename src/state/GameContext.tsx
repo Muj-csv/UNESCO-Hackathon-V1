@@ -7,7 +7,10 @@ import { clearState, loadState, saveState } from './persistence';
 import { sendRoomAction, useRoomSync } from './room';
 import type { RoomSyncStatus } from './room';
 import type { SharedGameState } from './roomProtocol';
+import { textInFrontOfPlayer } from './gameReducer';
+import { getCard } from '../data/cards';
 import ResumePrompt from '../components/ResumePrompt';
+import RoomStatusBar from '../components/RoomStatusBar';
 import rawClaims from '../data/claims.en.json';
 
 const SAVE_DEBOUNCE_MS = 300;
@@ -15,6 +18,12 @@ const SAVE_DEBOUNCE_MS = 300;
    changes state more often than the sessionStorage save needs to react to,
    and other devices are waiting on this one to move. */
 const ROOM_PUSH_DEBOUNCE_MS = 150;
+/* T7 failure handling: how much longer than a hop's own timer the host waits
+   before assuming a player's device is gone and auto-submitting on their
+   behalf. Generous, because the real per-device timer (Round.tsx) and a poll
+   round-trip both get to run first — this is the backstop for when neither
+   of those ever fires (nobody ever claimed the stuck player's turn). */
+const HOST_WATCHDOG_GRACE_SECONDS = 15;
 
 /** A saved lobby or a finished session isn't worth a resume prompt. */
 function isResumable(state: GameState): boolean {
@@ -113,6 +122,50 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(roomPushTimeout.current);
   }, [state]);
 
+  /* T7 failure handling: "if a player is gone at timeout, their hop
+     auto-submits unchanged and the chain continues." Round.tsx's own timer
+     only starts once someone on some device taps "I'm <player>" — if the
+     player whose turn it is has no device in the room at all, nothing ever
+     starts that timer anywhere. The host's context runs this as a backstop:
+     one hop, one timer, restarted whenever `currentHop` changes, cleared by
+     the effect's own cleanup the moment the hop actually advances (from a
+     real submission, force-advance, or a previous firing of this same
+     watchdog). Skipped for the machine's hop — AIHopBeat is unconditional
+     (mounts on every device, no handoff to wait on) and already has its own
+     fallback path; firing here too would race it with the wrong text. */
+  useEffect(() => {
+    const isMachineHop = state.round.aiHopIndexes.includes(state.round.currentHop);
+    if (
+      !state.room.isHost ||
+      !state.room.code ||
+      state.screen !== 'round' ||
+      !state.round.claim ||
+      isMachineHop ||
+      state.round.currentHop >= state.settings.chainLength
+    ) {
+      return undefined;
+    }
+
+    const cardId = state.round.dealtCards[state.round.currentHop];
+    const timerSeconds = (cardId && getCard(cardId)?.timerOverride) ?? state.settings.timerSeconds;
+    const budgetMs = (timerSeconds + HOST_WATCHDOG_GRACE_SECONDS) * 1000;
+
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'SUBMIT_HOP', text: textInFrontOfPlayer(state) });
+    }, budgetMs);
+    return () => window.clearTimeout(timer);
+  }, [
+    dispatch,
+    state,
+    state.room.isHost,
+    state.room.code,
+    state.screen,
+    state.round.currentHop,
+    state.round.claim,
+    state.settings.timerSeconds,
+    state.settings.chainLength,
+  ]);
+
   /* Save on every state change, debounced so rapid dispatches don't thrash
      sessionStorage. Nothing to save while a resume decision is pending — the
      live state is still the placeholder `initialState`, and saving it now
@@ -166,7 +219,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
+  return (
+    <GameContext.Provider value={value}>
+      <RoomStatusBar />
+      {children}
+    </GameContext.Provider>
+  );
 }
 
 export function useGame(): GameContextValue {
