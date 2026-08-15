@@ -1,4 +1,28 @@
 {
+  /* The referenced projects below are what `npm run build` and
+     `npm run typecheck` use. The compilerOptions here are for everything
+     ELSE that reads the root tsconfig — in practice, Vercel compiling the
+     serverless functions in /api during a deploy.
+
+     Without them Vercel falls back to node16/nodenext resolution, which
+     requires an explicit `.js` on every relative import and an import
+     attribute on the claims JSON. The functions in /api import from /src
+     (claims, cards, the reducer), and those files import each other the same
+     extensionless way, so satisfying nodenext would mean rewriting imports
+     across the whole of src — every tier's files — to fix a deploy setting.
+     Setting the resolution here instead is one line and changes no source.
+
+     Keep this in step with tsconfig.app.json / tsconfig.api.json. */
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["ES2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
