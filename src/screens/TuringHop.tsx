@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useGame } from '../state/GameContext';
 import { cardName } from '../data/cards';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -38,53 +39,56 @@ export default function TuringHop() {
 
   return (
     <div className="screen">
-      <StageBar label="One of these was a machine" />
+      <StageBar label="One of these was a machine" note={voted ? 'Revealed' : 'No clock on this'} />
 
-      {!voted ? (
-        <>
-          <h2>Which one was the machine?</h2>
+      <div className={`verdict-banner${voted ? ' is-settled' : ''}`}>
+        <span className="verdict-banner-mark is-violet" aria-hidden="true">
+          <Icon name="robot" size={26} />
+        </span>
+        <div>
+          <h2>{!voted ? 'Which one was the machine?' : found ? 'That was the machine.' : 'That one was a person.'}</h2>
           <p className="muted">
-            Say it out loud and argue about it first. There is no score on this — and no timer.
+            {!voted
+              ? 'Say it out loud and argue about it first. There is no score on this — and no timer.'
+              : found
+                ? 'Most rooms cannot pick it out. Whatever gave it away here, it was not the machine being careless.'
+                : `The machine wrote ${machineLabel(round.aiHopIndexes)}. It was doing the same job as everyone else, under the same card.`}
           </p>
-        </>
-      ) : (
-        <>
-          <h2>{found ? 'That was the machine.' : 'That one was a person.'}</h2>
-          <p className="muted">
-            {found
-              ? 'Most rooms cannot pick it out. Whatever gave it away here, it was not the machine being careless.'
-              : `The machine wrote ${machineLabel(round.aiHopIndexes)}. It was doing the same job as everyone else, under the same card.`}
-          </p>
-        </>
-      )}
+        </div>
+      </div>
 
-      {round.hops.map((hop, i) => {
-        const isMachine = round.aiHopIndexes.includes(i);
-        const picked = guess === i;
+      <div className="chain">
+        {round.hops.map((hop, i) => {
+          const isMachine = round.aiHopIndexes.includes(i);
+          const picked = guess === i;
 
-        return (
-          <button
-            key={i}
-            type="button"
-            className={`paper turing-option${picked ? ' is-picked' : ''}${
-              voted && isMachine ? ' is-machine' : ''
-            }`}
-            disabled={voted}
-            aria-pressed={picked}
-            onClick={() => dispatch({ type: 'SET_TURING_GUESS', hopIndex: i })}
-          >
-            <span className="eyebrow">
-              Hop {i + 1} · {cardName(hop.cardId)}
-              {/* Authors stay hidden until the vote, black box or not — the
-                  question is about the writing, not about who was holding
-                  the device. */}
-              {voted && <> · {isMachine ? 'AI participant' : hop.player}</>}
-            </span>
-            <span className="paper-text">{hop.text}</span>
-            {voted && picked && <span className="turing-tag">The room picked this one</span>}
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`chainblock turing-option${picked ? ' is-picked' : ''}${
+                voted && isMachine ? ' is-machine' : ''
+              }`}
+              disabled={voted}
+              aria-pressed={picked}
+              onClick={() => dispatch({ type: 'SET_TURING_GUESS', hopIndex: i })}
+            >
+              <span className="chainblock-head">
+                <span className="chainblock-n">{String(i + 1).padStart(2, '0')}</span>
+                <span className="chainblock-card">{cardName(hop.cardId)}</span>
+                {/* Authors stay hidden until the vote, black box or not — the
+                    question is about the writing, not about who was holding
+                    the device. */}
+                {voted && (
+                  <span className="chainblock-who">{isMachine ? 'AI participant' : hop.player}</span>
+                )}
+              </span>
+              <span className="paper-text">{hop.text}</span>
+              {voted && picked && <span className="turing-tag">The room picked this one</span>}
+            </button>
+          );
+        })}
+      </div>
 
       {voted && (
         <p className="muted">
@@ -94,11 +98,12 @@ export default function TuringHop() {
       )}
 
       <button
-        className="btn btn-primary btn-block"
+        className="btn btn-primary btn-lg btn-block"
         disabled={!voted}
         onClick={() => dispatch({ type: 'ADVANCE', from: 'turingHop' })}
       >
         {voted ? 'Continue' : 'Pick one to continue'}
+        {voted && <Icon name="arrowForward" />}
       </button>
     </div>
   );
