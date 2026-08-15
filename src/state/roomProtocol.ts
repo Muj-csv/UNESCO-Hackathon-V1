@@ -11,7 +11,7 @@
    one file.
    ========================================================================== */
 
-import type { GameState } from '../types/contracts';
+import type { CardId, Claim, GameState, Hop } from '../types/contracts';
 
 export interface RoomPlayerPublic {
   id: string;
@@ -40,6 +40,26 @@ export function isSharedGameState(value: unknown): value is SharedGameState {
 }
 
 /**
+ * A player's own view into a simultaneous-chains round (see
+ * api/_lib/simRound.ts, which is what actually computes this) — never
+ * another player's in-progress chain. `hopIndex`/`tick` are the same
+ * number: which wave this is.
+ */
+export type SimAssignmentView =
+  | {
+      status: 'active';
+      tick: number;
+      totalTicks: number;
+      claim: Claim;
+      hops: Hop[];
+      dealtCards: (CardId | null)[];
+      hopIndex: number;
+    }
+  | { status: 'waiting'; tick: number; totalTicks: number }
+  | { status: 'finished'; tick: number; totalTicks: number; finalChain: { claim: Claim; hops: Hop[]; dealtCards: (CardId | null)[] } }
+  | { status: 'not-in-round' };
+
+/**
  * Server-authoritative room snapshot as seen by a client. Never carries
  * `hop.isImposter` before the reveal — the server strips it per player.
  */
@@ -53,6 +73,9 @@ export interface RoomSnapshot {
   /** Bumped on every accepted action, so a client can tell state moved on. */
   seq: number;
   game: SharedGameState | null;
+  /** Only populated when the GET that produced this snapshot supplied a
+      playerId and a simultaneous round is active — see room.ts. */
+  simView: SimAssignmentView | null;
 }
 
 export interface CreateRoomResponse {

@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   MAX_BACKOFF_MS,
   POLL_INTERVAL_MS,
+  beginSimRound,
   createRoom,
   fetchRoom,
+  forceAdvanceSimRound,
   isValidRoomCode,
   joinRoom,
   nextBackoff,
@@ -103,6 +105,42 @@ describe('fetch layer', () => {
 
     expect(fetch).toHaveBeenCalledWith('/api/room?code=ABCD');
     expect(result).toEqual(body);
+  });
+
+  it('fetchRoom includes playerId when given, so the server can return a per-player simView', async () => {
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(jsonResponse({ code: 'ABCD' }));
+
+    await fetchRoom('ABCD', 'p1');
+
+    expect(fetch).toHaveBeenCalledWith('/api/room?code=ABCD&playerId=p1');
+  });
+
+  it('beginSimRound posts cardIds and timerSeconds to the beginSim op', async () => {
+    const body = { code: 'ABCD', simView: { status: 'active' } };
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(jsonResponse(body));
+
+    const result = await beginSimRound('ABCD', 'p1', ['chars', 'land'], 45);
+
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/room?code=ABCD&op=beginSim',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ playerId: 'p1', cardIds: ['chars', 'land'], timerSeconds: 45 }),
+      }),
+    );
+    expect(result).toEqual(body);
+  });
+
+  it('forceAdvanceSimRound posts to the forceAdvance op', async () => {
+    const body = { code: 'ABCD' };
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue(jsonResponse(body));
+
+    await forceAdvanceSimRound('ABCD', 'p1');
+
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/room?code=ABCD&op=forceAdvance',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ playerId: 'p1' }) }),
+    );
   });
 
   it('sendRoomAction posts the action for the act op', async () => {

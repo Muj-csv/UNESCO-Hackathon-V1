@@ -13,6 +13,7 @@
    ========================================================================== */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CardId } from '../types/contracts';
 import type {
   CreateRoomResponse,
   JoinRoomResponse,
@@ -54,8 +55,11 @@ export async function joinRoom(code: string, name: string): Promise<JoinRoomResp
   return parseJson<JoinRoomResponse>(res);
 }
 
-export async function fetchRoom(code: string): Promise<RoomSnapshot> {
-  const res = await fetch(`/api/room?code=${encodeURIComponent(code)}`);
+/** `playerId` is what makes `snapshot.simView` come back populated — see
+    roomProtocol.ts. Omit it for a bare pre-join lookup. */
+export async function fetchRoom(code: string, playerId?: string): Promise<RoomSnapshot> {
+  const qs = playerId ? `&playerId=${encodeURIComponent(playerId)}` : '';
+  const res = await fetch(`/api/room?code=${encodeURIComponent(code)}${qs}`);
   return parseJson<RoomSnapshot>(res);
 }
 
@@ -68,6 +72,31 @@ export async function sendRoomAction(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ playerId, action }),
+  });
+  return parseJson<RoomSnapshot>(res);
+}
+
+/** Host-only. Starts a simultaneous-chains round — see api/_lib/simRound.ts. */
+export async function beginSimRound(
+  code: string,
+  playerId: string,
+  cardIds: CardId[],
+  timerSeconds: number,
+): Promise<RoomSnapshot> {
+  const res = await fetch(`/api/room?code=${encodeURIComponent(code)}&op=beginSim`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId, cardIds, timerSeconds }),
+  });
+  return parseJson<RoomSnapshot>(res);
+}
+
+/** Host-only. Fills the current wave immediately rather than waiting out its timer. */
+export async function forceAdvanceSimRound(code: string, playerId: string): Promise<RoomSnapshot> {
+  const res = await fetch(`/api/room?code=${encodeURIComponent(code)}&op=forceAdvance`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId }),
   });
   return parseJson<RoomSnapshot>(res);
 }
@@ -94,6 +123,8 @@ export type RoomSyncStatus = 'connecting' | 'connected' | 'error';
 
 interface UseRoomSyncOptions {
   code: string | null;
+  /** Passed through to the GET so `snapshot.simView` comes back populated. */
+  playerId: string | null;
   /** Poll only while true — off in pass-and-play, off once a room is abandoned. */
   enabled: boolean;
   onSnapshot: (snapshot: RoomSnapshot) => void;
@@ -106,16 +137,16 @@ interface UseRoomSyncOptions {
  * on campus wifi shouldn't leave the room waiting out a stale backoff after
  * it wakes back up.
  */
-export function useRoomSync({ code, enabled, onSnapshot }: UseRoomSyncOptions): RoomSyncStatus {
+export function useRoomSync({ code, playerId, enabled, onSnapshot }: UseRoomSyncOptions): RoomSyncStatus {
   const [status, setStatus] = useState<RoomSyncStatus>('connecting');
   const backoffRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const onSnapshotRef = useRef(onSnapshot);
   onSnapshotRef.current = onSnapshot;
 
-  const poll = useCallback(async (roomCode: string) => {
+  const poll = useCallback(async (roomCode: string, id: string | null) => {
     try {
-      const snapshot = await fetchRoom(roomCode);
+      const snapshot = await fetchRoom(roomCode, id ?? undefined);
       backoffRef.current = 0;
       setStatus('connected');
       onSnapshotRef.current(snapshot);
@@ -130,7 +161,7 @@ export function useRoomSync({ code, enabled, onSnapshot }: UseRoomSyncOptions): 
     let cancelled = false;
 
     const tick = () => {
-      poll(code).finally(() => {
+      poll(code, playerId).finally(() => {
         if (cancelled) return;
         timerRef.current = setTimeout(tick, backoffRef.current || POLL_INTERVAL_MS);
       });
@@ -149,7 +180,7 @@ export function useRoomSync({ code, enabled, onSnapshot }: UseRoomSyncOptions): 
       clearTimeout(timerRef.current);
       window.removeEventListener('focus', onFocus);
     };
-  }, [code, enabled, poll]);
+  }, [code, playerId, enabled, poll]);
 
   return status;
 }

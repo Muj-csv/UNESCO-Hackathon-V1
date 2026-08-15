@@ -4,9 +4,10 @@ import type { Claim, GameState, ScreenId } from '../types/contracts';
 import type { Action } from './gameReducer';
 import { gameReducer, initialState, prepareRound } from './gameReducer';
 import { clearState, loadState, saveState } from './persistence';
-import { sendRoomAction, useRoomSync } from './room';
+import { beginSimRound as beginSimRoundRequest, sendRoomAction, useRoomSync } from './room';
 import type { RoomSyncStatus } from './room';
 import type { SharedGameState } from './roomProtocol';
+import { projectSimView } from './simultaneousRound';
 import { textInFrontOfPlayer } from './gameReducer';
 import { getCard } from '../data/cards';
 import ResumePrompt from '../components/ResumePrompt';
@@ -45,6 +46,9 @@ interface GameContextValue {
   nextRound: () => void;
   /** T7 — polling status against the room, meaningless while offline. */
   roomStatus: RoomSyncStatus;
+  /** T7 — this room's round is a simultaneous chain being driven by
+      per-player projections, not the single-shared-round mechanism. */
+  simRoundActive: boolean;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -66,6 +70,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
      still-blank local state would race the host's and might overwrite it. */
   const hasSyncedOnceRef = useRef(false);
   const lastAppliedSeqRef = useRef(-1);
+  /* Simultaneous chains: whether this room's round is being driven by
+     per-player `simView` projections (see simultaneousRound.ts) rather than
+     the single-shared-blob mechanism above. A ref because it's read
+     synchronously inside the stable poll callback below; mirrored into
+     state so RoomStatusBar can show wave progress and repurpose its
+     force-advance control. */
+  const simRoundActiveRef = useRef(false);
+  const [simRoundActive, setSimRoundActive] = useState(false);
+  const lastPushedHopCountRef = useRef(0);
+  /* Always-fresh state for the stable callbacks below, which intentionally
+     don't depend on `state` directly — that would restart the poll's effect
+     (and its backoff/focus-listener setup) on every single render. */
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   const dispatch = useCallback<Dispatch<Action>>((action) => {
     rawDispatch(action);
@@ -75,15 +93,44 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (action.type === 'JOIN_ROOM') {
       hasSyncedOnceRef.current = action.isHost;
       lastAppliedSeqRef.current = -1;
+      simRoundActiveRef.current = false;
+      setSimRoundActive(false);
+      lastPushedHopCountRef.current = 0;
     }
   }, []);
 
   const roomStatus = useRoomSync({
     code: state.room.code,
+    playerId: state.room.playerId,
     enabled: !!state.room.code,
     onSnapshot: useCallback(
       (snapshot) => {
         hasSyncedOnceRef.current = true;
+        const view = snapshot.simView;
+
+        if (view && view.status !== 'not-in-round') {
+          const s = stateRef.current;
+          const me = snapshot.players.find((p) => p.id === s.room.playerId) ?? {
+            id: s.room.playerId ?? '',
+            name: '',
+          };
+          const projection = projectSimView(view, me, snapshot.players, {
+            settings: s.settings,
+            session: s.session,
+            briefSeen: s.briefSeen,
+            packClaims: s.packClaims,
+          });
+          if (projection) {
+            if (!simRoundActiveRef.current) {
+              lastPushedHopCountRef.current = projection.game.round.hops.length;
+            }
+            simRoundActiveRef.current = true;
+            setSimRoundActive(true);
+            dispatch({ type: 'SYNC_ROOM_STATE', payload: { players: projection.players, game: projection.game } });
+            return;
+          }
+        }
+
         if (snapshot.seq <= lastAppliedSeqRef.current) return;
         lastAppliedSeqRef.current = snapshot.seq;
         dispatch({ type: 'SYNC_ROOM_STATE', payload: snapshot });
@@ -92,10 +139,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     ),
   });
 
-  /* Push the shared slice of state to the room, debounced, whenever it
-     changes — the doc's "optimistic local update on submit, reconciled by
-     the next poll." Best-effort: a failed push just waits for the next
-     state change or the next poll to catch up, same as a dropped hop. */
+  /* Push local changes to the room, debounced — the doc's "optimistic local
+     update on submit, reconciled by the next poll." Best-effort: a failed
+     push just waits for the next state change or the next poll to catch up,
+     same as a dropped hop.
+
+     Two different things get pushed depending on the round: a simultaneous
+     round only ever needs this player's own newly-submitted hop forwarded
+     as `SUBMIT_CHAIN_HOP` (the server, not this push, owns chain/wave
+     assignment); anything else — including a simultaneous round that
+     hasn't started yet — pushes the whole shared blob, unchanged from
+     phase 3/4. */
   const roomPushTimeout = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     const { code, playerId } = state.room;
@@ -103,6 +157,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     clearTimeout(roomPushTimeout.current);
     roomPushTimeout.current = setTimeout(() => {
+      if (simRoundActiveRef.current) {
+        const hopCount = state.round.hops.length;
+        if (hopCount <= lastPushedHopCountRef.current) return;
+        const text = state.round.hops[hopCount - 1]?.text ?? '';
+        lastPushedHopCountRef.current = hopCount; // optimistic — avoids re-firing while in flight
+        sendRoomAction(code, playerId, { type: 'SUBMIT_CHAIN_HOP', payload: { text } }).catch(() => {
+          lastPushedHopCountRef.current = hopCount - 1; // let the next change or poll retry
+        });
+        return;
+      }
+
       const shared: SharedGameState = {
         screen: state.screen,
         settings: state.settings,
@@ -132,12 +197,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
      real submission, force-advance, or a previous firing of this same
      watchdog). Skipped for the machine's hop — AIHopBeat is unconditional
      (mounts on every device, no handoff to wait on) and already has its own
-     fallback path; firing here too would race it with the wrong text. */
+     fallback path; firing here too would race it with the wrong text.
+
+     Also skipped entirely once a simultaneous round is active: that mode
+     has its own server-side lazy timeout (simRound.ts's `applyTimeouts`,
+     checked on every poll from *any* player, not just the host), and this
+     watchdog's plain `SUBMIT_HOP` dispatch would write straight into the
+     locally-projected virtual round instead of going through
+     `SUBMIT_CHAIN_HOP` — corrupting it rather than advancing it. */
   useEffect(() => {
     const isMachineHop = state.round.aiHopIndexes.includes(state.round.currentHop);
     if (
       !state.room.isHost ||
       !state.room.code ||
+      simRoundActive ||
       state.screen !== 'round' ||
       !state.round.claim ||
       isMachineHop ||
@@ -159,6 +232,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     state,
     state.room.isHost,
     state.room.code,
+    simRoundActive,
     state.screen,
     state.round.currentHop,
     state.round.claim,
@@ -185,6 +259,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const claims = state.packClaims?.length ? state.packClaims : BUILT_IN_CLAIMS;
 
   const startRound = useCallback(() => {
+    /* T7: a room in chain mode runs a simultaneous round (see
+       simultaneousRound.ts) — the host asks the server to start it, and
+       every device (including this one) picks up its own assignment on the
+       next poll. Crowd recall and pass-and-play are untouched: crowd has no
+       chain to run in parallel, and pass-and-play never had a room to ask. */
+    const { code, playerId, isHost } = state.room;
+    if (code && playerId && isHost && state.settings.mode === 'chain') {
+      beginSimRoundRequest(code, playerId, state.settings.cardIds, state.settings.timerSeconds).catch(() => {
+        /* Best-effort — RoomStatusBar's connection indicator already
+           surfaces trouble; the host can just try again. */
+      });
+      return;
+    }
     dispatch({ type: 'BEGIN_ROUND', setup: prepareRound(state, claims) });
   }, [state, claims, dispatch]);
 
@@ -197,8 +284,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [state, claims, dispatch]);
 
   const value = useMemo<GameContextValue>(
-    () => ({ state, dispatch, claims, startRound, nextRound, roomStatus }),
-    [state, claims, startRound, nextRound, dispatch, roomStatus],
+    () => ({ state, dispatch, claims, startRound, nextRound, roomStatus, simRoundActive }),
+    [state, claims, startRound, nextRound, dispatch, roomStatus, simRoundActive],
   );
 
   if (pendingRestore) {
