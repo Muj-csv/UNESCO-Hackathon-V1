@@ -872,3 +872,77 @@ select.field {
 .split-input {
   min-height: 160px;
 }
+
+/* ============================================================================
+   T2 — the death row.
+
+   Trigger, original phrase, final phrase. The phrases are set in mono because
+   they are evidence: the exact words that entered play and the exact words
+   that replaced them, quoted rather than described.
+
+   Two columns on a 375px screen, and the value column is allowed to wrap for
+   as long as it needs to. Nothing here scrolls sideways.
+   ========================================================================== */
+
+.ledger-diag {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 5px;
+  align-items: baseline;
+  margin: 0;
+}
+
+.ledger-diag-label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-text-soft);
+}
+
+.ledger-diag-value {
+  margin: 0; /* dd */
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ink-text);
+  /* A long unbroken phrase breaks rather than pushing the row off the screen. */
+  overflow-wrap: anywhere;
+}
+
+/* The pressure, not the person. Amber is this palette's colour for pressure. */
+.ledger-diag-trigger {
+  color: var(--amber-on-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The player sits in parentheses, in the quietest colour on the row. */
+.ledger-diag-who {
+  color: var(--ink-text-soft);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ledger-diag-original {
+  color: var(--ink-text-soft);
+}
+
+.ledger-diag-final {
+  color: var(--red-on-ink);
+}
+
+/* Nothing replaced it. A word, not an empty cell. */
+.ledger-diag-dropped {
+  color: var(--ink-text-soft);
+  font-style: italic;
+}
+
+/* The engine proposed, the room decided. */
+.ledger-diag-room {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-text-soft);
+}

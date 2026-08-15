@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Hop } from '../types/contracts';
+import type { AtomVerdict, Hop } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { hopsForLedger } from '../state/gameReducer';
@@ -27,6 +27,12 @@ export default function Ledger() {
   const claim = round.claim;
 
   const result = claim ? computeLedger(claim, hops, round.verifications, round.overrides) : null;
+
+  /* What the engine read before the room touched it. The same pure call, minus
+     the overrides, so a row the room called gone can be told apart from one the
+     engine located a death for. Without it an override backfills the last hop
+     and the death row names a player who was never found to have broken it. */
+  const proposed = claim ? computeLedger(claim, hops, round.verifications) : null;
 
   /* Recorded through an action, not from inside this render. The prototype
      pushed straight into session.results here and counted the round again on
@@ -82,6 +88,12 @@ export default function Ledger() {
       <div className="ledger">
         {ATOMS.map((atom) => {
           const v = result[atom];
+
+          /* A loss the room called rather than the engine located. There is no
+             hop to point at, so nothing points at one — the wire stays whole
+             and the row says who decided. */
+          const roomOnly = !v.alive && proposed?.[atom].deathHop === null;
+
           return (
             <div className="ledger-row" key={atom}>
               <p className={`ledger-head${v.alive ? ' is-alive' : ''}`}>
@@ -92,13 +104,20 @@ export default function Ledger() {
                     : ' — SURVIVED'
                   : isCrowd
                     ? ' — NOT RECOVERED'
-                    : ` — LOST AT HOP ${(v.deathHop ?? 0) + 1}`}
+                    : roomOnly
+                      ? ' — LOST'
+                      : ` — LOST AT HOP ${(v.deathHop ?? 0) + 1}`}
               </p>
 
-              {!isCrowd && <AtomWire hops={hops} deathHop={v.deathHop} />}
+              {!isCrowd && <AtomWire hops={hops} deathHop={roomOnly ? null : v.deathHop} />}
 
               {v.alive ? (
-                <p className="alive-note">{claim.atoms[atom]?.truth}</p>
+                <>
+                  <p className="alive-note">{claim.atoms[atom]?.truth}</p>
+                  {v.confidence === 'override' && (
+                    <p className="ledger-diag-room">The room called this one still there.</p>
+                  )}
+                </>
               ) : isCrowd ? (
                 /* Nobody in the room was holding this one, so nobody could
                    supply it. That is the whole lesson of the mode. */
@@ -107,13 +126,7 @@ export default function Ledger() {
                   missing it had no way to know.
                 </p>
               ) : (
-                /* T2 replaces this line with the four-line diagnostic block:
-                   trigger, original phrase, final phrase. The engine already
-                   carries deathCardId, originalPhrase and finalPhrase. */
-                <p className="alive-note">
-                  Died at hop {(v.deathHop ?? 0) + 1} under {cardName(v.deathCardId)}
-                  {v.deathPlayer ? ` (${attribution(hops, v.deathHop)})` : ''}.
-                </p>
+                <DeathRow verdict={v} hops={hops} roomOnly={roomOnly} />
               )}
             </div>
           );
@@ -138,6 +151,69 @@ export default function Ledger() {
         Continue
       </button>
     </div>
+  );
+}
+
+/* ============================================================================
+   What was lost, where, and what pressure caused it.
+
+   Telephone shows that a message changed. This says what the change cost, and
+   it needs no diff algorithm to do it: the engine already knows the card, the
+   authored phrase and the phrase that replaced it, and used to throw the last
+   one away.
+
+   The card is the subject of the sentence and the person never is. Nobody in
+   the chain was trying to mislead anyone, and the copy has to keep saying so.
+   ========================================================================== */
+function DeathRow({
+  verdict,
+  hops,
+  roomOnly,
+}: {
+  verdict: AtomVerdict;
+  hops: Hop[];
+  roomOnly: boolean;
+}) {
+  const who = attribution(hops, verdict.deathHop);
+
+  return (
+    <>
+      {roomOnly && <p className="ledger-diag-room">The room called this one gone.</p>}
+
+      <dl className="ledger-diag">
+        {/* No trigger when the room made the call — there is no hop that did
+            it, and naming one would blame a player for the room's reading. */}
+        {!roomOnly && (
+          <>
+            <dt className="ledger-diag-label">Trigger</dt>
+            <dd className="ledger-diag-value ledger-diag-trigger">
+              {cardName(verdict.deathCardId)}
+              {who && <span className="ledger-diag-who"> ({who})</span>}
+            </dd>
+          </>
+        )}
+
+        {verdict.originalPhrase && (
+          <>
+            <dt className="ledger-diag-label">Original</dt>
+            <dd className="ledger-diag-value ledger-diag-original">“{verdict.originalPhrase}”</dd>
+          </>
+        )}
+
+        {!roomOnly && (
+          <>
+            <dt className="ledger-diag-label">Final</dt>
+            {verdict.finalPhrase ? (
+              <dd className="ledger-diag-value ledger-diag-final">“{verdict.finalPhrase}”</dd>
+            ) : (
+              /* Nothing took its place — it stopped being in the text at all.
+                 Saying so in words beats an empty cell. */
+              <dd className="ledger-diag-value ledger-diag-dropped">dropped</dd>
+            )}
+          </>
+        )}
+      </dl>
+    </>
   );
 }
 
