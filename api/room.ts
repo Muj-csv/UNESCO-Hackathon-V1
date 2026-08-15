@@ -30,8 +30,8 @@
    ========================================================================== */
 
 import type { CardId } from '../src/types/contracts';
-import { CARDS } from '../src/data/cards';
-import rawClaims from '../src/data/claims.en.json';
+import { CARDS } from '../src/data/cards.js';
+import rawClaims from '../src/data/claims.en.json' with { type: 'json' };
 import {
   addPlayer,
   applyAction,
@@ -41,7 +41,7 @@ import {
   forceAdvanceSimRound,
   getRoom,
   toPublicSnapshot,
-} from './_lib/roomStore';
+} from './_lib/roomStore.js';
 
 const CLAIMS = rawClaims as import('../src/types/contracts').Claim[];
 const VALID_CARD_IDS = new Set(Object.keys(CARDS));
@@ -182,7 +182,11 @@ export default async function handler(req: any, res: any) {
     }
 
     return sendError(res, 404, 'not_found', 'Unknown room operation.');
-  } catch {
+  } catch (error) {
+    /* Server-side only — this lands in the Vercel function log and never in
+       the response, which stays the same opaque shape it always was. A room
+       that breaks at 9am on a Saturday should not need a redeploy to say why. */
+    console.error('[api/room]', error);
     return sendError(res, 500, 'server_error', 'Something went wrong.');
   }
 }

@@ -16,9 +16,17 @@ import type {
   SplitAssignment,
   TerminalDecision,
 } from '../types/contracts';
-import { ATOMS } from '../types/contracts';
-import { DEFAULT_PRESET_ID, cardsForPreset, getPreset } from '../data/presets';
-import { isSharedGameState } from './roomProtocol';
+/* The `.js` on these three is not a mistake and must stay. This module is
+   pulled into the serverless bundle by api/_lib/simRound.ts, and Vercel
+   compiles each traced file separately rather than bundling them — so under
+   package.json's `"type": "module"` these specifiers are resolved by Node at
+   runtime, which requires the extension. Without it /api/room 500s on import
+   before the handler ever runs. TypeScript and Vite both resolve `.js` back
+   to the `.ts` source, so nothing else changes. Type-only imports are exempt:
+   they are erased before Node ever sees them. */
+import { ATOMS } from '../types/contracts.js';
+import { DEFAULT_PRESET_ID, cardsForPreset, getPreset } from '../data/presets.js';
+import { isSharedGameState } from './roomProtocol.js';
 import type { RoomSnapshot } from './roomProtocol';
 
 /* ============================================================================

@@ -27,7 +27,7 @@
    ========================================================================== */
 
 import type { CardId, Claim, Hop } from '../../src/types/contracts';
-import { dealCards } from '../../src/state/gameReducer';
+import { dealCards } from '../../src/state/gameReducer.js';
 
 /** How much longer than the wave's own timer before an unanswered chain gets
     filled in and the room moves on. Mirrors GameContext's client-side

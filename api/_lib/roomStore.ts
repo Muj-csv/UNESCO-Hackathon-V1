@@ -19,7 +19,7 @@ import { Redis } from '@upstash/redis';
 import type { CardId, Claim } from '../../src/types/contracts';
 import type { SharedGameState } from '../../src/state/roomProtocol';
 import type { SimRound } from './simRound';
-import { applyTimeouts, forceAdvanceWave, startSimRound, submitChainHop, viewForPlayer } from './simRound';
+import { applyTimeouts, forceAdvanceWave, startSimRound, submitChainHop, viewForPlayer } from './simRound.js';
 import type { SimAssignmentView } from './simRound';
 
 export const ROOM_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours — see docs/T7
