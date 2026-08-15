@@ -174,11 +174,24 @@ export default function Lobby() {
             <span className="muted"> — nobody sees who wrote what until the end.</span>
           </span>
         </label>
-        <label className="lobby-toggle is-disabled">
-          <input type="checkbox" disabled checked={false} readOnly />
+        {/* CROWD RECALL has no chain, so there is no hop for a machine to
+            take. Saying so beats a toggle that quietly does nothing. */}
+        <label className={`lobby-toggle${settings.mode === 'crowd' ? ' is-disabled' : ''}`}>
+          <input
+            type="checkbox"
+            disabled={settings.mode === 'crowd'}
+            checked={settings.mode !== 'crowd' && settings.aiHops > 0}
+            onChange={(e) =>
+              dispatch({ type: 'SET_SETTINGS', patch: { aiHops: e.target.checked ? 1 : 0 } })
+            }
+          />
           <span>
             <strong>AI participant</strong>
-            <span className="muted"> — one hop taken by a language model. Not yet available.</span>
+            <span className="muted">
+              {settings.mode === 'crowd'
+                ? ' — Crowd Recall has no chain, so nothing is passed to a machine.'
+                : ' — one hop is taken by a language model, never the first or the last.'}
+            </span>
           </span>
         </label>
       </section>
