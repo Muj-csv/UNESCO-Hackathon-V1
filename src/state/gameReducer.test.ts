@@ -404,6 +404,22 @@ describe('NEW_GAME', () => {
   });
 });
 
+describe('RESTORE_STATE', () => {
+  it('replaces the whole state with the rehydrated payload', () => {
+    const saved: GameState = { ...withPlayers(3), screen: 'round' };
+    const restored = run(initialState, { type: 'RESTORE_STATE', state: saved });
+    expect(restored).toEqual(saved);
+  });
+});
+
+describe('CLEAR_SAVED_STATE', () => {
+  it('drops everything, including players, unlike NEW_GAME', () => {
+    let state = started(5);
+    state = run(state, { type: 'SUBMIT_HOP', text: 'x' }, { type: 'CLEAR_SAVED_STATE' });
+    expect(state).toEqual(initialState);
+  });
+});
+
 describe('atoms', () => {
   it('scores nothing but the five', () => {
     const atoms: Atom[] = [...ATOMS];
