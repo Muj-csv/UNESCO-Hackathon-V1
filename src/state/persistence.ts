@@ -29,18 +29,34 @@ interface Envelope {
   state: GameState;
 }
 
-export function saveState(_state: GameState): void {
-  /* T5: serialise { version: STATE_VERSION, state } under STORAGE_KEY. */
-  void STATE_VERSION;
+export function saveState(state: GameState): void {
+  try {
+    const envelope: Envelope = { version: STATE_VERSION, state };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+  } catch {
+    /* Private browsing, quota exceeded, storage disabled — never break the game. */
+  }
 }
 
 export function loadState(): GameState | null {
-  /* T5: parse, check version, return null on mismatch or any failure. */
-  return null;
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const envelope = JSON.parse(raw) as Envelope;
+    if (envelope.version !== STATE_VERSION) return null;
+    if (!envelope.state) return null;
+    return envelope.state;
+  } catch {
+    return null;
+  }
 }
 
 export function clearState(): void {
-  /* T5: remove STORAGE_KEY. Called on "start fresh" and session completion. */
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* Storage access can throw in private browsing — nothing to do here. */
+  }
 }
 
 export type { Envelope };

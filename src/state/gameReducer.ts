@@ -327,12 +327,15 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return state;
 
     case 'RESTORE_STATE':
-      /* T5 — rehydrate from sessionStorage after the resume prompt. */
-      return state;
+      /* T5 — rehydrate from sessionStorage after the resume prompt. loadState()
+         already discarded anything with a mismatched version, so the payload
+         here is trusted as-is. */
+      return action.state;
 
     case 'CLEAR_SAVED_STATE':
-      /* T5 — explicit "start fresh". */
-      return state;
+      /* T5 — explicit "start fresh". A different group may have picked up the
+         device, so this drops players too, unlike NEW_GAME. */
+      return initialState;
 
     case 'SET_AI_HOP':
       /* T6 — the machine's rewrite, audited by the same ledger as everyone. */
