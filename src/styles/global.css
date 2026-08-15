@@ -1055,3 +1055,107 @@ select.field {
   border-color: var(--red-on-ink);
   color: var(--red-on-ink);
 }
+
+/* ============================================================================
+   T3 — how to play.
+
+   Read once, before a first round, by someone who has been given no context.
+   Everything here is sized for scanning: a numbered beat, a short line, and
+   the five atoms named in the same mono the ledger will use for them.
+   ========================================================================== */
+
+.howto-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  counter-reset: howto-step;
+}
+
+.howto-steps li {
+  display: flex;
+  gap: 10px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  counter-increment: howto-step;
+}
+
+.howto-steps li::before {
+  content: counter(howto-step);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.8;
+  color: var(--amber-on-ink);
+  flex: none;
+}
+
+.howto-atoms {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.howto-atom {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
+.howto-atom-name {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--amber-on-ink);
+  /* All five line up whatever their length, so the column reads as a list. */
+  min-width: 4.6em;
+}
+
+.howto-atom-note {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--ink-text);
+}
+
+.howto-atom-dies {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-text-soft);
+}
+
+/* The one rule. Nothing competes with it. */
+
+.howto-rule-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 3px solid var(--amber);
+}
+
+.howto-rule {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.howto-rule-card .muted {
+  color: var(--paper-text);
+}
+
+/* The sample row sits inside a card, so it drops the ledger's own padding. */
+.howto-sample {
+  padding: 0;
+  background: transparent;
+}
+
+@media (min-width: 560px) {
+  .howto-rule {
+    font-size: 1.75rem;
+  }
+}
