@@ -33,17 +33,19 @@ export default function Round() {
   const [handedOver, setHandedOver] = useState(false);
   const [draft, setDraft] = useState('');
   const [checked, setChecked] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(settings.timerSeconds);
+  const [secondsLeft, setSecondsLeft] = useState(card?.timerOverride ?? settings.timerSeconds);
   const submitted = useRef(false);
 
-  /* New hop, new everything. */
+  /* New hop, new everything. T1: the secs card names a 25-second pressure and
+     the prototype never actually changed the clock — timerOverride does. */
   useEffect(() => {
     setHandedOver(false);
     setDraft('');
     setChecked(false);
-    setSecondsLeft(settings.timerSeconds);
+    setSecondsLeft(card?.timerOverride ?? settings.timerSeconds);
     submitted.current = false;
-  }, [index, settings.timerSeconds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, settings.timerSeconds, card?.timerOverride]);
 
   useEffect(() => {
     if (!handedOver) return;
@@ -84,6 +86,7 @@ export default function Round() {
 
   const valid = hopInputValid(card, draft);
   const timeShort = secondsLeft <= 5;
+  const timerTotal = card?.timerOverride ?? settings.timerSeconds;
 
   return (
     <div className="screen">
@@ -102,7 +105,7 @@ export default function Round() {
         <div
           className={`timer-fill${timeShort ? ' is-warning' : ''}`}
           style={{
-            width: `${Math.max(0, Math.min(100, (secondsLeft / settings.timerSeconds) * 100))}%`,
+            width: `${Math.max(0, Math.min(100, (secondsLeft / timerTotal) * 100))}%`,
           }}
         />
       </div>

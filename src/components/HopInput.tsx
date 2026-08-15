@@ -1,4 +1,5 @@
 import type { ConstraintCard } from '../types/contracts';
+import RedactEditor from './RedactEditor';
 
 /* ============================================================================
    OWNER: T1 (word-tap redaction).
@@ -21,8 +22,13 @@ export interface HopInputProps {
   disabled?: boolean;
 }
 
-export default function HopInput({ card, value, onChange, disabled }: HopInputProps) {
+export default function HopInput({ card, source, value, onChange, disabled }: HopInputProps) {
   const limit = card?.charLimit ?? null;
+
+  if (card?.input === 'redact') {
+    return <RedactEditor source={source} charLimit={limit ?? undefined} onChange={onChange} />;
+  }
+
   const over = limit !== null && value.length > limit;
 
   return (
