@@ -1417,6 +1417,11 @@ select.field {
   color: var(--on-amber);
 }
 
+/* The eyebrow's default grey is too low-contrast on the amber fill. */
+.constraint .eyebrow {
+  color: var(--on-amber);
+}
+
 /* -- timer ----------------------------------------------------------------- */
 
 .timer {
@@ -1593,6 +1598,20 @@ select.field {
   font-size: var(--text-headline-lg);
   color: var(--primary);
   word-break: break-word;
+}
+
+/* One mark at the top so the handoff reads as an instruction rather than as
+   a screen that failed to load anything else. */
+.handoff-mark {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
 }
 
 @media (min-width: 768px) {
@@ -2120,8 +2139,39 @@ select.field {
 
 /* -- round ------------------------------------------------------------------ */
 
+.round-panel {
+  width: 100%;
+}
+
+.round-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .round-clock {
   align-items: center;
+  gap: 8px;
+}
+
+.round-clock-icon {
+  font-size: 20px;
+  color: var(--ink-soft);
+}
+
+.round-clock-icon.is-warning {
+  color: var(--red);
+  animation: clock-pulse 1s steps(2, end) infinite;
+}
+
+@keyframes clock-pulse {
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .round-checked {
@@ -2516,6 +2566,220 @@ select.field {
   }
 }
 
+/* The red variant carries the imposter's anchor line. Same shape as the
+   ordinary anchor so the two are obviously the same kind of statement —
+   only the colour says this one was handed to one person. */
+.brief-anchor-red {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.brief-anchor-red .brief-anchor-line {
+  color: var(--on-red-container);
+}
+
+.brief-anchor-red .muted {
+  color: var(--on-red-container);
+}
+
+/* -- the different brief (T8) ----------------------------------------------
+   A frame the ordinary brief never wears, so a player holding this cannot
+   mistake it for everyone else's in the few seconds they have with it.
+
+   The copy is unchanged from the game's own: it names a PROPERTY to make
+   disappear and never says "lie". The styling raises the stakes; it does not
+   change the instruction. */
+
+.classified-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.classified-role {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 20px;
+  text-align: center;
+  background: var(--red-container);
+  border: var(--border-2) solid var(--red);
+  border-radius: var(--radius);
+}
+
+.classified-role-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.classified-role-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--on-red-container);
+}
+
+/* The property, set apart. It is the whole content of the brief. */
+.classified-target {
+  display: inline-block;
+  font-family: var(--font-mono);
+  background: var(--amber);
+  color: var(--on-amber-deep);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  padding: 2px 10px;
+}
+
+.classified-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.classified-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--surface-low);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.classified-cell-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: var(--border-1) solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.classified-cell-body {
+  margin: 0;
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .classified-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .classified-role-name {
+    font-size: var(--text-headline-lg);
+  }
+}
+
+/* -- atom cards --------------------------------------------------------------
+   The prediction stake, and anywhere else the room picks one of the five.
+   One icon and one tint per property, from data/atoms.ts. */
+
+.atomgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.atomcard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: center;
+  text-align: left;
+  padding: 14px 16px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.atomcard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2-hover);
+}
+
+.atomcard:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.atomcard-icon {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.atomcard-source {
+  background: var(--primary-fixed);
+  color: var(--on-primary-fixed);
+}
+
+.atomcard-number {
+  background: var(--amber-soft);
+  color: var(--on-amber-deep);
+}
+
+.atomcard-hedge {
+  background: var(--surface-highest);
+  color: var(--ink-soft);
+}
+
+.atomcard-scope {
+  background: var(--red-container);
+  color: var(--on-red-container);
+}
+
+.atomcard-cause {
+  background: var(--primary-fixed-dim);
+  color: var(--on-primary-fixed);
+}
+
+.atomcard-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.atomcard-note {
+  font-size: var(--text-label);
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+@media (min-width: 560px) {
+  .atomgrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 /* -- thesis (T3) -----------------------------------------------------------
    Two versions and one sentence. Deliberately nearly empty. */
 
@@ -2588,6 +2852,12 @@ select.field {
   color: var(--on-violet);
 }
 
+.aihop-head-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .aihop-body {
   padding: 24px 20px 28px;
   display: flex;
@@ -2641,6 +2911,7 @@ select.field {
 
 .aihop-card {
   margin: 0;
+  align-self: center;
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
@@ -2650,7 +2921,7 @@ select.field {
   background: var(--amber-soft);
   border: var(--border-1) solid var(--ink);
   border-radius: var(--radius);
-  padding: 6px 10px;
+  padding: 6px 12px;
 }
 
 .aihop-note {

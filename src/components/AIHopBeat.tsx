@@ -3,6 +3,7 @@ import { useGame } from '../state/GameContext';
 import { textInFrontOfPlayer } from '../state/gameReducer';
 import { getCard } from '../data/cards';
 import { fallbackFor } from '../engine/fallbacks';
+import Icon from './Icon';
 
 /* ============================================================================
    The machine's turn.
@@ -107,20 +108,28 @@ export default function AIHopBeat() {
   return (
     <div className="aihop" role="status" aria-live="polite">
       <div className="aihop-panel">
-        <p className="eyebrow">This hop</p>
-        <h2 className="aihop-name">Auto-summariser</h2>
-        <p className="aihop-status">
-          {elapsed ? 'Passing it on…' : 'Processing…'}
-          <span className="aihop-dots" aria-hidden="true" />
-        </p>
-        {card && (
-          <p className="aihop-card">
-            Under <strong>{card.name}</strong>
+        <div className="neo-head aihop-head">
+          <span className="aihop-head-title">
+            <Icon name="robot" className="icon-lg" />
+            This hop
+          </span>
+          <span className="neo-dots" aria-hidden="true">
+            <span />
+            <span />
+          </span>
+        </div>
+
+        <div className="aihop-body">
+          <p className="aihop-name">Auto-summariser</p>
+          <p className="aihop-status">
+            {elapsed ? 'Passing it on' : 'Processing'}
+            <span className="aihop-dots" aria-hidden="true" />
           </p>
-        )}
-        <p className="aihop-note">
-          It was handed the same version and the same card as everyone else.
-        </p>
+          {card && <p className="aihop-card">Under {card.name}</p>}
+          <p className="aihop-note">
+            It was handed the same version and the same card as everyone else.
+          </p>
+        </div>
       </div>
     </div>
   );
