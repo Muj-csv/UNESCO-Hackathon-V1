@@ -350,6 +350,33 @@ describe('prepareRound', () => {
   });
 });
 
+describe('SET_PREDICTION', () => {
+  it('stores a prediction per player, keyed by name', () => {
+    const state = run(
+      started(3),
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'HEDGE' },
+      { type: 'SET_PREDICTION', player: 'P2', atom: 'SCOPE' },
+    );
+    expect(state.round.predictions).toEqual({ P1: 'HEDGE', P2: 'SCOPE' });
+  });
+
+  it('a later prediction from the same player overwrites their earlier one', () => {
+    const state = run(
+      started(3),
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'HEDGE' },
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'CAUSE' },
+    );
+    expect(state.round.predictions).toEqual({ P1: 'CAUSE' });
+  });
+
+  it('never scores or ranks — nothing else on state changes', () => {
+    const before = started(3);
+    const after = run(before, { type: 'SET_PREDICTION', player: 'P1', atom: 'NUMBER' });
+    expect(after.screen).toBe(before.screen);
+    expect(after.session).toEqual(before.session);
+  });
+});
+
 describe('the reducer is pure', () => {
   it('does not mutate the state it was given', () => {
     const before = JSON.stringify(initialState);

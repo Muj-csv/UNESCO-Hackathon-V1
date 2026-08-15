@@ -443,8 +443,15 @@ export function gameReducer(state: GameState, action: Action): GameState {
       return state;
 
     case 'SET_PREDICTION':
-      /* T9 — which atom this player thinks dies first. Room aggregate only. */
-      return state;
+      /* T9 — which atom this player thinks dies first. Room aggregate only,
+         never surfaced per-player anywhere the room can see it mid-round. */
+      return {
+        ...state,
+        round: {
+          ...state.round,
+          predictions: { ...state.round.predictions, [action.player]: action.atom },
+        },
+      };
 
     case 'ADD_REACTION':
       /* T9 — ephemeral. Never stored, never counted. */
