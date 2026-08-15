@@ -7,6 +7,7 @@ import {
   dealCards,
   gameReducer,
   hopsForLedger,
+  hopPlayerId,
   initialState,
   prepareRound,
   routeFor,
@@ -433,6 +434,23 @@ describe('SET_VERIFY_CHOICE', () => {
     let state = run(started(5), { type: 'SET_VERIFY_CHOICE', atom: 'SCOPE' });
     state = run(state, { type: 'BEGIN_ROUND', setup: prepareRound(state, CLAIMS) });
     expect(state.round.verifyChoice).toBeNull();
+  });
+});
+
+/* T7: backs Round.tsx's per-device turn check — a room device must be able
+   to tell whether the current hop is actually its player's before it shows
+   the "I'm <player>" button. */
+describe('hopPlayerId', () => {
+  it('returns the id of whoever takes that hop, cycling like hopPlayerName', () => {
+    const withRoom = withPlayers(3);
+    const ids = withRoom.players.map((p) => p.id);
+    expect(hopPlayerId(withRoom, 0)).toBe(ids[0]);
+    expect(hopPlayerId(withRoom, 1)).toBe(ids[1]);
+    expect(hopPlayerId(withRoom, 3)).toBe(ids[0]); // wraps
+  });
+
+  it('returns null with no players, rather than throwing', () => {
+    expect(hopPlayerId(initialState, 0)).toBeNull();
   });
 });
 

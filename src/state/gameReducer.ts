@@ -455,6 +455,19 @@ export function hopPlayerName(state: GameState, index: number): string {
   return state.players[index % state.players.length].name;
 }
 
+/**
+ * The id of whoever takes hop `index` — mirrors `hopPlayerName`.
+ *
+ * T7: lets a room device check "is the current hop actually mine" against
+ * `state.room.playerId`, rather than trusting whichever device happens to
+ * tap the handoff button. Pass-and-play has no id to check against — the
+ * tap itself is the identity confirmation there, unchanged.
+ */
+export function hopPlayerId(state: GameState, index: number): string | null {
+  if (!state.players.length) return null;
+  return state.players[index % state.players.length].id;
+}
+
 /** The card in front of the player right now. */
 export function currentCardId(state: GameState): CardId | null {
   return state.round.dealtCards[state.round.currentHop] ?? null;
