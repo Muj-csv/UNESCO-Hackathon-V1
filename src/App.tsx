@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { ComponentType } from 'react';
 import type { ScreenId } from './types/contracts';
 import { useGame, useGameDispatch } from './state/GameContext';
+import AppShell from './components/AppShell';
 
 import Lobby from './screens/Lobby';
 import JoinRoom from './screens/JoinRoom';
@@ -67,7 +68,9 @@ export default function App() {
   const Screen = SCREENS[state.screen];
 
   return (
-    <div className="shell">{Screen ? <Screen /> : <SelfSkip from={state.screen} />}</div>
+    <AppShell>
+      <div className="shell">{Screen ? <Screen /> : <SelfSkip from={state.screen} />}</div>
+    </AppShell>
   );
 }
 
