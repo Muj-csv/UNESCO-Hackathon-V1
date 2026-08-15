@@ -1,25 +1,24 @@
 import { useEffect } from 'react';
-import { useGameDispatch } from '../state/GameContext';
+import { useGame } from '../state/GameContext';
 import PredictionPrompt from '../components/PredictionPrompt';
 
 /* ============================================================================
    OWNER: T9 (prediction stake).
 
-   Skips itself until the feature exists. Registered in the route from day one
-   so T9 never has to touch routing.
-
-   T9: drop the self-skip effect, collect a prediction from every player, then
-   dispatch ADVANCE from a button. If you keep any effect that advances, pass
-   `from: 'prediction'` — StrictMode runs effects twice and an unguarded
-   ADVANCE steps two screens.
+   Only self-skips when there's nobody to ask — an empty lobby shouldn't be
+   reachable in real play, but the route still has to survive it rather than
+   stall on a screen with no player to hand off to.
    ========================================================================== */
 
 export default function Prediction() {
-  const dispatch = useGameDispatch();
+  const { state, dispatch } = useGame();
+  const hasPlayers = state.players.length > 0;
 
   useEffect(() => {
-    dispatch({ type: 'ADVANCE', from: 'prediction' });
-  }, [dispatch]);
+    if (!hasPlayers) dispatch({ type: 'ADVANCE', from: 'prediction' });
+  }, [hasPlayers, dispatch]);
+
+  if (!hasPlayers) return null;
 
   return <PredictionPrompt />;
 }

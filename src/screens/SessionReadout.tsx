@@ -19,6 +19,22 @@ export function spottedTheMachine(results: RoundResult[]): { correct: number; as
   return { correct: asked.filter((r) => r.turingCorrect).length, asked: asked.length };
 }
 
+/**
+ * T9 — per round, how many predictions named the atom that actually went
+ * first. Rounds nobody predicted in, or where nothing was lost, are skipped
+ * rather than counted as a miss, same treatment as `spottedTheMachine`.
+ */
+export function predictionTrend(results: RoundResult[]): { round: number; correct: number; total: number }[] {
+  return results
+    .map((r, i) => ({ round: i + 1, result: r }))
+    .filter(({ result }) => Object.keys(result.predictions).length > 0 && result.firstLostAtom !== null)
+    .map(({ round, result }) => ({
+      round,
+      total: Object.keys(result.predictions).length,
+      correct: Object.values(result.predictions).filter((a) => a === result.firstLostAtom).length,
+    }));
+}
+
 export default function SessionReadout() {
   const { state, dispatch, nextRound } = useGame();
   const results = state.session.results;
@@ -30,6 +46,7 @@ export default function SessionReadout() {
   const mostFragile = ATOMS.slice().sort((a, b) => timesLost[b] - timesLost[a])[0];
   const neverLost = ATOMS.filter((a) => timesLost[a] === 0);
   const turing = spottedTheMachine(results);
+  const prediction = predictionTrend(results);
 
   return (
     <div className="screen">
@@ -82,12 +99,22 @@ export default function SessionReadout() {
         </div>
       )}
 
-      <div className="card">
-        <p className="eyebrow">Not yet available</p>
-        <p className="muted">
-          Prediction accuracy across rounds appears here once that part is built.
-        </p>
-      </div>
+      {/* Room aggregate only, same rule as everywhere else — never who called it. */}
+      {prediction.length > 0 && (
+        <div className="card">
+          <p className="eyebrow">Calling it in advance</p>
+          <p className="muted">
+            {prediction.map((p) => `${p.correct} of ${p.total} in round ${p.round}`).join(', ')}.
+          </p>
+          <p className="muted">
+            {prediction.length > 1 &&
+            prediction[prediction.length - 1].correct / prediction[prediction.length - 1].total >
+              prediction[0].correct / prediction[0].total
+              ? 'This room got better at predicting where it would break.'
+              : 'Predicting which one goes first is hard even after watching it happen once.'}
+          </p>
+        </div>
+      )}
 
       <button className="btn btn-primary btn-block" onClick={nextRound}>
         Play another round

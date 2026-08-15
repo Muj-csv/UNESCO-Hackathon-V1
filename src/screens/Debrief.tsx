@@ -16,6 +16,19 @@ const ATOM_QUESTION: Record<Atom, string> = {
   CAUSE: 'Which retelling turned "goes with" into "makes"?',
 };
 
+/**
+ * T9 — how many of the room's predictions named the atom that actually went
+ * first. Room aggregate only: this never says who was right, only how many.
+ */
+export function predictionAccuracy(
+  predictions: Record<string, Atom>,
+  first: Atom | null,
+): { correct: number; total: number } {
+  const total = Object.keys(predictions).length;
+  if (first === null) return { correct: 0, total };
+  return { correct: Object.values(predictions).filter((a) => a === first).length, total };
+}
+
 export default function Debrief() {
   const { state, dispatch } = useGame();
   const { round } = state;
@@ -26,6 +39,7 @@ export default function Debrief() {
   const lost = lostAtoms(result);
   const survived = survivingAtoms(result);
   const first = firstLostAtom(result);
+  const prediction = predictionAccuracy(round.predictions, first);
 
   return (
     <div className="screen">
@@ -68,6 +82,19 @@ export default function Debrief() {
           <li>Nobody in this chain was trying to mislead anyone. Does that change what you'd do about it?</li>
         </ol>
       </div>
+
+      {prediction.total > 0 && (
+        <div className="card">
+          <p className="eyebrow">What the room called it</p>
+          <p className="muted">
+            {first
+              ? `${prediction.correct} of ${prediction.total} predicted ${first}. ${first} went first, at hop ${
+                  (result[first].deathHop ?? 0) + 1
+                }.`
+              : `${prediction.total} of ${prediction.total} predicted something would go first. Nothing did — every atom survived.`}
+          </p>
+        </div>
+      )}
 
       <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
         Continue

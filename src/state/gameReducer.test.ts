@@ -350,6 +350,58 @@ describe('prepareRound', () => {
   });
 });
 
+describe('SET_PREDICTION', () => {
+  it('stores a prediction per player, keyed by name', () => {
+    const state = run(
+      started(3),
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'HEDGE' },
+      { type: 'SET_PREDICTION', player: 'P2', atom: 'SCOPE' },
+    );
+    expect(state.round.predictions).toEqual({ P1: 'HEDGE', P2: 'SCOPE' });
+  });
+
+  it('a later prediction from the same player overwrites their earlier one', () => {
+    const state = run(
+      started(3),
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'HEDGE' },
+      { type: 'SET_PREDICTION', player: 'P1', atom: 'CAUSE' },
+    );
+    expect(state.round.predictions).toEqual({ P1: 'CAUSE' });
+  });
+
+  it('never scores or ranks — nothing else on state changes', () => {
+    const before = started(3);
+    const after = run(before, { type: 'SET_PREDICTION', player: 'P1', atom: 'NUMBER' });
+    expect(after.screen).toBe(before.screen);
+    expect(after.session).toEqual(before.session);
+  });
+});
+
+describe('ADD_REACTION', () => {
+  it('appends a reaction tied to the hop it was shown for', () => {
+    const state = run(started(3), { type: 'ADD_REACTION', hopIndex: 1, reaction: '😬' });
+    expect(state.round.reactions).toEqual([{ hopIndex: 1, emoji: '😬' }]);
+  });
+
+  it('is a rolling window — old taps fall off rather than growing forever', () => {
+    const actions: Action[] = Array.from({ length: 30 }, (_, i) => ({
+      type: 'ADD_REACTION',
+      hopIndex: 0,
+      reaction: String(i),
+    }));
+    const state = run(started(3), ...actions);
+    expect(state.round.reactions.length).toBeLessThanOrEqual(24);
+    expect(state.round.reactions[state.round.reactions.length - 1].emoji).toBe('29');
+  });
+
+  it('never scores or ranks — nothing else on state changes', () => {
+    const before = started(3);
+    const after = run(before, { type: 'ADD_REACTION', hopIndex: 0, reaction: '🎯' });
+    expect(after.screen).toBe(before.screen);
+    expect(after.session).toEqual(before.session);
+  });
+});
+
 describe('the reducer is pure', () => {
   it('does not mutate the state it was given', () => {
     const before = JSON.stringify(initialState);
