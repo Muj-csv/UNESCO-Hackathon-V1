@@ -67,11 +67,7 @@ export default function App() {
   const { state } = useGame();
   const Screen = SCREENS[state.screen];
 
-  return (
-    <AppShell>
-      <div className="shell">{Screen ? <Screen /> : <SelfSkip from={state.screen} />}</div>
-    </AppShell>
-  );
+  return <AppShell>{Screen ? <Screen /> : <SelfSkip from={state.screen} />}</AppShell>;
 }
 
 /**

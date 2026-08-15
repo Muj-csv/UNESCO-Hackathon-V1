@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../state/GameContext';
 import { createRoom, isValidRoomCode, joinRoom, normalizeRoomCode } from '../state/room';
+import Icon from '../components/Icon';
 
 /* ============================================================================
    T7. Reached from the lobby's "Create room" / "Join room" buttons. Both
@@ -64,8 +65,8 @@ export default function JoinRoom() {
 
   return (
     <div className="screen">
-      <header>
-        <p className="eyebrow eyebrow-amber">TruthChain</p>
+      <header className="lobby-hero">
+        <span className="lobby-chip">Multi-device</span>
         <h1>{tab === 'create' ? 'Create a room' : 'Join a room'}</h1>
         <p className="lede">
           {tab === 'create'
@@ -74,64 +75,87 @@ export default function JoinRoom() {
         </p>
       </header>
 
-      <div className="row">
-        <button
-          className={`btn ${tab === 'create' ? 'btn-primary' : 'btn-ghost'}`}
-          onClick={() => setTab('create')}
-        >
-          Create
-        </button>
-        <button
-          className={`btn ${tab === 'join' ? 'btn-primary' : 'btn-ghost'}`}
-          onClick={() => setTab('join')}
-        >
-          Join
-        </button>
-      </div>
+      <section className="neo-panel">
+        <div className="neo-head">
+          <span className="neo-dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="mono lobby-uplink">Uplink</span>
+        </div>
 
-      <section className="stack">
-        <label className="field-label" htmlFor="room-name">
-          Your name
-        </label>
-        <input
-          id="room-name"
-          className="field"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          maxLength={20}
-          placeholder="First name"
-          autoFocus
-        />
+        <div className="neo-body stack">
+          <div className="joinroom-tabs">
+            <button
+              type="button"
+              className={`joinroom-tab${tab === 'create' ? ' is-active' : ''}`}
+              aria-pressed={tab === 'create'}
+              onClick={() => setTab('create')}
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              className={`joinroom-tab${tab === 'join' ? ' is-active' : ''}`}
+              aria-pressed={tab === 'join'}
+              onClick={() => setTab('join')}
+            >
+              Join
+            </button>
+          </div>
 
-        {tab === 'join' && (
-          <>
-            <label className="field-label" htmlFor="room-code">
-              Room code
+          <div className="stack">
+            <label className="field-label" htmlFor="room-name">
+              Your name
             </label>
             <input
-              id="room-code"
-              className="field mono"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
-              maxLength={4}
-              placeholder="ABCD"
+              id="room-name"
+              className="field"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={20}
+              placeholder="First name"
+              autoFocus
             />
-          </>
-        )}
+
+            {tab === 'join' && (
+              <>
+                <label className="field-label" htmlFor="room-code">
+                  Room code
+                </label>
+                <input
+                  id="room-code"
+                  className="field joinroom-code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
+                  maxLength={4}
+                  placeholder="ABCD"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </>
+            )}
+          </div>
+
+          {error && (
+            <div className="lobby-warning">
+              <Icon name="alert" /> {error}
+            </div>
+          )}
+
+          <button
+            className="btn btn-primary btn-lg btn-block"
+            disabled={busy || !canSubmit}
+            onClick={tab === 'create' ? submitCreate : submitJoin}
+          >
+            {busy ? 'Please wait…' : tab === 'create' ? 'Create room' : 'Join room'}
+          </button>
+        </div>
       </section>
 
-      {error && <div className="lobby-warning">{error}</div>}
-
-      <button
-        className="btn btn-primary btn-block"
-        disabled={busy || !canSubmit}
-        onClick={tab === 'create' ? submitCreate : submitJoin}
-      >
-        {busy ? 'Please wait…' : tab === 'create' ? 'Create room' : 'Join room'}
-      </button>
-
-      <button className="btn btn-ghost btn-block" onClick={back}>
-        Back
+      <button className="btn btn-block" onClick={back}>
+        <Icon name="arrowBack" /> Back to the deck
       </button>
     </div>
   );
