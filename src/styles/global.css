@@ -1577,3 +1577,134 @@ select.field {
 .reactionbar-btn:active {
   transform: scale(0.92);
 }
+
+/* ============================================================================
+   T10 — Pack Studio, minimal claim authoring.
+
+   Young people stop being the audience for an MIL tool and become the
+   authors of one. The tagger below is a text selector standing in for
+   retyping a phrase: tap the first word, tap the last, done.
+   ========================================================================== */
+
+.pack-atom-tabs {
+  flex-wrap: wrap;
+}
+
+.pack-error {
+  color: var(--red);
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.pack-warning {
+  color: var(--amber);
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.pack-issues {
+  border: 1.5px solid var(--red);
+}
+
+.pack-tagger {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pack-tagger-hint {
+  margin: 0;
+}
+
+.pack-tagger-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+}
+
+.pack-tagger-word {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 1px 3px;
+  margin: 0 2px 0 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  min-height: var(--tap);
+}
+
+.pack-tagger-word:hover {
+  border-color: var(--ink-line);
+}
+
+.pack-tagger-word.is-anchor {
+  border-color: var(--ink);
+  border-style: dashed;
+}
+
+.pack-tagger-word.is-owned {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.pack-tagger-word.is-tagged {
+  color: #fff;
+}
+
+.pack-tagger-word.pack-atom-source.is-tagged {
+  background: var(--teal);
+}
+
+.pack-tagger-word.pack-atom-number.is-tagged {
+  background: var(--amber);
+}
+
+.pack-tagger-word.pack-atom-hedge.is-tagged {
+  background: var(--violet);
+}
+
+.pack-tagger-word.pack-atom-scope.is-tagged {
+  background: var(--red);
+}
+
+.pack-tagger-word.pack-atom-cause.is-tagged {
+  background: var(--ink);
+}
+
+.pack-tagger-word.pack-atom-source.is-owned {
+  color: var(--teal);
+}
+
+.pack-tagger-word.pack-atom-number.is-owned {
+  color: var(--amber);
+}
+
+.pack-tagger-word.pack-atom-hedge.is-owned {
+  color: var(--violet);
+}
+
+.pack-tagger-word.pack-atom-scope.is-owned {
+  color: var(--red);
+}
+
+.pack-tagger-word.pack-atom-cause.is-owned {
+  color: var(--ink-soft);
+}
+
+.pack-variant-status {
+  flex-wrap: wrap;
+}
+
+.pack-chip-remove {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+}

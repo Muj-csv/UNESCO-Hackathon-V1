@@ -52,7 +52,7 @@ export interface ValidationResult {
   warnings: ValidationIssue[];
 }
 
-const ATOM_LABEL: Record<Atom, string> = {
+export const ATOM_LABEL: Record<Atom, string> = {
   SOURCE: 'Source',
   NUMBER: 'Number',
   HEDGE: 'Hedge',
