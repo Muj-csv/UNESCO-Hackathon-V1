@@ -17,6 +17,7 @@
 
 import { Redis } from '@upstash/redis';
 import type { CardId, Claim } from '../../src/types/contracts';
+import type { SharedGameState } from '../../src/state/roomProtocol';
 import type { SimRound } from './simRound';
 import { applyTimeouts, forceAdvanceWave, startSimRound, submitChainHop, viewForPlayer } from './simRound';
 import type { SimAssignmentView } from './simRound';
@@ -232,7 +233,10 @@ export async function applyAction(
   let game = record.game;
   let simRound = record.simRound;
   if (action.type === 'SYNC_GAME_STATE') {
-    game = action.payload;
+    /* Wholesale replace, except for what this client was never shown — see
+       preserveHiddenRoles. Without it the first push from a redacted device
+       deletes the imposter for the whole room. */
+    game = preserveHiddenRoles(record.game as SharedGameState | null, action.payload as SharedGameState);
   } else if (action.type === 'SUBMIT_CHAIN_HOP' && simRound) {
     const text = typeof (action.payload as { text?: unknown })?.text === 'string'
       ? (action.payload as { text: string }).text
@@ -245,17 +249,111 @@ export async function applyAction(
   return updated;
 }
 
+/* ------------------------------------------------------ T8 hidden roles -- */
+/* BAD FAITH hides one thing from everyone but its owner, and the room polls a
+   shared blob — so without this the imposter is one DevTools tab away from
+   being public, and the mode is over before the argument starts.
+
+   Both directions are needed. Stripping alone would be worse than not
+   stripping: every client pushes the whole shared blob back with
+   SYNC_GAME_STATE, so the first poll from a stripped device would write
+   `imposter: null` over the server's copy and quietly delete the role. */
+
+/** Everything hidden is visible again the moment the room has voted. */
+function rolesAreRevealed(game: SharedGameState | null): boolean {
+  return !!game?.round?.accusation;
+}
+
 /**
- * What a client is allowed to see. Nothing sensitive to strip for T8 yet —
- * reserved for that task, which must never let `hop.isImposter` reach a
- * client before the reveal.
+ * One player's view of the round's hidden roles.
+ *
+ * The imposter sees their own assignment, because that is how their brief is
+ * written. Everybody else sees `imposter: null`, and nobody sees which hop
+ * carries `isImposter` until the accusation is in.
+ */
+function redactRolesFor(
+  game: SharedGameState | null,
+  players: RoomPlayerRecord[],
+  playerId?: string,
+): SharedGameState | null {
+  if (!game?.round?.imposter || rolesAreRevealed(game)) return game;
+
+  const me = players.find((p) => p.id === playerId)?.name ?? null;
+  const isTheirs = game.round.imposter.player === me;
+
+  return {
+    ...game,
+    round: {
+      ...game.round,
+      imposter: isTheirs ? game.round.imposter : null,
+      /* Drop the key rather than set it false — an explicit `false` on
+         exactly one hop would be as good as a signpost. */
+      hops: game.round.hops.map(({ isImposter: _hidden, ...hop }) => hop),
+    },
+  };
+}
+
+/**
+ * Keep the server's copy of the hidden role when a client that could not see
+ * it pushes state back.
+ *
+ * A push carrying an imposter is trusted — that is the device that dealt the
+ * round, or the imposter's own. A push from a redacted device is missing one,
+ * and for the same round the server's own assignment wins.
+ */
+function preserveHiddenRoles(
+  previous: SharedGameState | null,
+  incoming: SharedGameState,
+): SharedGameState {
+  const held = previous?.round?.imposter;
+  if (!held || incoming.round?.imposter) return incoming;
+
+  /* Only BAD FAITH has a role to protect. A push that says the room is now
+     playing something else is a mode change, and holding a stale imposter
+     against it would resurrect one in a mode that must not have one. */
+  if (incoming.settings?.mode !== 'badfaith') return incoming;
+
+  /* A new deal owns its own roles, including having none at all. */
+  const sameRound =
+    previous?.session?.roundNumber === incoming.session?.roundNumber &&
+    previous?.round?.claim?.id === incoming.round?.claim?.id;
+  if (!sameRound) return incoming;
+
+  return {
+    ...incoming,
+    round: {
+      ...incoming.round,
+      imposter: held,
+      /* Re-stamp the hop too: the pushing client had it stripped, so without
+         this the ledger's deliberate/accidental split would come out empty. */
+      hops: incoming.round.hops.map((hop, i) =>
+        i === held.hopIndex ? { ...hop, isImposter: true } : hop,
+      ),
+    },
+  };
+}
+
+/**
+ * What a client is allowed to see.
  *
  * `playerId` is optional (a bare GET with no player context still needs a
  * snapshot, e.g. before joining) — `simView` is only computed when it's
  * supplied, and stays `null` for a room with no active simultaneous round.
+ * A snapshot with no player context is treated as nobody's, so it never
+ * carries the imposter.
  */
 export function toPublicSnapshot(record: RoomRecord, playerId?: string) {
   const { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game, simRound } = record;
   const simView: SimAssignmentView | null = simRound && playerId ? viewForPlayer(simRound, playerId) : null;
-  return { code, hostId, players, createdAt, updatedAt, expiresAt, seq, game, simView };
+  return {
+    code,
+    hostId,
+    players,
+    createdAt,
+    updatedAt,
+    expiresAt,
+    seq,
+    game: redactRolesFor(game as SharedGameState | null, players, playerId),
+    simView,
+  };
 }
