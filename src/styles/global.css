@@ -1159,3 +1159,48 @@ select.field {
     font-size: 1.75rem;
   }
 }
+
+/* ------------------------------------------------------------ T3 brief -- */
+/* Thirty seconds before the first hop. Three lines, then the one sentence
+   the rest of the session depends on.                                       */
+
+.brief-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brief-lines li {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  padding-left: 14px;
+  border-left: 2px solid var(--ink-rule);
+}
+
+.brief-anchor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 3px solid var(--amber);
+}
+
+.brief-anchor-line {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.brief-anchor .muted {
+  color: var(--paper-text);
+}
+
+@media (min-width: 560px) {
+  .brief-anchor-line {
+    font-size: 1.6rem;
+  }
+}
