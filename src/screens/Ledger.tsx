@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import type { AtomVerdict, Hop } from '../types/contracts';
+import type { Atom, AtomOverride, AtomVerdict, Hop } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { hopsForLedger } from '../state/gameReducer';
@@ -22,7 +21,7 @@ const NUMBER_WORDS: Record<number, string> = { 1: 'One', 2: 'Two', 3: 'Three', 4
 
 export default function Ledger() {
   const { state, dispatch } = useGame();
-  const { round, settings, session } = state;
+  const { round, settings } = state;
   const hops = hopsForLedger(state);
   const claim = round.claim;
 
@@ -34,21 +33,24 @@ export default function Ledger() {
      and the death row names a player who was never found to have broken it. */
   const proposed = claim ? computeLedger(claim, hops, round.verifications) : null;
 
-  /* Recorded through an action, not from inside this render. The prototype
-     pushed straight into session.results here and counted the round again on
-     every re-render; the reducer now refuses a second record for the round. */
-  useEffect(() => {
-    if (!claim || !result) return;
-    const { deliberate, accidental } = splitByIntent(result, hops);
+  /* Recorded through an action, not from inside a render. The prototype pushed
+     straight into session.results while rendering and counted the round again
+     on every re-render; the reducer now refuses a second record for the round.
+
+     It happens on the way out rather than on the way in, because the room can
+     still overturn a row while this screen is open (part C) and the session
+     readout has to agree with the ledger the room actually settled on. */
+  const recordAndContinue = () => {
+    const { deliberate, accidental } = splitByIntent(result!, hops);
     dispatch({
       type: 'RECORD_ROUND_RESULT',
       result: {
-        claimId: claim.id,
+        claimId: claim!.id,
         mode: settings.mode,
         playedAt: Date.now(),
-        verdicts: result,
-        lostAtoms: lostAtoms(result),
-        firstLostAtom: firstLostAtom(result),
+        verdicts: result!,
+        lostAtoms: lostAtoms(result!),
+        firstLostAtom: firstLostAtom(result!),
         deliberateAtoms: deliberate,
         accidentalAtoms: accidental,
         predictions: round.predictions,
@@ -57,8 +59,8 @@ export default function Ledger() {
         verifyChoice: round.verifyChoice,
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claim?.id, session.roundNumber]);
+    dispatch({ type: 'ADVANCE' });
+  };
 
   if (!claim || !result) return null;
 
@@ -94,6 +96,12 @@ export default function Ledger() {
              and the row says who decided. */
           const roomOnly = !v.alive && proposed?.[atom].deathHop === null;
 
+          /* Read off the engine's own reading, not the settled one — so a row
+             the room has already decided keeps its buttons and can be decided
+             again. Rows the engine is sure about are never asked about, or the
+             payoff screen turns into a form. */
+          const engineUnsure = proposed?.[atom].confidence === 'uncertain';
+
           return (
             <div className="ledger-row" key={atom}>
               <p className={`ledger-head${v.alive ? ' is-alive' : ''}`}>
@@ -128,6 +136,16 @@ export default function Ledger() {
               ) : (
                 <DeathRow verdict={v} hops={hops} roomOnly={roomOnly} />
               )}
+
+              {engineUnsure && (
+                <AdjudicateRow
+                  atom={atom}
+                  picked={round.overrides[atom] ?? null}
+                  onDecide={(override) =>
+                    dispatch({ type: 'SET_LEDGER_OVERRIDE', atom, override })
+                  }
+                />
+              )}
             </div>
           );
         })}
@@ -147,7 +165,7 @@ export default function Ledger() {
         </div>
       )}
 
-      <button className="btn btn-primary btn-block" onClick={() => dispatch({ type: 'ADVANCE' })}>
+      <button className="btn btn-primary btn-block" onClick={recordAndContinue}>
         Continue
       </button>
     </div>
@@ -214,6 +232,52 @@ function DeathRow({
         )}
       </dl>
     </>
+  );
+}
+
+/* ============================================================================
+   The engine proposes, the room decides.
+
+   Only rows the engine could not read are asked about — a keyword match is
+   evidence, and overruling it on every row would turn the payoff screen into
+   a form. Where the text alone does not settle it, the engine has no business
+   asserting a loss it cannot see.
+
+   Neither answer is marked right. There is no score on this screen.
+   ========================================================================== */
+function AdjudicateRow({
+  atom,
+  picked,
+  onDecide,
+}: {
+  atom: Atom;
+  picked: AtomOverride | null;
+  onDecide: (override: AtomOverride) => void;
+}) {
+  return (
+    <div className="ledger-diag-ask">
+      <p className="ledger-diag-ask-note">
+        The words alone don't settle this one. Did {atom} make it through?
+      </p>
+      <div className="ledger-diag-choices">
+        <button
+          type="button"
+          className={`ledger-diag-choice${picked === 'alive' ? ' is-alive' : ''}`}
+          aria-pressed={picked === 'alive'}
+          onClick={() => onDecide('alive')}
+        >
+          Still there
+        </button>
+        <button
+          type="button"
+          className={`ledger-diag-choice${picked === 'lost' ? ' is-lost' : ''}`}
+          aria-pressed={picked === 'lost'}
+          onClick={() => onDecide('lost')}
+        >
+          Gone
+        </button>
+      </div>
+    </div>
   );
 }
 

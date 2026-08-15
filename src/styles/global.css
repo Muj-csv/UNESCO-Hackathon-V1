@@ -946,3 +946,57 @@ select.field {
   line-height: 1.45;
   color: var(--ink-text-soft);
 }
+
+/* Only on rows the engine could not read. Two taps, neither of them marked
+   right — the noticing is the learning, and nothing here is scored. */
+
+.ledger-diag-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.ledger-diag-ask-note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink-text-soft);
+}
+
+.ledger-diag-choices {
+  display: flex;
+  gap: 8px;
+}
+
+.ledger-diag-choice {
+  flex: 1;
+  min-height: var(--tap);
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid var(--ink-rule);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-text-soft);
+  cursor: pointer;
+}
+
+.ledger-diag-choice:hover {
+  border-color: var(--ink-text-soft);
+  color: var(--ink-text);
+}
+
+/* Teal is this palette's colour for intact, red for lost. The picked state
+   says what the room decided, never whether it was correct. */
+.ledger-diag-choice.is-alive {
+  border-color: var(--teal-on-ink);
+  color: var(--teal-on-ink);
+}
+
+.ledger-diag-choice.is-lost {
+  border-color: var(--red-on-ink);
+  color: var(--red-on-ink);
+}
