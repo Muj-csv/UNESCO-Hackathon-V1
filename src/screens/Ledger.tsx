@@ -19,6 +19,17 @@ import VerifyFeedback from '../components/VerifyFeedback';
 
 const NUMBER_WORDS: Record<number, string> = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' };
 
+/**
+ * How many rows may ask the room a question at the same time.
+ *
+ * The engine can be unsure about all five at once — CROWD RECALL is the case
+ * that does it, because a group's reconstruction is short enough against the
+ * original that nearly every atom comes back a weak signal. Five questions in
+ * a column is a form, and this screen is the payoff, so the room is asked two
+ * at a time and the next surfaces as each one is settled.
+ */
+const ASK_AT_ONCE = 2;
+
 export default function Ledger() {
   const { state, dispatch } = useGame();
   const { round, settings } = state;
@@ -67,6 +78,13 @@ export default function Ledger() {
   const lost = lostAtoms(result);
   const isCrowd = settings.mode === 'crowd';
 
+  /* The queue of rows still waiting on the room. Settling one lets the next in.
+     A row the room has already decided keeps its buttons whatever else is
+     waiting, so a call can always be taken back. */
+  const waitingOnTheRoom = ATOMS.filter(
+    (atom) => proposed?.[atom].confidence === 'uncertain' && !round.overrides[atom],
+  ).slice(0, ASK_AT_ONCE);
+
   return (
     <div className="screen">
       <StageBar label="Decay ledger" />
@@ -96,11 +114,12 @@ export default function Ledger() {
              and the row says who decided. */
           const roomOnly = !v.alive && proposed?.[atom].deathHop === null;
 
-          /* Read off the engine's own reading, not the settled one — so a row
-             the room has already decided keeps its buttons and can be decided
-             again. Rows the engine is sure about are never asked about, or the
-             payoff screen turns into a form. */
+          /* Rows the engine is sure about are never asked about. Of the rest,
+             the ones already decided stay open to a change of mind, and the
+             undecided ones come up a couple at a time. */
           const engineUnsure = proposed?.[atom].confidence === 'uncertain';
+          const asksTheRoom =
+            engineUnsure && (Boolean(round.overrides[atom]) || waitingOnTheRoom.includes(atom));
 
           return (
             <div className="ledger-row" key={atom}>
@@ -137,7 +156,7 @@ export default function Ledger() {
                 <DeathRow verdict={v} hops={hops} roomOnly={roomOnly} />
               )}
 
-              {engineUnsure && (
+              {asksTheRoom && (
                 <AdjudicateRow
                   atom={atom}
                   picked={round.overrides[atom] ?? null}
