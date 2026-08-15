@@ -263,6 +263,38 @@ describe('routing', () => {
     const state = run(initialState, { type: 'GO_TO', screen: 'packStudio' }, { type: 'ADVANCE' });
     expect(state.screen).toBe('lobby');
   });
+
+  /* A self-skipping screen dispatches ADVANCE from an effect, and StrictMode
+     runs effects twice. Unguarded, that steps two screens and silently skips
+     one — CROWD RECALL lost its entire distribute beat this way. */
+  it('ignores a repeat ADVANCE from a screen already left', () => {
+    const state = run(
+      started(3),
+      { type: 'GO_TO', screen: 'brief' },
+      { type: 'ADVANCE', from: 'brief' },
+      { type: 'ADVANCE', from: 'brief' },
+      { type: 'ADVANCE', from: 'brief' },
+    );
+    expect(state.screen).toBe('prediction');
+  });
+
+  it('still steps when no origin is named', () => {
+    const state = run(started(3), { type: 'GO_TO', screen: 'brief' }, { type: 'ADVANCE' });
+    expect(state.screen).toBe('prediction');
+  });
+
+  it('keeps every crowd recall beat reachable', () => {
+    const crowd = run(initialState, { type: 'SET_MODE', mode: 'crowd' });
+    let state = run(started(3, crowd), { type: 'GO_TO', screen: 'brief' });
+    const seen = [state.screen];
+    for (let i = 0; i < 3; i++) {
+      const from = state.screen;
+      /* dispatch twice, exactly as StrictMode does */
+      state = run(state, { type: 'ADVANCE', from }, { type: 'ADVANCE', from });
+      seen.push(state.screen);
+    }
+    expect(seen).toEqual(['brief', 'splitDistribute', 'splitReconstruct', 'thesis']);
+  });
 });
 
 describe('dealCards', () => {

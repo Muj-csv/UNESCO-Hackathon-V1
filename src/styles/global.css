@@ -634,3 +634,241 @@ select.field {
    Later tasks add their own feature-prefixed block here (redact-, ledger-diag-,
    verify-, brief-, room-, …). Never edit another feature's block.
    ========================================================================== */
+
+/* --- screens (T0) --------------------------------------------------------- */
+
+.stage-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ink-line);
+}
+
+/* Lobby */
+
+.lobby-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.lobby-players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lobby-players li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--ink-line);
+}
+
+.lobby-players li:last-child {
+  border-bottom: 0;
+}
+
+.lobby-seat {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  min-width: 1.4em;
+}
+
+.lobby-players li span:nth-child(2) {
+  flex: 1;
+}
+
+.lobby-option {
+  appearance: none;
+  text-align: left;
+  background: var(--paper);
+  border: 1.5px solid var(--ink-line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  min-height: var(--tap);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.lobby-option.is-picked {
+  border-color: var(--amber);
+  background: var(--amber-bg);
+}
+
+.lobby-option:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lobby-option-name {
+  font-weight: 600;
+  font-size: 0.98rem;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.lobby-option-note {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.lobby-soon {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.lobby-setting {
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-setting .field {
+  max-width: 8em;
+}
+
+.lobby-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 6px 0;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.lobby-toggle input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--amber);
+}
+
+.lobby-toggle.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lobby-warning {
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  font-size: 0.88rem;
+  color: var(--paper-text);
+}
+
+.lobby-later {
+  justify-content: center;
+}
+
+/* Round */
+
+.handoff {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+  padding: 40px 0 20px;
+}
+
+.handoff h1 {
+  color: var(--amber);
+}
+
+.round-clock {
+  align-items: baseline;
+}
+
+.round-checked {
+  border-left: 3px solid var(--teal);
+}
+
+.hop-count {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  text-align: right;
+  margin: 0;
+}
+
+.hop-count.is-over {
+  color: var(--red);
+  font-weight: 500;
+}
+
+/* Debrief */
+
+.debrief-questions {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.debrief-questions li {
+  line-height: 1.5;
+}
+
+.debrief-questions li::marker {
+  color: var(--amber-on-ink);
+}
+
+/* Session readout */
+
+.readout-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.readout-atom {
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  color: var(--ink-text);
+  min-width: 5.6em;
+}
+
+.readout-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--ink-rule);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.readout-fill {
+  display: block;
+  height: 100%;
+  background: var(--red-on-ink);
+  border-radius: 4px;
+}
+
+.readout-count {
+  font-size: 0.68rem;
+  color: var(--ink-text-soft);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+/* Crowd recall */
+
+.split-input {
+  min-height: 160px;
+}
