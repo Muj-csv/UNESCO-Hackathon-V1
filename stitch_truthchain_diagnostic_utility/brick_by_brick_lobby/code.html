@@ -1,0 +1,375 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Brick-by-Brick | Lobby</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@700;900&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#005321",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#ffe083",
+                    "outline": "#737686",
+                    "secondary-fixed-dim": "#eec200",
+                    "on-tertiary-container": "#c1ffc5",
+                    "surface": "#faf8ff",
+                    "on-secondary-container": "#6f5900",
+                    "inverse-surface": "#2e3039",
+                    "outline-variant": "#c3c6d7",
+                    "secondary-container": "#fed01b",
+                    "on-surface": "#191b23",
+                    "on-secondary-fixed": "#231b00",
+                    "secondary": "#735c00",
+                    "inverse-on-surface": "#f0f0fb",
+                    "tertiary-fixed": "#6bff8f",
+                    "error": "#ba1a1a",
+                    "tertiary": "#006229",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-bright": "#faf8ff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container": "#ededf9",
+                    "surface-dim": "#d9d9e5",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-container-low": "#f3f3fe",
+                    "primary-container": "#2563eb",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#574500",
+                    "tertiary-fixed-dim": "#4ae176",
+                    "tertiary-container": "#007e37",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#00174b",
+                    "on-background": "#191b23",
+                    "surface-tint": "#0053db",
+                    "on-tertiary-fixed": "#002109",
+                    "on-surface-variant": "#434655",
+                    "on-primary-container": "#eeefff",
+                    "surface-variant": "#e1e2ed",
+                    "primary": "#004ac6",
+                    "surface-container-highest": "#e1e2ed",
+                    "background": "#faf8ff",
+                    "surface-container-high": "#e7e7f3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin": "32px",
+                    "gutter": "24px",
+                    "offset-sm": "2px",
+                    "offset-md": "4px",
+                    "unit": "4px",
+                    "offset-lg": "8px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Work Sans"
+                    ],
+                    "code-sm": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-lg": [
+                            "Space Grotesk"
+                    ],
+                    "label-md": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-xl": [
+                            "Space Grotesk"
+                    ],
+                    "headline-lg-mobile": [
+                            "Space Grotesk"
+                    ],
+                    "body-lg": [
+                            "Work Sans"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "code-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-xl": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Neo-Brutalism Utilities */
+        .neo-btn {
+            @apply border-2 border-on-background shadow-[4px_4px_0px_0px_#191b23] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_0px_#191b23] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-75;
+        }
+        .neo-card-tier-2 {
+            @apply border-2 border-on-background shadow-[4px_4px_0px_0px_#191b23];
+        }
+        .neo-card-tier-3 {
+            @apply border-4 border-on-background shadow-[8px_8px_0px_0px_#191b23];
+        }
+        .neo-input {
+            @apply border-2 border-on-background border-b-4 border-r-4 border-b-surface-variant border-r-surface-variant bg-surface-container-lowest focus:outline-none focus:border-primary focus:border-b-primary focus:border-r-primary;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-[calc(100%-16rem)] z-40 flex justify-between items-center px-gutter ml-64 bg-primary-container text-on-primary-container w-full h-20 border-b-4 border-on-background shadow-[0px_4px_0px_0px_#191b23]">
+<div class="flex items-center gap-4">
+<span class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container">BRICK-BY-BRICK</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="font-label-md text-label-md px-4 py-2 border-2 border-on-background bg-surface-container text-on-surface shadow-[2px_2px_0px_0px_#191b23]">
+                Room: BX-99
+            </div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center border-2 border-on-background bg-surface text-on-surface hover:bg-primary/10 transition-colors active:opacity-90">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center border-2 border-on-background bg-surface text-on-surface hover:bg-primary/10 transition-colors active:opacity-90">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-margin gap-4 bg-surface text-primary w-64 border-r-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] z-50">
+<!-- Header -->
+<div class="flex flex-col gap-2 mb-8 pb-4 border-b-4 border-on-background">
+<div class="w-16 h-16 border-2 border-on-background overflow-hidden bg-secondary-container">
+<img alt="Forensic Investigator Avatar" class="w-full h-full object-cover grayscale contrast-125" data-alt="A highly detailed pixel-art style portrait of a futuristic forensic investigator wearing a bright yellow visor and a heavy blue jacket. The background is a stark, high-contrast white with black grid lines. The lighting is harsh and directional, emphasizing the chunky, neo-retro aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDautiQ76VgDXKd0qAuHjvBSdxoOT9x7qXEA0TPcsAgBAfGYmA3QsrU7sOZY_mCSWs-Rs7YIT5HBAf-0CL6kBiOHdgqXaZx85FufhFxvIRcI5Iv3muozYI6f-pm7XowZjL8_pvm0UKHWIPMBv5651X7B_wpTEr4eFZDVFu1TAHSLBKzIgDzmXMb6OC8Vc-Laj8wV7mN3D52UbSSzIMhmfK34ANGtx963Ie50mbpAc_4aeVtGYJV54NPsQ">
+</div>
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary">CONTROL DECK</h2>
+<span class="font-code-sm text-code-sm text-outline">System Active</span>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Active Tab -->
+<button class="flex items-center gap-3 p-3 font-label-md text-label-md bg-secondary-container text-on-secondary-container border-2 border-on-background translate-x-1 translate-y-1 shadow-none w-full text-left">
+<span class="material-symbols-outlined" data-icon="grid_view" data-weight="fill">grid_view</span>
+                Main Canvas
+            </button>
+<!-- Inactive Tabs -->
+<button class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Decay Ledger
+            </button>
+<button class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                Pack Studio
+            </button>
+<button class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+                Vault
+            </button>
+</div>
+<!-- CTA -->
+<button class="mt-auto py-4 px-4 bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile font-bold uppercase tracking-wider text-center neo-btn">
+            NEW CLAIM
+        </button>
+</nav>
+<!-- Main Canvas Content -->
+<main class="ml-64 mt-20 mb-12 p-gutter min-h-[calc(100vh-8rem)] bg-background relative">
+<!-- Abstract geometric background pattern -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#191b23 2px, transparent 2px); background-size: 24px 24px;"></div>
+<div class="max-w-[1440px] mx-auto h-full grid grid-cols-12 gap-gutter relative z-10 pt-4 pb-8 items-stretch h-[calc(100vh-10rem)]">
+<!-- LEFT COLUMN: Crew List -->
+<section class="col-span-3 flex flex-col h-full bg-surface neo-card-tier-2 overflow-hidden flex-shrink-0">
+<div class="bg-secondary-container border-b-4 border-on-background p-4 flex justify-between items-center">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-secondary-container">ROSTER</h3>
+<span class="font-code-sm text-code-sm bg-background border-2 border-on-background px-2 py-1 shadow-[2px_2px_0px_0px_#191b23]">3/4</span>
+</div>
+<div class="flex-grow overflow-y-auto p-4 flex flex-col gap-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmYWY4ZmYiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZTFlMmVkIi8+PC9zdmc+')]">
+<!-- Player 1 -->
+<div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+<div class="w-12 h-12 border-2 border-on-background bg-primary-container shrink-0">
+<img class="w-full h-full object-cover" data-alt="A close-up pixel art avatar of a character with spiky blue hair and oversized reflective goggles. The background is solid bright yellow. The style is 8-bit retro video game, high contrast, flat colors, no shading." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK4bcuj5V2h9OhsVhn-yHYWVRI3oCFt2yES2MAhSeAeB3ximdMU-Z4lByA2uhl32LvLqsrW_ux538DTCS2sFs4ba7pWnXfgp9p_0PelwJGAjvKCtcQxgIuPLWJGeVEfZRu9HDJxg6Bn3_ijU9IdWw8baf8tmw5gIgZB_AEdkbGAOPokXqDf-at1XA3eX8oBe8sgIqU4rmNWGIwypwyZUBB8_E2fKSykCe5zAvQHBTl8FYlc53hPW5eQg">
+</div>
+<div class="flex-grow min-w-0">
+<div class="font-label-md text-label-md truncate uppercase">GHOST_PROTO</div>
+<div class="font-code-sm text-code-sm text-tertiary font-bold">VERIFIED</div>
+</div>
+</div>
+<!-- Player 2 -->
+<div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+<div class="w-12 h-12 border-2 border-on-background bg-error-container shrink-0">
+<img class="w-full h-full object-cover" data-alt="A close-up pixel art avatar of a character wearing a tactical red helmet with a dark visor. The background is solid lime green. The style is early 2000s edutainment software, blocky, chunky pixels, flat vivid colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfbmnjyz2J_EfiqkSAdTDVTLOhFfpocsuEb8XHHVRd49GxAi8B6oPugo2YdYN7jTCoJzaUafuJYDfZhgvglqZ15pDwMghksdac36KUL1gylm_a_TDsxV9I1jp5VpsKTa-WOtewOZ4K4ukv_8vezDhL7CQzh9JnVP418CBdxMjzxhgBSOStj_jH86KT1uzUzeRcK39N26LnQ7bbCOQrpVxLQ7th7lcQCAXNpHFZaJQUva7ewj6HtvZXqQ">
+</div>
+<div class="flex-grow min-w-0">
+<div class="font-label-md text-label-md truncate uppercase">NULL_POINTER</div>
+<div class="font-code-sm text-code-sm text-outline font-bold">STANDBY</div>
+</div>
+</div>
+<!-- Player 3 -->
+<div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+<div class="w-12 h-12 border-2 border-on-background bg-tertiary-container shrink-0">
+<img class="w-full h-full object-cover" data-alt="A close-up pixel art avatar of a robotic character with glowing green eyes and a metallic grey jaw. The background is bright magenta. The aesthetic is neo-brutalism pixel art, severe black outlines, no anti-aliasing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9007w59CP-F5AYdOjlSxXts-f_OIYox1DrOJ2b20skwTPBU29Ww_tBhKCTWy3hSIKAnzXRgE8urEGuIPjCF0SOr7gOTPOwy9UJY3jVk9bgWD9DPqCgbTyGetjXfQWk-2jbwtoXv4iIT8BkDR4eq7TrXx6PXUGDDuUqOzvTBVeIC-cdDOMe6xIKnp-TF4pLMCGSwDc-TIhIGsBueCqYL2QwwvnMbswvslzRF2mdaXDHKu_t6jYvMocUw">
+</div>
+<div class="flex-grow min-w-0">
+<div class="font-label-md text-label-md truncate uppercase">SECTOR_7G</div>
+<div class="font-code-sm text-code-sm text-tertiary font-bold">VERIFIED</div>
+</div>
+</div>
+<!-- Empty Slot -->
+<div class="flex items-center justify-center gap-3 p-2 border-2 border-dashed border-outline-variant bg-surface-container-lowest h-[68px]">
+<span class="font-code-sm text-code-sm text-outline-variant uppercase">Awaiting Signal...</span>
+</div>
+</div>
+</section>
+<!-- CENTER COLUMN: Terminal (Main Focus) -->
+<section class="col-span-6 flex flex-col h-full neo-card-tier-3 bg-surface overflow-hidden relative">
+<!-- Decorative Top Bar -->
+<div class="h-8 bg-primary border-b-4 border-on-background flex items-center px-4 justify-between">
+<div class="flex gap-2">
+<div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+<div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+<div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+</div>
+<span class="font-code-sm text-code-sm text-on-primary font-bold tracking-widest uppercase">Uplink Established</span>
+</div>
+<div class="flex-grow flex flex-col items-center justify-center p-8 bg-surface relative">
+<!-- Giant Room Code -->
+<div class="text-center mb-12 relative">
+<h4 class="font-code-sm text-code-sm text-outline mb-4 uppercase tracking-[0.3em]">Access Sequence</h4>
+<div class="font-headline-xl text-[80px] leading-none font-black tracking-tighter bg-secondary-container border-4 border-on-background p-8 shadow-[8px_8px_0px_0px_#191b23] relative z-10 inline-block">
+                            BX-99
+                        </div>
+<!-- Abstract decorative elements behind code -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[150%] border-2 border-dashed border-outline-variant -z-10 animate-[spin_60s_linear_infinite]"></div>
+</div>
+<!-- Progress/Truth Gauge -->
+<div class="w-full max-w-md mb-12">
+<div class="flex justify-between font-code-sm text-code-sm mb-2 uppercase">
+<span>Consensus Engine</span>
+<span>75% Capacity</span>
+</div>
+<div class="h-6 w-full border-2 border-on-background flex gap-1 p-1 bg-surface-container-highest">
+<div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+<div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+<div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+<div class="h-full w-1/4 bg-transparent"></div>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="py-6 px-16 bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile font-black uppercase tracking-widest border-4 border-on-background shadow-[8px_8px_0px_0px_#191b23] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[10px_10px_0px_0px_#191b23] active:translate-x-[8px] active:translate-y-[8px] active:shadow-none transition-all duration-75 relative group overflow-hidden">
+<span class="relative z-10">INITIATE PROTOCOL</span>
+<!-- Glitch hover effect overlay -->
+<div class="absolute inset-0 bg-secondary-container opacity-0 group-hover:opacity-10 transition-opacity z-0 pointer-events-none"></div>
+</button>
+</div>
+</section>
+<!-- RIGHT COLUMN: Settings -->
+<section class="col-span-3 flex flex-col h-full bg-surface neo-card-tier-2 overflow-hidden flex-shrink-0">
+<div class="bg-primary-container border-b-4 border-on-background p-4 flex justify-between items-center">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-primary-container">PARAMETERS</h3>
+<span class="material-symbols-outlined text-on-primary-container" data-icon="tune">tune</span>
+</div>
+<div class="flex-grow overflow-y-auto p-4 flex flex-col gap-6">
+<!-- Setting Group 1 -->
+<div class="flex flex-col gap-2">
+<label class="font-code-sm text-code-sm text-outline uppercase font-bold">Game Mode</label>
+<div class="p-3 border-2 border-on-background bg-surface-container shadow-[2px_2px_0px_0px_#191b23] flex items-center justify-between cursor-pointer hover:bg-secondary-container transition-colors">
+<span class="font-label-md text-label-md uppercase">Forensic Audit</span>
+<span class="material-symbols-outlined" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<!-- Setting Group 2 -->
+<div class="flex flex-col gap-2">
+<label class="font-code-sm text-code-sm text-outline uppercase font-bold">Difficulty Tolerance</label>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border-2 border-on-background bg-surface font-code-sm text-code-sm font-bold shadow-[2px_2px_0px_0px_#191b23] hover:bg-surface-container active:translate-y-1 active:translate-x-1 active:shadow-none">LOW</button>
+<button class="flex-1 py-2 border-2 border-on-background bg-error text-on-error font-code-sm text-code-sm font-bold shadow-[2px_2px_0px_0px_#191b23] translate-x-1 translate-y-1 shadow-none">STRICT</button>
+</div>
+</div>
+<!-- Setting Group 3 (Map) -->
+<div class="flex flex-col gap-2 mt-auto">
+<label class="font-code-sm text-code-sm text-outline uppercase font-bold">Target Coordinates</label>
+<div class="h-32 border-2 border-on-background relative overflow-hidden bg-surface-variant p-1 shadow-[2px_2px_0px_0px_#191b23]">
+<img class="w-full h-full object-cover border-2 border-on-background" data-alt="A top-down architectural blueprint style map of a complex building layout. The lines are bright blue against a dark navy grid background. The style is technical, rigid, with glowing nodes indicating target locations, fitting a cyber-heist or forensic investigation theme." data-location="Sector Alpha" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCupJrOrnTO7tE4OA5mb01Y1C9ryUhLUvaQNr6Cv2cdxT-c2ke5EBW77t5_Qb650TzBamyW_nnotnmx4BQsH7ihdMTZM_3-QpWZVBsczwtvtnEn5VSfT_bhWmw_Mc3LD66_L2g3XSFkcFl7-Cr5AoV3w92IZslw7qk2afO1y39t6nfq4XOc-P43DuxL4_jdTCBMLvNDQk_CGj0VdY009WAcNt3S8dkx0WFIQxj_A1FgKoH090GxfomR7Q">
+<div class="absolute bottom-2 left-2 bg-background border-2 border-on-background px-2 py-1 font-code-sm text-[10px] uppercase font-bold">Grid: 44.59.Z</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-16rem)] z-30 flex justify-between items-center px-gutter py-2 bg-surface-container-highest text-on-surface border-t-2 border-on-background">
+<div class="font-label-md text-label-md font-bold">
+            SYSTEM STATUS: VERIFIED
+        </div>
+<div class="flex gap-6">
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="#">Privacy Protocol</a>
+<a class="font-code-sm text-code-sm text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="#">Source Code</a>
+</div>
+</footer>
+</body></html>

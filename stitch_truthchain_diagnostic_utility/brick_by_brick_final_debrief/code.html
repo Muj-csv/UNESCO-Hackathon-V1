@@ -1,0 +1,283 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Brick-by-Brick - Final Debrief</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d9d9e5",
+                        "secondary": "#735c00",
+                        "tertiary-container": "#007e37",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed": "#231b00",
+                        "surface-bright": "#faf8ff",
+                        "on-surface": "#191b23",
+                        "surface-container-highest": "#e1e2ed",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-secondary-container": "#6f5900",
+                        "on-surface-variant": "#434655",
+                        "secondary-fixed-dim": "#eec200",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-primary": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-tint": "#0053db",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-tertiary-container": "#c1ffc5",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-fixed": "#002109",
+                        "tertiary": "#006229",
+                        "tertiary-fixed": "#6bff8f",
+                        "secondary-fixed": "#ffe083",
+                        "surface": "#faf8ff",
+                        "surface-variant": "#e1e2ed",
+                        "surface-container": "#ededf9",
+                        "secondary-container": "#fed01b",
+                        "background": "#faf8ff",
+                        "outline": "#737686",
+                        "primary": "#004ac6",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191b23",
+                        "surface-container-low": "#f3f3fe",
+                        "surface-container-high": "#e7e7f3",
+                        "inverse-surface": "#2e3039"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "offset-md": "4px",
+                        "margin": "32px",
+                        "offset-sm": "2px",
+                        "gutter": "24px",
+                        "offset-lg": "8px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "body-lg": ["Work Sans"],
+                        "headline-lg": ["Space Grotesk"],
+                        "code-sm": ["JetBrains Mono"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-md": ["Work Sans"],
+                        "headline-xl": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "code-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .neo-shadow-sm { box-shadow: 2px 2px 0px 0px #191b23; }
+        .neo-shadow-md { box-shadow: 4px 4px 0px 0px #191b23; }
+        .neo-shadow-lg { box-shadow: 8px 8px 0px 0px #191b23; }
+        
+        .neo-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: none !important;
+        }
+        
+        .neo-hover:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px #191b23;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter h-20 border-b-4 border-on-background bg-primary-container text-on-primary-container shadow-[0px_4px_0px_0px_#191b23] ml-64 hidden md:flex">
+<div class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container">
+            BRICK-BY-BRICK
+        </div>
+<div class="flex items-center gap-gutter">
+<span class="font-label-md text-label-md text-on-primary-container/80">Room: BX-99</span>
+<div class="flex gap-4">
+<button class="w-10 h-10 border-2 border-on-background bg-surface text-on-surface flex items-center justify-center neo-shadow-sm hover:bg-primary/10 transition-colors active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-10 h-10 border-2 border-on-background bg-surface text-on-surface flex items-center justify-center neo-shadow-sm hover:bg-primary/10 transition-colors active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-64 border-r-4 border-on-background bg-surface text-primary flex flex-col p-margin gap-4 shadow-[4px_4px_0px_0px_#191b23] z-50 hidden md:flex">
+<div class="mb-8">
+<div class="font-headline-lg text-headline-lg font-bold text-primary mb-1">CONTROL DECK</div>
+<div class="font-label-md text-label-md text-on-surface-variant">System Active</div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md bg-secondary-container text-on-secondary-container border-2 border-on-background translate-x-1 translate-y-1 shadow-none" href="#">
+<span class="material-symbols-outlined">grid_view</span> Main Canvas
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background" href="#">
+<span class="material-symbols-outlined">analytics</span> Decay Ledger
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Pack Studio
+            </a>
+<a class="flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background" href="#">
+<span class="material-symbols-outlined">lock</span> Vault
+            </a>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-headline-lg text-headline-lg border-2 border-on-background neo-shadow-md neo-hover transition-all mt-auto neo-btn">
+            NEW CLAIM
+        </button>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-grow flex flex-col md:ml-64 md:pt-20 pb-12 overflow-y-auto bg-surface-dim">
+<div class="max-w-[1440px] w-full mx-auto p-gutter flex-grow grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Central Workspace (Col 1-8) -->
+<div class="col-span-1 lg:col-span-8 flex flex-col gap-gutter">
+<!-- Refinement Card -->
+<div class="bg-surface border-4 border-on-background neo-shadow-lg flex flex-col">
+<div class="bg-secondary-container border-b-2 border-on-background p-4 flex justify-between items-center">
+<h2 class="font-headline-lg text-headline-lg text-on-background tracking-tight">FINAL DEBRIEF</h2>
+<span class="font-code-sm text-code-sm bg-surface px-2 py-1 border-2 border-on-background">STAGE: COMPLETE</span>
+</div>
+<div class="p-gutter flex flex-col gap-6">
+<div class="font-headline-xl text-headline-xl text-on-surface leading-tight">
+                            What truth will you carry into real life?
+                        </div>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                            Select the Integrity Atom that proved most challenging to verify during this session. This shapes your personal calibration matrix.
+                        </p>
+</div>
+</div>
+<!-- Integrity Atoms Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Atom 1 -->
+<button class="bg-surface border-2 border-on-background neo-shadow-md neo-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+<div class="w-10 h-10 bg-primary-container border-2 border-on-background flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-on-primary-container">person_search</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Who actually said this?</span>
+</button>
+<!-- Atom 2 -->
+<button class="bg-surface border-2 border-on-background neo-shadow-md neo-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+<div class="w-10 h-10 bg-tertiary-container border-2 border-on-background flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-on-tertiary-container">calculate</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">What is the number based on?</span>
+</button>
+<!-- Atom 3 -->
+<button class="bg-surface border-2 border-on-background neo-shadow-md neo-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+<div class="w-10 h-10 bg-secondary-container border-2 border-on-background flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-on-secondary-container">psychology_alt</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Is this certainty or suggestion?</span>
+</button>
+<!-- Atom 4 -->
+<button class="bg-surface border-2 border-on-background neo-shadow-md neo-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+<div class="w-10 h-10 bg-error-container border-2 border-on-background flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-on-error-container">location_on</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Who/where does this apply to?</span>
+</button>
+<!-- Atom 5 -->
+<button class="bg-surface border-2 border-on-background neo-shadow-md neo-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+<div class="w-10 h-10 bg-inverse-primary border-2 border-on-background flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-on-background">hub</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Is it a cause or a connection?</span>
+</button>
+</div>
+</div>
+<!-- Right Panel (Col 9-12) -->
+<div class="col-span-1 lg:col-span-4 flex flex-col gap-gutter">
+<!-- Group Stats Card -->
+<div class="bg-surface border-4 border-on-background neo-shadow-md flex flex-col">
+<div class="bg-primary border-b-2 border-on-background p-3">
+<h3 class="font-label-md text-label-md text-on-primary tracking-widest uppercase">Room Telemetry</h3>
+</div>
+<div class="p-4 flex flex-col gap-6">
+<!-- Stat 1 -->
+<div>
+<div class="font-code-sm text-code-sm text-on-surface-variant mb-1">ROOM INTEGRITY AVERAGE</div>
+<div class="flex items-end gap-2">
+<span class="font-headline-xl text-headline-xl text-primary">87%</span>
+<span class="material-symbols-outlined text-tertiary text-2xl mb-2" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+</div>
+<!-- Pixel Progress -->
+<div class="flex gap-1 mt-2 h-4 w-full">
+<div class="bg-primary flex-1 border-2 border-on-background"></div>
+<div class="bg-primary flex-1 border-2 border-on-background"></div>
+<div class="bg-primary flex-1 border-2 border-on-background"></div>
+<div class="bg-primary flex-1 border-2 border-on-background"></div>
+<div class="bg-surface flex-1 border-2 border-on-background"></div>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="p-4 border-2 border-on-background bg-surface-container-high">
+<div class="font-code-sm text-code-sm text-on-surface-variant mb-2">MOST LOST ATOM</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">Context Limits</div>
+<div class="font-body-md text-body-md text-on-surface mt-2 border-t-2 border-on-background pt-2">
+                                42% of participants missed contextual boundaries.
+                            </div>
+</div>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full mt-auto py-6 bg-primary text-on-primary font-headline-lg text-headline-lg border-4 border-on-background neo-shadow-lg neo-hover transition-all neo-btn flex items-center justify-center gap-4">
+<span>FINISH GAME</span>
+<span class="material-symbols-outlined text-3xl">login</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 right-0 w-[calc(100%-16rem)] z-30 flex justify-between items-center px-gutter py-2 bg-surface-container-highest border-t-2 border-on-background hidden md:flex">
+<div class="font-label-md text-label-md font-bold text-on-surface">SYSTEM STATUS: VERIFIED</div>
+<div class="flex gap-6 font-code-sm text-code-sm">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Protocol</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Source Code</a>
+</div>
+</footer>
+<!-- Mobile Navigation (Bottom Nav - Simplified for 4-col layout) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface border-t-4 border-on-background flex justify-around p-2 md:hidden z-50 shadow-[0px_-4px_0px_0px_#191b23]">
+<button class="flex flex-col items-center p-2 text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-code-sm text-[10px]">Canvas</span>
+</button>
+<button class="flex flex-col items-center p-2 text-on-surface-variant">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-code-sm text-[10px]">Ledger</span>
+</button>
+<button class="flex flex-col items-center p-2 text-on-surface-variant">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-code-sm text-[10px]">Vault</span>
+</button>
+</div>
+</body></html>

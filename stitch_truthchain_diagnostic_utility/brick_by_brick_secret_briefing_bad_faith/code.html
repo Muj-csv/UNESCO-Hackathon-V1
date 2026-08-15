@@ -1,0 +1,330 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CLASSIFIED BRIEFING - Brick-by-Brick</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Space+Grotesk:wght@700;900&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#faf8ff",
+                      "on-primary-fixed": "#00174b",
+                      "on-error": "#ffffff",
+                      "surface-container-low": "#f3f3fe",
+                      "surface-variant": "#e1e2ed",
+                      "error-container": "#ffdad6",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed": "#ffe083",
+                      "on-surface-variant": "#434655",
+                      "on-secondary-fixed": "#231b00",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "secondary": "#735c00",
+                      "on-tertiary-container": "#c1ffc5",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "secondary-container": "#fed01b",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "inverse-on-surface": "#f0f0fb",
+                      "tertiary-fixed": "#6bff8f",
+                      "on-primary-container": "#eeefff",
+                      "on-secondary-container": "#6f5900",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "surface": "#faf8ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#d9d9e5",
+                      "on-secondary-fixed-variant": "#574500",
+                      "on-background": "#191b23",
+                      "surface-tint": "#0053db",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-fixed": "#002109",
+                      "tertiary-container": "#007e37",
+                      "secondary-fixed-dim": "#eec200",
+                      "surface-container-high": "#e7e7f3",
+                      "inverse-surface": "#2e3039",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "outline-variant": "#c3c6d7",
+                      "surface-container-highest": "#e1e2ed",
+                      "on-surface": "#191b23",
+                      "outline": "#737686",
+                      "primary-fixed": "#dbe1ff",
+                      "primary": "#004ac6",
+                      "tertiary": "#006229",
+                      "surface-container": "#ededf9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "unit": "4px",
+                      "margin": "32px",
+                      "offset-lg": "8px",
+                      "offset-md": "4px",
+                      "offset-sm": "2px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Work Sans"
+                      ],
+                      "body-lg": [
+                              "Work Sans"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-xl": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "code-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .dot-grid {
+            background-image: radial-gradient(var(--tw-colors-outline-variant) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Neo-brutalist interaction base styles */
+        .brutalist-button {
+            transition: all 0.1s ease;
+        }
+        .brutalist-button:active {
+            transform: translate(4px, 4px) !important;
+            box-shadow: none !important;
+        }
+        
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.05) 50%,
+                rgba(0,0,0,0.05)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+        
+        @keyframes pulse-red {
+            0% { background-color: rgba(186, 26, 26, 0.1); }
+            50% { background-color: rgba(186, 26, 26, 0.3); }
+            100% { background-color: rgba(186, 26, 26, 0.1); }
+        }
+        .alert-bg {
+            animation: pulse-red 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-full font-body-md overflow-hidden antialiased">
+<!-- App Shell: SideNavBar -->
+<!-- Fixed left navigation - Suppressed on mobile, visible md+ -->
+<nav class="hidden md:flex flex-col p-margin gap-4 fixed left-0 top-0 h-full w-64 border-r-4 border-on-background bg-surface shadow-[4px_4px_0px_0px_#191b23] z-50">
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary mb-1">CONTROL DECK</h1>
+<div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                System Active
+            </div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Main Canvas Tab (Active for general game view) -->
+<a class="flex items-center gap-3 p-3 bg-secondary-container text-on-secondary-container border-2 border-on-background translate-x-1 translate-y-1 shadow-none font-label-md text-label-md rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+                Main Canvas
+            </a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background rounded-DEFAULT active:translate-x-1 active:translate-y-1 active:shadow-none" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Decay Ledger
+            </a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background rounded-DEFAULT active:translate-x-1 active:translate-y-1 active:shadow-none" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Pack Studio
+            </a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all border-2 border-transparent hover:border-on-background rounded-DEFAULT active:translate-x-1 active:translate-y-1 active:shadow-none" href="#">
+<span class="material-symbols-outlined">lock</span>
+                Vault
+            </a>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 px-4 border-2 border-on-background shadow-[4px_4px_0px_0px_#191b23] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px_#191b23] brutalist-button rounded-DEFAULT">
+                NEW CLAIM
+            </button>
+<div class="mt-4 flex items-center gap-3 p-2 border-2 border-on-background bg-surface-container-lowest">
+<div class="w-10 h-10 bg-surface-variant border-2 border-on-background flex items-center justify-center overflow-hidden shrink-0">
+<span class="material-symbols-outlined text-outline">person</span>
+</div>
+<div class="flex-grow min-w-0">
+<div class="font-label-md text-label-md truncate">Operative_09</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant">Forensic Investigator Avatar</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- App Shell: TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter h-20 border-b-4 border-on-background shadow-[0px_4px_0px_0px_#191b23] bg-primary-container md:ml-64 md:w-[calc(100%-16rem)]">
+<div class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container">
+            BRICK-BY-BRICK
+        </div>
+<div class="flex items-center gap-4">
+<div class="font-label-md text-label-md text-on-primary-container bg-surface-tint/20 px-3 py-1 border-2 border-on-primary-container rounded-DEFAULT">
+                Room: BX-99
+            </div>
+<div class="flex gap-2">
+<button class="p-2 text-on-primary-container/80 hover:bg-primary/10 transition-colors rounded-DEFAULT active:opacity-90 border-2 border-transparent hover:border-on-primary-container/50">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 text-on-primary-container/80 hover:bg-primary/10 transition-colors rounded-DEFAULT active:opacity-90 border-2 border-transparent hover:border-on-primary-container/50">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- App Shell: Footer -->
+<footer class="hidden md:flex fixed bottom-0 right-0 w-[calc(100%-16rem)] z-30 justify-between items-center px-gutter py-2 h-12 border-t-2 border-on-background bg-surface-container-highest">
+<div class="font-label-md text-label-md font-bold text-on-surface">
+            SYSTEM STATUS: VERIFIED
+        </div>
+<div class="flex gap-6 font-code-sm text-code-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors active:scale-95" href="#">Privacy Protocol</a>
+<a class="hover:text-primary transition-colors active:scale-95" href="#">Source Code</a>
+</div>
+</footer>
+<!-- Main Content Canvas -->
+<main class="h-full pt-20 pb-0 md:pb-12 md:pl-64 dot-grid relative flex items-center justify-center p-gutter">
+<!-- Subtle Scanline overlay for forensic feel -->
+<div class="absolute inset-0 scanline z-0 pointer-events-none"></div>
+<!-- Classified Briefing Modal Card -->
+<div class="relative w-full max-w-2xl bg-surface border-4 border-on-background shadow-[8px_8px_0px_0px_#191b23] z-10 flex flex-col alert-bg">
+<!-- Modal Header -->
+<div class="border-b-4 border-on-background bg-error p-4 flex justify-between items-center">
+<div class="flex items-center gap-3 text-on-error">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h2 class="font-headline-lg text-headline-lg font-black tracking-tighter">CLASSIFIED BRIEFING</h2>
+</div>
+<!-- Decorative element -->
+<div class="flex gap-1">
+<div class="w-3 h-3 bg-on-error border-2 border-on-background rounded-full"></div>
+<div class="w-3 h-3 bg-on-error/50 border-2 border-on-background rounded-full"></div>
+</div>
+</div>
+<!-- Modal Content -->
+<div class="p-8 flex flex-col gap-8 bg-surface">
+<!-- Role Assignment -->
+<div class="text-center py-6 border-4 border-error bg-error-container relative">
+<!-- Corner anchors -->
+<div class="absolute top-0 left-0 w-3 h-3 border-b-2 border-r-2 border-error"></div>
+<div class="absolute top-0 right-0 w-3 h-3 border-b-2 border-l-2 border-error"></div>
+<div class="absolute bottom-0 left-0 w-3 h-3 border-t-2 border-r-2 border-error"></div>
+<div class="absolute bottom-0 right-0 w-3 h-3 border-t-2 border-l-2 border-error"></div>
+<div class="font-code-sm text-code-sm text-error mb-2 uppercase tracking-widest">&gt;&gt; IDENTITY OVERRIDE &lt;&lt;</div>
+<h3 class="font-headline-xl text-headline-xl font-black text-error">YOU ARE THE IMPOSTER</h3>
+</div>
+<!-- Mission Details Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Objective Panel -->
+<div class="border-2 border-on-background p-5 bg-surface-container-lowest shadow-[4px_4px_0px_0px_#191b23]">
+<div class="flex items-center gap-2 mb-3 border-b-2 border-on-background pb-2">
+<span class="material-symbols-outlined text-primary">target</span>
+<span class="font-label-md text-label-md text-primary uppercase">Objective</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface">
+                            Your mission: Sabotage the claim. Ensure the <span class="bg-secondary-container text-on-secondary-container px-1 font-label-md border border-on-background">[HEDGE]</span> atom is lost in the final broadcast.
+                        </p>
+</div>
+<!-- Tactical Advice Panel -->
+<div class="border-2 border-on-background p-5 bg-surface-container-lowest shadow-[4px_4px_0px_0px_#191b23]">
+<div class="flex items-center gap-2 mb-3 border-b-2 border-on-background pb-2">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+<span class="font-label-md text-label-md text-tertiary uppercase">Tactical Advice</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Distort the truth without being caught. Make your edit look like an accidental shortcut. Blend in with the forensic investigators.
+                        </p>
+</div>
+</div>
+<!-- Footer Action Area -->
+<div class="mt-4 pt-6 border-t-2 border-outline-variant flex justify-center">
+<button class="bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile px-12 py-4 border-4 border-on-background shadow-[6px_6px_0px_0px_#191b23] hover:bg-primary-fixed-variant hover:shadow-[8px_8px_0px_0px_#191b23] hover:-translate-y-0.5 hover:-translate-x-0.5 brutalist-button flex items-center gap-3">
+<span class="material-symbols-outlined text-3xl">check_circle</span>
+                        I UNDERSTAND
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

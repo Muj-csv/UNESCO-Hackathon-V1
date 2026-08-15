@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BRICK-BY-BRICK | TruthChain</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;700;900&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<!-- Tailwind Config -->
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "error-container": "#ffdad6",
+        "on-tertiary-fixed-variant": "#005321",
+        "on-tertiary": "#ffffff",
+        "secondary-fixed": "#ffe083",
+        "outline": "#737686",
+        "secondary-fixed-dim": "#eec200",
+        "on-tertiary-container": "#c1ffc5",
+        "surface": "#faf8ff",
+        "on-secondary-container": "#6f5900",
+        "inverse-surface": "#2e3039",
+        "outline-variant": "#c3c6d7",
+        "secondary-container": "#fed01b",
+        "on-surface": "#191b23",
+        "on-secondary-fixed": "#231b00",
+        "secondary": "#735c00",
+        "inverse-on-surface": "#f0f0fb",
+        "tertiary-fixed": "#6bff8f",
+        "error": "#ba1a1a",
+        "tertiary": "#006229",
+        "on-primary": "#ffffff",
+        "inverse-primary": "#b4c5ff",
+        "surface-bright": "#faf8ff",
+        "on-error-container": "#93000a",
+        "on-primary-fixed-variant": "#003ea8",
+        "primary-fixed": "#dbe1ff",
+        "surface-container": "#ededf9",
+        "surface-dim": "#d9d9e5",
+        "primary-fixed-dim": "#b4c5ff",
+        "surface-container-low": "#f3f3fe",
+        "primary-container": "#2563eb",
+        "on-error": "#ffffff",
+        "surface-container-lowest": "#ffffff",
+        "on-secondary-fixed-variant": "#574500",
+        "tertiary-fixed-dim": "#4ae176",
+        "tertiary-container": "#007e37",
+        "on-secondary": "#ffffff",
+        "on-primary-fixed": "#00174b",
+        "on-background": "#191b23",
+        "surface-tint": "#0053db",
+        "on-tertiary-fixed": "#002109",
+        "on-surface-variant": "#434655",
+        "on-primary-container": "#eeefff",
+        "surface-variant": "#e1e2ed",
+        "primary": "#004ac6",
+        "surface-container-highest": "#e1e2ed",
+        "background": "#faf8ff",
+        "surface-container-high": "#e7e7f3"
+      },
+      borderRadius: {
+        DEFAULT: "0.125rem",
+        lg: "0.25rem",
+        xl: "0.5rem",
+        full: "0.75rem"
+      },
+      spacing: {
+        margin: "32px",
+        gutter: "24px",
+        "offset-sm": "2px",
+        "offset-md": "4px",
+        unit: "4px",
+        "offset-lg": "8px"
+      },
+      fontFamily: {
+        "body-md": ["Work Sans"],
+        "code-sm": ["JetBrains Mono"],
+        "headline-lg": ["Space Grotesk"],
+        "label-md": ["JetBrains Mono"],
+        "headline-xl": ["Space Grotesk"],
+        "headline-lg-mobile": ["Space Grotesk"],
+        "body-lg": ["Work Sans"]
+      },
+      fontSize: {
+        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+        "code-sm": ["12px", { lineHeight: "1.4", fontWeight: "400" }],
+        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+        "label-md": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
+        "headline-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "headline-lg-mobile": ["24px", { lineHeight: "1.2", fontWeight: "700" }],
+        "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "500" }]
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .material-symbols-outlined[data-weight="fill"],
+  .material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+  }
+
+  /* ===== Neo-Brutalism Shared Utilities ===== */
+  .neo-btn {
+    border: 2px solid #191b23;
+    box-shadow: 4px 4px 0px 0px #191b23;
+    transition: all 0.1s ease;
+  }
+  .neo-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px #191b23;
+  }
+  .neo-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+
+  .neo-btn-lg {
+    border: 4px solid #191b23;
+    box-shadow: 8px 8px 0px 0px #191b23;
+    transition: all 0.1s ease;
+  }
+  .neo-btn-lg:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 10px 10px 0px 0px #191b23;
+  }
+  .neo-btn-lg:active {
+    transform: translate(8px, 8px);
+    box-shadow: none;
+  }
+
+  .neo-card {
+    border: 2px solid #191b23;
+    box-shadow: 4px 4px 0px 0px #191b23;
+  }
+
+  .neo-card-hover {
+    transition: all 0.2s ease;
+  }
+  .neo-card-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px #191b23;
+  }
+
+  .neo-panel {
+    border: 4px solid #191b23;
+    box-shadow: 8px 8px 0px 0px #191b23;
+  }
+
+  .neo-inset {
+    border-bottom: 2px solid #c3c6d7;
+    border-right: 2px solid #c3c6d7;
+    border-top: 2px solid #191b23;
+    border-left: 2px solid #191b23;
+  }
+
+  /* Pixel progress bar */
+  .pixel-progress {
+    display: flex;
+    gap: 2px;
+    height: 16px;
+  }
+  .pixel-block {
+    width: 12px;
+    height: 100%;
+    border: 1px solid #191b23;
+  }
+  .pixel-filled-primary { background-color: #004ac6; }
+  .pixel-filled-secondary { background-color: #fed01b; }
+  .pixel-filled-tertiary { background-color: #007e37; }
+  .pixel-empty { background-color: transparent; }
+
+  /* Background patterns */
+  .bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(25, 27, 35, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(25, 27, 35, 0.05) 1px, transparent 1px);
+  }
+  .bg-dot-pattern {
+    background-image: radial-gradient(#e1e2ed 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  /* Animations */
+  @keyframes pulse-warning {
+    0% { background-color: #fed01b; }
+    50% { background-color: #ffe083; }
+    100% { background-color: #fed01b; }
+  }
+  .warning-pulse { animation: pulse-warning 2s infinite; }
+
+  @keyframes pulse-red {
+    0% { background-color: rgba(186, 26, 26, 0.1); }
+    50% { background-color: rgba(186, 26, 26, 0.3); }
+    100% { background-color: rgba(186, 26, 26, 0.1); }
+  }
+  .alert-bg { animation: pulse-red 2s infinite; }
+
+  .scanline {
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05));
+    background-size: 100% 4px;
+    pointer-events: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: #faf8ff; border-left: 2px solid #191b23; }
+  ::-webkit-scrollbar-thumb { background: #004ac6; border: 2px solid #191b23; }
+  ::-webkit-scrollbar-thumb:hover { background: #0053db; }
+
+  /* Page sections hidden by default */
+  .page-section { display: none; }
+  .page-section.active { display: flex; }
+
+  /* Suspect card interaction */
+  .suspect-card.selected {
+    border-color: #ba1a1a !important;
+    background-color: #ffdad6 !important;
+  }
+  .suspect-card.selected .vote-btn {
+    background-color: #ba1a1a !important;
+    color: #ffffff !important;
+  }
+
+  /* Side nav active state */
+  .nav-link.active {
+    background-color: #fed01b;
+    color: #6f5900;
+    border: 2px solid #191b23;
+    transform: translate(1px, 1px);
+    box-shadow: none;
+    font-weight: bold;
+  }
+
+  /* Transition for page switching */
+  .page-section.active {
+    animation: fadeIn 0.2s ease-in;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden selection:bg-secondary-container selection:text-on-secondary-container">
+
+<!-- ============================================================ -->
+<!-- SHARED SHELL: TopAppBar                                       -->
+<!-- ============================================================ -->
+<header class="fixed top-0 left-0 w-full md:ml-64 md:w-[calc(100%-16rem)] z-40 flex justify-between items-center px-gutter h-20 border-b-4 border-on-background shadow-[0px_4px_0px_0px_#191b23] bg-primary-container text-on-primary-container">
+  <div class="flex items-center gap-4">
+    <span class="material-symbols-outlined text-3xl filled">deployed_code</span>
+    <h1 class="font-headline-lg text-headline-lg font-black tracking-tighter text-on-primary-container hidden md:block">BRICK-BY-BRICK</h1>
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-black tracking-tighter text-on-primary-container md:hidden">B-B-B</h1>
+    <span id="page-badge" class="px-2 py-1 bg-surface text-on-surface font-label-md text-label-md border-2 border-on-background hidden"></span>
+  </div>
+  <div class="flex items-center gap-4 md:gap-6">
+    <div class="font-label-md text-label-md bg-surface text-on-surface px-3 md:px-4 py-2 border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] hidden md:block">
+      Room: BX-99
+    </div>
+    <div class="flex gap-2">
+      <button class="w-10 h-10 flex items-center justify-center border-2 border-on-background bg-surface text-on-surface shadow-[2px_2px_0px_0px_#191b23] hover:-translate-y-1 hover:shadow-[2px_4px_0px_0px_#191b23] active:translate-y-1 active:shadow-none transition-all">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center border-2 border-on-background bg-surface text-on-surface shadow-[2px_2px_0px_0px_#191b23] hover:-translate-y-1 hover:shadow-[2px_4px_0px_0px_#191b23] active:translate-y-1 active:shadow-none transition-all">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- SHARED SHELL: SideNavBar (desktop)                            -->
+<!-- ============================================================ -->
+<nav class="fixed left-0 top-0 h-full flex flex-col p-margin gap-4 bg-surface text-primary w-64 border-r-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] z-50 hidden md:flex">
+  <!-- Header -->
+  <div class="flex flex-col gap-2 mb-8 pb-4 border-b-4 border-on-background">
+    <div class="w-16 h-16 border-2 border-on-background overflow-hidden bg-secondary-container">
+      <img alt="Forensic Investigator Avatar" class="w-full h-full object-cover grayscale contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDautiQ76VgDXKd0qAuHjvBSdxoOT9x7qXEA0TPcsAgBAfGYmA3QsrU7sOZY_mCSWs-Rs7YIT5HBAf-0CL6kBiOHdgqXaZx85FufhFxvIRcI5Iv3muozYI6f-pm7XowZjL8_pvm0UKHWIPMBv5651X7B_wpTEr4eFZDVFu1TAHSLBKzIgDzmXMb6OC8Vc-Laj8wV7mN3D52UbSSzIMhmfK34ANGtx963Ie50mbpAc_4aeVtGYJV54NPsQ">
+    </div>
+    <h2 class="font-headline-lg text-headline-lg font-bold text-primary">CONTROL DECK</h2>
+    <span class="font-code-sm text-code-sm text-outline flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse inline-block"></span>
+      System Active
+    </span>
+  </div>
+  <!-- Navigation Tabs -->
+  <div class="flex flex-col gap-2 flex-grow">
+    <a href="#lobby" class="nav-link flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left" data-nav="lobby">
+      <span class="material-symbols-outlined">grid_view</span>
+      Main Canvas
+    </a>
+    <a href="#reflection" class="nav-link flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left" data-nav="reflection">
+      <span class="material-symbols-outlined">analytics</span>
+      Decay Ledger
+    </a>
+    <a href="#pack-library" class="nav-link flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_#191b23] transition-all active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-transparent hover:border-on-background w-full text-left" data-nav="pack-library">
+      <span class="material-symbols-outlined">inventory_2</span>
+      Pack Studio
+    </a>
+    <a href="#" class="nav-link flex items-center gap-3 p-3 font-label-md text-label-md text-on-surface-variant/50 border-2 border-transparent w-full text-left cursor-not-allowed opacity-50" data-nav="vault">
+      <span class="material-symbols-outlined">lock</span>
+      Vault
+    </a>
+  </div>
+  <!-- CTA -->
+  <button onclick="navigateTo('pack-editor')" class="mt-auto py-4 px-4 bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile font-bold uppercase tracking-wider text-center neo-btn">
+    NEW CLAIM
+  </button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT AREA                                             -->
+<!-- ============================================================ -->
+<main class="md:ml-64 mt-20 pb-14 md:pb-14 min-h-[calc(100vh-5rem)] bg-background">
+
+<!-- ============================================================ -->
+<!-- PAGE 1: LOBBY                                                 -->
+<!-- ============================================================ -->
+<section id="page-lobby" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="p-gutter flex-grow relative">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#191b23 2px, transparent 2px); background-size: 24px 24px;"></div>
+    <div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter relative z-10 pt-4 pb-8">
+
+      <!-- LEFT: Crew List -->
+      <div class="lg:col-span-3 flex flex-col bg-surface neo-card overflow-hidden">
+        <div class="bg-secondary-container border-b-4 border-on-background p-4 flex justify-between items-center">
+          <h3 class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-secondary-container">ROSTER</h3>
+          <span class="font-code-sm text-code-sm bg-background border-2 border-on-background px-2 py-1 shadow-[2px_2px_0px_0px_#191b23]">3/4</span>
+        </div>
+        <div class="flex-grow overflow-y-auto p-4 flex flex-col gap-4">
+          <!-- Player 1 -->
+          <div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+            <div class="w-12 h-12 border-2 border-on-background bg-primary-container shrink-0">
+              <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK4bcuj5V2h9OhsVhn-yHYWVRI3oCFt2yES2MAhSeAeB3ximdMU-Z4lByA2uhl32LvLqsrW_ux538DTCS2sFs4ba7pWnXfgp9p_0PelwJGAjvKCtcQxgIuPLWJGeVEfZRu9HDJxg6Bn3_ijU9IdWw8baf8tmw5gIgZB_AEdkbGAOPokXqDf-at1XA3eX8oBe8sgIqU4rmNWGIwypwyZUBB8_E2fKSykCe5zAvQHBTl8FYlc53hPW5eQg" alt="Player avatar">
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="font-label-md text-label-md truncate uppercase">GHOST_PROTO</div>
+              <div class="font-code-sm text-code-sm text-tertiary font-bold">VERIFIED</div>
+            </div>
+          </div>
+          <!-- Player 2 -->
+          <div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+            <div class="w-12 h-12 border-2 border-on-background bg-error-container shrink-0">
+              <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfbmnjyz2J_EfiqkSAdTDVTLOhFfpocsuEb8XHHVRd49GxAi8B6oPugo2YdYN7jTCoJzaUafuJYDfZhgvglqZ15pDwMghksdac36KUL1gylm_a_TDsxV9I1jp5VpsKTa-WOtewOZ4K4ukv_8vezDhL7CQzh9JnVP418CBdxMjzxhgBSOStj_jH86KT1uzUzeRcK39N26LnQ7bbCOQrpVxLQ7th7lcQCAXNpHFZaJQUva7ewj6HtvZXqQ" alt="Player avatar">
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="font-label-md text-label-md truncate uppercase">NULL_POINTER</div>
+              <div class="font-code-sm text-code-sm text-outline font-bold">STANDBY</div>
+            </div>
+          </div>
+          <!-- Player 3 -->
+          <div class="flex items-center gap-3 p-2 border-2 border-on-background bg-surface shadow-[2px_2px_0px_0px_#191b23]">
+            <div class="w-12 h-12 border-2 border-on-background bg-tertiary-container shrink-0">
+              <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9007w59CP-F5AYdOjlSxXts-f_OIYox1DrOJ2b20skwTPBU29Ww_tBhKCTWy3hSIKAnzXRgE8urEGuIPjCF0SOr7gOTPOwy9UJY3jVk9bgWD9DPqCgbTyGetjXfQWk-2jbwtoXv4iIT8BkDR4eq7TrXx6PXUGDDuUqOzvTBVeIC-cdDOMe6xIKnp-TF4pLMCGSwDc-TIhIGsBueCqYL2QwwvnMbswvslzRF2mdaXDHKu_t6jYvMocUw" alt="Player avatar">
+            </div>
+            <div class="flex-grow min-w-0">
+              <div class="font-label-md text-label-md truncate uppercase">SECTOR_7G</div>
+              <div class="font-code-sm text-code-sm text-tertiary font-bold">VERIFIED</div>
+            </div>
+          </div>
+          <!-- Empty Slot -->
+          <div class="flex items-center justify-center gap-3 p-2 border-2 border-dashed border-outline-variant bg-surface-container-lowest h-[68px]">
+            <span class="font-code-sm text-code-sm text-outline-variant uppercase">Awaiting Signal...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: Terminal -->
+      <div class="lg:col-span-6 flex flex-col neo-panel bg-surface overflow-hidden relative">
+        <!-- Decorative Top Bar -->
+        <div class="h-8 bg-primary border-b-4 border-on-background flex items-center px-4 justify-between">
+          <div class="flex gap-2">
+            <div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+            <div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+            <div class="w-3 h-3 border-2 border-on-background bg-background rounded-full"></div>
+          </div>
+          <span class="font-code-sm text-code-sm text-on-primary font-bold tracking-widest uppercase">Uplink Established</span>
+        </div>
+        <div class="flex-grow flex flex-col items-center justify-center p-8 bg-surface relative">
+          <!-- Room Code -->
+          <div class="text-center mb-12 relative">
+            <h4 class="font-code-sm text-code-sm text-outline mb-4 uppercase tracking-[0.3em]">Access Sequence</h4>
+            <div class="font-headline-xl text-[56px] md:text-[80px] leading-none font-black tracking-tighter bg-secondary-container border-4 border-on-background p-6 md:p-8 shadow-[8px_8px_0px_0px_#191b23] relative z-10 inline-block">
+              BX-99
+            </div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[150%] border-2 border-dashed border-outline-variant -z-10 animate-[spin_60s_linear_infinite]"></div>
+          </div>
+          <!-- Progress Gauge -->
+          <div class="w-full max-w-md mb-12">
+            <div class="flex justify-between font-code-sm text-code-sm mb-2 uppercase">
+              <span>Consensus Engine</span>
+              <span>75% Capacity</span>
+            </div>
+            <div class="h-6 w-full border-2 border-on-background flex gap-1 p-1 bg-surface-container-highest">
+              <div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+              <div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+              <div class="h-full w-1/4 bg-tertiary border-r-2 border-on-background"></div>
+              <div class="h-full w-1/4 bg-transparent"></div>
+            </div>
+          </div>
+          <!-- Primary Action -->
+          <button onclick="navigateTo('mode-select')" class="py-5 md:py-6 px-10 md:px-16 bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile font-black uppercase tracking-widest neo-btn-lg relative group overflow-hidden">
+            <span class="relative z-10">INITIATE PROTOCOL</span>
+            <div class="absolute inset-0 bg-secondary-container opacity-0 group-hover:opacity-10 transition-opacity z-0 pointer-events-none"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Settings -->
+      <div class="lg:col-span-3 flex flex-col bg-surface neo-card overflow-hidden">
+        <div class="bg-primary-container border-b-4 border-on-background p-4 flex justify-between items-center">
+          <h3 class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-primary-container">PARAMETERS</h3>
+          <span class="material-symbols-outlined text-on-primary-container">tune</span>
+        </div>
+        <div class="flex-grow overflow-y-auto p-4 flex flex-col gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="font-code-sm text-code-sm text-outline uppercase font-bold">Game Mode</label>
+            <div class="p-3 border-2 border-on-background bg-surface-container shadow-[2px_2px_0px_0px_#191b23] flex items-center justify-between cursor-pointer hover:bg-secondary-container transition-colors">
+              <span class="font-label-md text-label-md uppercase">Forensic Audit</span>
+              <span class="material-symbols-outlined">arrow_drop_down</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-code-sm text-code-sm text-outline uppercase font-bold">Difficulty Tolerance</label>
+            <div class="flex gap-2">
+              <button class="flex-1 py-2 border-2 border-on-background bg-surface font-code-sm text-code-sm font-bold shadow-[2px_2px_0px_0px_#191b23] hover:bg-surface-container active:translate-y-1 active:translate-x-1 active:shadow-none">LOW</button>
+              <button class="flex-1 py-2 border-2 border-on-background bg-error text-on-error font-code-sm text-code-sm font-bold translate-x-1 translate-y-1 shadow-none">STRICT</button>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 mt-auto">
+            <label class="font-code-sm text-code-sm text-outline uppercase font-bold">Target Coordinates</label>
+            <div class="h-32 border-2 border-on-background relative overflow-hidden bg-surface-variant p-1 shadow-[2px_2px_0px_0px_#191b23]">
+              <img class="w-full h-full object-cover border-2 border-on-background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCupJrOrnTO7tE4OA5mb01Y1C9ryUhLUvaQNr6Cv2cdxT-c2ke5EBW77t5_Qb650TzBamyW_nnotnmx4BQsH7ihdMTZM_3-QpWZVBsczwtvtnEn5VSfT_bhWmw_Mc3LD66_L2g3XSFkcFl7-Cr5AoV3w92IZslw7qk2afO1y39t6nfq4XOc-P43DuxL4_jdTCBMLvNDQk_CGj0VdY009WAcNt3S8dkx0WFIQxj_A1FgKoH090GxfomR7Q" alt="Map">
+              <div class="absolute bottom-2 left-2 bg-background border-2 border-on-background px-2 py-1 font-code-sm text-[10px] uppercase font-bold">Grid: 44.59.Z</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 2: MODE SELECTION                                        -->
+<!-- ============================================================ -->
+<section id="page-mode-select" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="pt-8 md:pt-12 pb-24 min-h-full bg-grid-pattern flex flex-col items-center justify-center relative px-gutter">
+    <div class="max-w-[1200px] w-full flex flex-col gap-12">
+      <div class="text-center">
+        <div class="inline-block bg-secondary-container px-6 py-2 border-2 border-on-background mb-4 shadow-[4px_4px_0px_0px_#191b23]">
+          <span class="font-label-md text-label-md uppercase tracking-wider font-bold">Session Initiated</span>
+        </div>
+        <h2 class="font-headline-xl text-headline-xl mb-4">SELECT OPERATION MODE</h2>
+        <p class="font-body-lg text-body-lg max-w-2xl mx-auto">Choose your vector of interaction. All truth ledgers are currently active and awaiting structural input.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- CHAIN -->
+        <div class="neo-panel neo-card-hover bg-surface flex flex-col h-full group relative overflow-hidden cursor-pointer" onclick="navigateTo('gameplay')">
+          <div class="h-4 bg-primary border-b-2 border-on-background w-full absolute top-0 left-0"></div>
+          <div class="p-8 pt-12 flex-grow flex flex-col">
+            <div class="w-20 h-20 bg-primary-fixed border-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-4xl text-on-primary-fixed filled">link</span>
+            </div>
+            <h3 class="font-headline-lg text-headline-lg mb-2">CHAIN</h3>
+            <div class="font-label-md text-label-md text-outline mb-4">CLASSIC PROTOCOL</div>
+            <p class="font-body-md text-body-md mb-8 flex-grow">Collaborative truth-building. Work with your team to link validated claims sequentially. The longest verified chain dictates the dominant narrative.</p>
+            <button onclick="event.stopPropagation(); navigateTo('gameplay')" class="neo-btn w-full bg-primary text-on-primary py-4 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-2">
+              <span>Initialize</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- BAD FAITH -->
+        <div class="neo-panel neo-card-hover bg-surface flex flex-col h-full group relative overflow-hidden cursor-pointer" onclick="navigateTo('briefing')">
+          <div class="h-4 bg-error border-b-2 border-on-background w-full absolute top-0 left-0"></div>
+          <div class="p-8 pt-12 flex-grow flex flex-col">
+            <div class="w-20 h-20 bg-error-container border-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-4xl text-on-error-container filled">flip_camera_ios</span>
+            </div>
+            <h3 class="font-headline-lg text-headline-lg mb-2">BAD FAITH</h3>
+            <div class="font-label-md text-label-md text-error mb-4">IMPOSTER PROTOCOL</div>
+            <p class="font-body-md text-body-md mb-8 flex-grow">Asymmetric warfare. One actor is secretly inserting fabricated nodes. Analyze patterns, identify the rogue element, and purge their claims.</p>
+            <button onclick="event.stopPropagation(); navigateTo('briefing')" class="neo-btn w-full bg-error text-on-error py-4 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-2">
+              <span>Initialize</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CROWD RECALL -->
+        <div class="neo-panel neo-card-hover bg-surface flex flex-col h-full group relative overflow-hidden cursor-pointer" onclick="navigateTo('gameplay')">
+          <div class="h-4 bg-tertiary border-b-2 border-on-background w-full absolute top-0 left-0"></div>
+          <div class="p-8 pt-12 flex-grow flex flex-col">
+            <div class="w-20 h-20 bg-tertiary-fixed border-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-4xl text-on-tertiary-fixed filled">groups</span>
+            </div>
+            <h3 class="font-headline-lg text-headline-lg mb-2">CROWD RECALL</h3>
+            <div class="font-label-md text-label-md text-tertiary mb-4">SWARM PROTOCOL</div>
+            <p class="font-body-md text-body-md mb-8 flex-grow">High-velocity consensus. Review fragmented data streams and vote rapidly on validity. The wisdom of the swarm stabilizes the ledger.</p>
+            <button onclick="event.stopPropagation(); navigateTo('gameplay')" class="neo-btn w-full bg-tertiary text-on-tertiary py-4 font-label-md text-label-md uppercase tracking-widest flex items-center justify-center gap-2">
+              <span>Initialize</span>
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back -->
+      <div class="text-center">
+        <button onclick="navigateTo('lobby')" class="neo-btn bg-surface text-on-surface font-label-md text-label-md py-3 px-8 uppercase tracking-wider flex items-center gap-2 mx-auto">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back to Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 3: SECRET BRIEFING (BAD FAITH)                           -->
+<!-- ============================================================ -->
+<section id="page-briefing" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow flex items-center justify-center p-gutter bg-dot-pattern relative">
+    <div class="absolute inset-0 scanline z-0 pointer-events-none"></div>
+    <!-- Classified Briefing Modal -->
+    <div class="relative w-full max-w-2xl bg-surface border-4 border-on-background shadow-[8px_8px_0px_0px_#191b23] z-10 flex flex-col alert-bg">
+      <!-- Header -->
+      <div class="border-b-4 border-on-background bg-error p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3 text-on-error">
+          <span class="material-symbols-outlined text-3xl filled">warning</span>
+          <h2 class="font-headline-lg text-headline-lg font-black tracking-tighter">CLASSIFIED BRIEFING</h2>
+        </div>
+        <div class="flex gap-1">
+          <div class="w-3 h-3 bg-on-error border-2 border-on-background rounded-full"></div>
+          <div class="w-3 h-3 bg-on-error/50 border-2 border-on-background rounded-full"></div>
+        </div>
+      </div>
+      <!-- Content -->
+      <div class="p-8 flex flex-col gap-8 bg-surface">
+        <!-- Role Assignment -->
+        <div class="text-center py-6 border-4 border-error bg-error-container relative">
+          <div class="absolute top-0 left-0 w-3 h-3 border-b-2 border-r-2 border-error"></div>
+          <div class="absolute top-0 right-0 w-3 h-3 border-b-2 border-l-2 border-error"></div>
+          <div class="absolute bottom-0 left-0 w-3 h-3 border-t-2 border-r-2 border-error"></div>
+          <div class="absolute bottom-0 right-0 w-3 h-3 border-t-2 border-l-2 border-error"></div>
+          <div class="font-code-sm text-code-sm text-error mb-2 uppercase tracking-widest">&gt;&gt; IDENTITY OVERRIDE &lt;&lt;</div>
+          <h3 class="font-headline-xl text-headline-xl font-black text-error">YOU ARE THE IMPOSTER</h3>
+        </div>
+        <!-- Mission Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="border-2 border-on-background p-5 bg-surface-container-lowest shadow-[4px_4px_0px_0px_#191b23]">
+            <div class="flex items-center gap-2 mb-3 border-b-2 border-on-background pb-2">
+              <span class="material-symbols-outlined text-primary">target</span>
+              <span class="font-label-md text-label-md text-primary uppercase">Objective</span>
+            </div>
+            <p class="font-body-lg text-body-lg text-on-surface">
+              Your mission: Sabotage the claim. Ensure the <span class="bg-secondary-container text-on-secondary-container px-1 font-label-md border border-on-background">[HEDGE]</span> atom is lost in the final broadcast.
+            </p>
+          </div>
+          <div class="border-2 border-on-background p-5 bg-surface-container-lowest shadow-[4px_4px_0px_0px_#191b23]">
+            <div class="flex items-center gap-2 mb-3 border-b-2 border-on-background pb-2">
+              <span class="material-symbols-outlined text-tertiary">psychology</span>
+              <span class="font-label-md text-label-md text-tertiary uppercase">Tactical Advice</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant">
+              Distort the truth without being caught. Make your edit look like an accidental shortcut. Blend in with the forensic investigators.
+            </p>
+          </div>
+        </div>
+        <!-- Action -->
+        <div class="mt-4 pt-6 border-t-2 border-outline-variant flex justify-center">
+          <button onclick="navigateTo('gameplay')" class="bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile px-12 py-4 neo-btn-lg flex items-center gap-3">
+            <span class="material-symbols-outlined text-3xl">check_circle</span>
+            I UNDERSTAND
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 4: GAMEPLAY (Placeholder)                                -->
+<!-- ============================================================ -->
+<section id="page-gameplay" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow flex items-center justify-center p-gutter bg-grid-pattern relative">
+    <div class="w-full max-w-3xl flex flex-col items-center gap-8">
+      <!-- Game in progress panel -->
+      <div class="w-full neo-panel bg-surface flex flex-col">
+        <div class="bg-primary border-b-4 border-on-background p-4 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-primary text-3xl filled">play_circle</span>
+            <h2 class="font-headline-lg text-headline-lg text-on-primary">CHAIN IN PROGRESS</h2>
+          </div>
+          <span class="font-code-sm text-code-sm text-on-primary bg-on-background/20 px-3 py-1 border-2 border-on-primary/30">HOP 3 / 5</span>
+        </div>
+        <div class="p-8 flex flex-col items-center gap-8">
+          <!-- Constraint card -->
+          <div class="w-full max-w-md bg-secondary-container border-4 border-on-background shadow-[6px_6px_0px_0px_#191b23] p-6">
+            <div class="font-code-sm text-code-sm text-on-secondary-container uppercase tracking-widest mb-2">Active Constraint</div>
+            <div class="font-headline-lg-mobile text-headline-lg-mobile text-on-secondary-container">BREVITY: Rewrite in 90 characters or fewer</div>
+          </div>
+          <!-- Current claim -->
+          <div class="w-full bg-surface-container border-2 border-on-background p-6">
+            <div class="font-code-sm text-code-sm text-outline uppercase mb-3">Previous Version (Hop 2)</div>
+            <p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+              "A recent study by Oxford suggests that adults may need approximately 8.5 hours of sleep per night for optimal cognitive function."
+            </p>
+          </div>
+          <!-- Input area -->
+          <div class="w-full">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase mb-2 block">Your Rewrite</label>
+            <textarea class="w-full h-32 bg-surface border-2 border-on-background neo-inset p-4 font-body-md text-body-md focus:outline-none resize-none" placeholder="Rewrite the claim under the constraint above..."></textarea>
+            <div class="flex justify-between items-center mt-2">
+              <span class="font-code-sm text-code-sm text-outline">0 / 90 characters</span>
+              <div class="flex gap-2 items-center font-code-sm text-code-sm text-error">
+                <span class="material-symbols-outlined text-sm animate-pulse">timer</span>
+                <span>45s remaining</span>
+              </div>
+            </div>
+          </div>
+          <!-- Action buttons -->
+          <div class="flex gap-4 w-full max-w-md">
+            <button onclick="navigateTo('voting')" class="flex-1 neo-btn bg-error text-on-error font-label-md text-label-md py-4 uppercase tracking-wider flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">how_to_vote</span>
+              Skip to Vote
+            </button>
+            <button onclick="navigateTo('reflection')" class="flex-1 neo-btn bg-primary text-on-primary font-label-md text-label-md py-4 uppercase tracking-wider flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">send</span>
+              Submit & Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev note -->
+      <div class="bg-secondary-container border-2 border-on-background px-4 py-2 font-code-sm text-code-sm text-on-secondary-container">
+        <span class="material-symbols-outlined text-sm align-middle mr-1">info</span>
+        Gameplay placeholder — full claim chain mechanic in development
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 5: SABOTAGE VOTING (BAD FAITH)                           -->
+<!-- ============================================================ -->
+<section id="page-voting" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow overflow-y-auto bg-surface-container-low p-gutter pb-24 md:pb-gutter flex flex-col items-center">
+    <div class="w-full max-w-5xl mx-auto flex flex-col gap-6">
+      <!-- Banner -->
+      <div class="neo-panel bg-secondary-container p-6 flex flex-col md:flex-row justify-between items-center gap-4 warning-pulse relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(45deg, #191b23 0, #191b23 2px, transparent 2px, transparent 8px);"></div>
+        <div class="flex items-center gap-4 relative z-10">
+          <div class="bg-on-background text-secondary-container p-3 border-2 border-on-background rounded-sm shadow-[2px_2px_0px_0px_#191b23]">
+            <span class="material-symbols-outlined text-4xl filled">warning</span>
+          </div>
+          <div>
+            <h2 class="font-headline-xl text-headline-xl text-on-background">SABOTAGE DETECTED</h2>
+            <p class="font-label-md text-label-md text-on-secondary-container mt-1 bg-surface/50 inline-block px-2 py-1 border-2 border-on-background">A property was lost on purpose. Who is the bad faith actor?</p>
+          </div>
+        </div>
+        <div class="relative z-10 bg-surface border-4 border-on-background p-3 flex flex-col items-center min-w-[120px] shadow-[4px_4px_0px_0px_#191b23]">
+          <span class="font-code-sm text-code-sm font-bold text-error mb-1">VOTING ENDS IN</span>
+          <div class="font-headline-lg text-headline-lg text-on-background flex items-center gap-1" id="timer"><span class="material-symbols-outlined text-error animate-pulse">timer</span> 15s</div>
+        </div>
+      </div>
+
+      <!-- Suspect Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
+        <!-- Suspect 1: Alex -->
+        <div class="neo-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+          <div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTA7OL9ihz64BaAl3n0qk3EIRj1RRSlXqRMnnV3IofQZXkSzfVgu4gHBqqAEGYJlZlTC7aI5IDL8agYbJ_NyTFNg7Bos7De-CNHI6_Mbo9DkHshEVnJdirHOxb31oB--yV62NOzMTv6cNbJ7sIxj60phgvUpWJmQBRGCyz2lytlkICJz7a9cl3WUwmsit_G0n7tBKJJY_9QDZ-c5GQb7GbHBEl5vSsqN2Zwp5ZKoKHejlIFUZcS2B4tQ" alt="Alex">
+          </div>
+          <div class="text-center w-full">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Alex</h3>
+            <div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: ALX-442</div>
+          </div>
+          <button class="neo-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">VOTE</button>
+        </div>
+        <!-- Suspect 2: Jordan -->
+        <div class="neo-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+          <div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrmQLsTHIIrqE_YAHBWmTbLZbj2CAaYkpoxJ0o5yJpQGNPjFklySaRGG7DmHF_RcirAbemLfehAu6gxsff6VrHn5VLqz5U7N4CcxMhJoiqdjYpceB2yKFswZmoDQn5ssUs8JCoX381IV4oDoea2gIVfpe6NoNYwAC6OQQz1rnLa-coBIFjLwikQtVbE-wXUyma2p4JiOXflrKGAuoJymrx9-m_rHJEwljzh21u6QUHlxYYjUtNguU1cA" alt="Jordan">
+          </div>
+          <div class="text-center w-full">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Jordan</h3>
+            <div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: JDN-911</div>
+          </div>
+          <button class="neo-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">VOTE</button>
+        </div>
+        <!-- Suspect 3: Sam -->
+        <div class="neo-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+          <div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACYGGf6BQlgAFN0pSW7bBdNwB-EiJHlsB32bezQqXNg0lJIDHURcngzezxb-mB13DlF7QvMF95SEarF6_jkP_g1wi6MqOldn0icMvmWv0wCUE2T3ggOwNcnKsyOeQULwPAkBxIXX8f5JhwskL_aexoFJAdoYZNsQ6nE5rgcBujEFugSkYjw1_CfbyiK5p4MKHpOtLqu3KLBEjKNisc1FFNNduE-hQYpao67U-AduNaM0OeGN23sLZGrA" alt="Sam">
+          </div>
+          <div class="text-center w-full">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Sam</h3>
+            <div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: SAM-007</div>
+          </div>
+          <button class="neo-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">VOTE</button>
+        </div>
+        <!-- Suspect 4: Riley -->
+        <div class="neo-card bg-surface flex flex-col items-center p-6 gap-4 suspect-card cursor-pointer group" onclick="selectSuspect(this)">
+          <div class="w-24 h-24 rounded-full border-4 border-on-background overflow-hidden relative group-hover:scale-105 transition-transform duration-200">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgYGBVs_0K_6tRQKewWQ1ZVU2Jn6LhiX60QA3v1asvzvUs-HPTvImQhP7PrZVMSLU0XyS-uj4fYCXt2PyHbcQFZ6zBv-WE2YJXNoAZie7QytyG6wXNsme9_TMizBBfFh5Nl3r1KneVZnUI5NAv-bvje8IHCdr-H7Z0WAmcVGuud9IQLhpQkWQehil7w5Sztu55DTJqXOEufOFRBGLXXESXqzh0jF_zkNFFj2NcAlwzFUUY-VEM7cc4eQ" alt="Riley">
+          </div>
+          <div class="text-center w-full">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Riley</h3>
+            <div class="font-code-sm text-code-sm text-on-surface-variant bg-surface-variant border-2 border-on-surface-variant px-2 py-1 mt-2 inline-block">ID: RLY-334</div>
+          </div>
+          <button class="neo-btn w-full bg-surface-container-highest text-on-surface font-label-md text-label-md py-2 mt-2 vote-btn pointer-events-none">VOTE</button>
+        </div>
+      </div>
+
+      <!-- Lock Vote -->
+      <div class="mt-8 flex justify-center">
+        <button id="lock-vote-btn" onclick="navigateTo('reflection')" class="neo-btn bg-surface-variant text-on-surface-variant font-headline-lg-mobile text-headline-lg-mobile py-4 px-12 opacity-50 cursor-not-allowed flex items-center gap-3">
+          <span class="material-symbols-outlined text-3xl">how_to_vote</span>
+          LOCK IN VOTE
+        </button>
+      </div>
+
+      <!-- Evidence Log -->
+      <div class="mt-12 neo-panel bg-surface">
+        <div class="bg-primary-container border-b-4 border-on-background p-2 flex justify-between items-center">
+          <span class="font-label-md text-label-md text-on-primary-container font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">terminal</span>
+            SYS_LOG: INCIDENT #8849
+          </span>
+          <div class="flex gap-2">
+            <div class="w-3 h-3 bg-surface border-2 border-on-background rounded-full"></div>
+            <div class="w-3 h-3 bg-surface border-2 border-on-background rounded-full"></div>
+          </div>
+        </div>
+        <div class="p-4 font-code-sm text-code-sm text-on-surface whitespace-pre-wrap leading-relaxed">&gt; Analyzing sector B-7...
+&gt; Block validation failed at T-minus 40s.
+&gt; Forceful removal of property signature detected.
+&gt; Consensus broken intentionally.
+&gt; Awaiting player adjudication to proceed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 6: REFLECTION RECAP                                      -->
+<!-- ============================================================ -->
+<section id="page-reflection" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow overflow-y-auto p-gutter">
+    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row gap-margin items-start">
+      <!-- Central: Round Highlights -->
+      <div class="flex-grow w-full md:w-2/3 neo-panel bg-surface flex flex-col">
+        <div class="bg-secondary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+          <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg uppercase flex items-center gap-2">
+            <span class="material-symbols-outlined">military_tech</span> Round Highlights
+          </h2>
+          <span class="font-code-sm text-code-sm border-2 border-on-background px-2 py-1 bg-surface">LOG #8842</span>
+        </div>
+        <div class="p-margin flex flex-col gap-gutter">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <!-- Detail Detective -->
+            <div class="neo-card bg-surface-container-lowest flex flex-col">
+              <div class="bg-surface-tint text-on-primary p-2 border-b-2 border-on-background font-label-md text-label-md uppercase flex justify-between">
+                <span>Detail Detective</span>
+                <span class="material-symbols-outlined text-sm">search</span>
+              </div>
+              <div class="p-4 flex flex-col gap-2 items-center text-center">
+                <div class="w-20 h-20 rounded-full border-4 border-on-background overflow-hidden shadow-[4px_4px_0px_0px_#191b23] mb-2 bg-secondary-fixed">
+                  <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-EQvoEnDgwh0rZO2fpJvGE-xBQG1WeQR4S7jzL9VgJW1nYenc6b_Mla2V9YrISCt0DOGzJafnazIwSLIAZQvjY_OKWcq5NlxWsizDJ01rM6WHl8zBYB-QoUOYrtwdw00hknwTG_n5bH8EKD0V-p3lXpO8C1azBNX9YgCoTI_QgtoMklvDEXPb8I7rLgG2eoBtbfs-gKB6jJmQTZKNOcE5wpi6Sk5qSnB5OQZGIEDsGFPT-V0DrZMdKg" alt="Agent K">
+                </div>
+                <h3 class="font-headline-lg-mobile text-headline-lg-mobile uppercase">Agent K</h3>
+                <p class="font-code-sm text-code-sm text-on-surface-variant">Most Atoms Kept: 42/50</p>
+                <div class="flex gap-1 mt-2">
+                  <span class="px-2 py-1 text-[10px] uppercase font-bold border-2 border-on-background bg-tertiary-fixed rounded-xl">Precise</span>
+                  <span class="px-2 py-1 text-[10px] uppercase font-bold border-2 border-on-background bg-secondary-fixed rounded-xl">Observation</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-gutter">
+              <!-- Quickest Link -->
+              <div class="neo-card bg-surface-container-lowest flex flex-col flex-grow">
+                <div class="bg-secondary-container text-on-secondary-container p-2 border-b-2 border-on-background font-label-md text-label-md uppercase flex justify-between">
+                  <span>Quickest Link</span>
+                  <span class="material-symbols-outlined text-sm">bolt</span>
+                </div>
+                <div class="p-4 flex items-center gap-4">
+                  <div class="text-4xl font-black font-headline-xl text-primary">12s</div>
+                  <div class="flex flex-col">
+                    <span class="font-label-md text-label-md">Player X9</span>
+                    <span class="font-code-sm text-code-sm text-on-surface-variant">Fastest Submission</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Turing Champion -->
+              <div class="neo-card bg-surface-container-lowest flex flex-col flex-grow">
+                <div class="bg-primary text-on-primary p-2 border-b-2 border-on-background font-label-md text-label-md uppercase flex justify-between">
+                  <span>Turing Champion</span>
+                  <span class="material-symbols-outlined text-sm">smart_toy</span>
+                </div>
+                <div class="p-4 flex items-center justify-between">
+                  <div class="flex flex-col">
+                    <span class="font-label-md text-label-md">Neo</span>
+                    <span class="font-code-sm text-code-sm text-on-surface-variant">Guessed the AI hop</span>
+                  </div>
+                  <span class="material-symbols-outlined text-4xl text-tertiary filled">check_circle</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Pack Studio Performance -->
+          <div class="neo-card bg-surface-container-highest p-4 flex flex-col gap-4 mt-4 border-dashed border-4 border-on-surface-variant">
+            <h3 class="font-label-md text-label-md uppercase">Pack Studio Performance</h3>
+            <div class="flex justify-between items-end border-b-2 border-on-background pb-2">
+              <span class="font-code-sm text-code-sm">Truth Retention Rate</span>
+              <span class="font-headline-lg-mobile text-headline-lg-mobile">87%</span>
+            </div>
+            <div class="pixel-progress">
+              <div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-filled-primary"></div><div class="pixel-block pixel-empty"></div><div class="pixel-block pixel-empty"></div><div class="pixel-block pixel-empty"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Truth Profile + Actions -->
+      <aside class="w-full md:w-1/3 flex flex-col gap-gutter">
+        <div class="neo-panel bg-surface flex flex-col">
+          <div class="bg-primary-container text-on-primary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+            <h2 class="font-headline-lg-mobile text-headline-lg-mobile uppercase flex items-center gap-2">
+              <span class="material-symbols-outlined">radar</span> Truth Profile
+            </h2>
+          </div>
+          <div class="p-4 flex flex-col gap-6">
+            <p class="font-code-sm text-code-sm text-on-surface-variant border-l-4 border-primary pl-2">Subject: You (Agent 007)<br>Status: DECAY LEDGER UPDATED</p>
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between font-code-sm text-code-sm"><span>Chronological Atoms</span><span>90%</span></div>
+                <div class="h-4 bg-surface-container border-2 border-on-background"><div class="h-full bg-secondary-container" style="width:90%"></div></div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between font-code-sm text-code-sm"><span>Spatial Atoms</span><span>65%</span></div>
+                <div class="h-4 bg-surface-container border-2 border-on-background"><div class="h-full bg-primary" style="width:65%"></div></div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <div class="flex justify-between font-code-sm text-code-sm"><span>Causal Atoms</span><span>40%</span></div>
+                <div class="h-4 bg-surface-container border-2 border-on-background"><div class="h-full bg-secondary-container opacity-70" style="width:40%"></div></div>
+              </div>
+            </div>
+            <div class="neo-card bg-surface-variant p-3 border-l-4 border-l-tertiary">
+              <span class="font-label-md text-label-md uppercase block mb-1">Diagnosis</span>
+              <span class="font-body-md text-body-md">You excel at maintaining timeline integrity but struggle with cause-and-effect reasoning when noise is introduced.</span>
+            </div>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div class="flex flex-col gap-4">
+          <button onclick="navigateTo('mode-select')" class="neo-btn bg-surface text-on-surface font-headline-lg-mobile text-headline-lg-mobile uppercase py-4 px-6 flex justify-center items-center gap-2 w-full">
+            <span class="material-symbols-outlined">replay</span> ANOTHER ROUND
+          </button>
+          <button onclick="navigateTo('debrief')" class="neo-btn bg-tertiary text-on-tertiary font-headline-lg-mobile text-headline-lg-mobile uppercase py-4 px-6 flex justify-center items-center gap-2 w-full">
+            <span class="material-symbols-outlined">fact_check</span> FINAL DEBRIEF
+          </button>
+          <button onclick="navigateTo('lobby')" class="neo-btn bg-primary text-on-primary font-headline-lg-mobile text-headline-lg-mobile uppercase py-4 px-6 flex justify-center items-center gap-2 w-full">
+            <span class="material-symbols-outlined">dashboard</span> MAIN HUB
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 7: FINAL DEBRIEF                                         -->
+<!-- ============================================================ -->
+<section id="page-debrief" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow overflow-y-auto bg-surface-dim p-gutter">
+    <div class="max-w-[1440px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+      <!-- Central Workspace -->
+      <div class="col-span-1 lg:col-span-8 flex flex-col gap-gutter">
+        <!-- Debrief Card -->
+        <div class="bg-surface border-4 border-on-background shadow-[8px_8px_0px_0px_#191b23] flex flex-col">
+          <div class="bg-secondary-container border-b-2 border-on-background p-4 flex justify-between items-center">
+            <h2 class="font-headline-lg text-headline-lg text-on-background tracking-tight">FINAL DEBRIEF</h2>
+            <span class="font-code-sm text-code-sm bg-surface px-2 py-1 border-2 border-on-background">STAGE: COMPLETE</span>
+          </div>
+          <div class="p-gutter flex flex-col gap-6">
+            <div class="font-headline-xl text-headline-xl text-on-surface leading-tight">What truth will you carry into real life?</div>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">Select the Integrity Atom that proved most challenging to verify during this session. This shapes your personal calibration matrix.</p>
+          </div>
+        </div>
+        <!-- Integrity Atoms Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button class="bg-surface border-2 border-on-background neo-card neo-card-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+            <div class="w-10 h-10 bg-primary-container border-2 border-on-background flex items-center justify-center rounded-full">
+              <span class="material-symbols-outlined text-on-primary-container">person_search</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface">Who actually said this?</span>
+          </button>
+          <button class="bg-surface border-2 border-on-background neo-card neo-card-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+            <div class="w-10 h-10 bg-tertiary-container border-2 border-on-background flex items-center justify-center rounded-full">
+              <span class="material-symbols-outlined text-on-tertiary-container">calculate</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface">What is the number based on?</span>
+          </button>
+          <button class="bg-surface border-2 border-on-background neo-card neo-card-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+            <div class="w-10 h-10 bg-secondary-container border-2 border-on-background flex items-center justify-center rounded-full">
+              <span class="material-symbols-outlined text-on-secondary-container">psychology_alt</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface">Is this certainty or suggestion?</span>
+          </button>
+          <button class="bg-surface border-2 border-on-background neo-card neo-card-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+            <div class="w-10 h-10 bg-error-container border-2 border-on-background flex items-center justify-center rounded-full">
+              <span class="material-symbols-outlined text-on-error-container">location_on</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface">Who/where does this apply to?</span>
+          </button>
+          <button class="bg-surface border-2 border-on-background neo-card neo-card-hover transition-all p-4 flex flex-col items-start gap-4 text-left group neo-btn">
+            <div class="w-10 h-10 bg-inverse-primary border-2 border-on-background flex items-center justify-center rounded-full">
+              <span class="material-symbols-outlined text-on-background">hub</span>
+            </div>
+            <span class="font-label-md text-label-md text-on-surface">Is it a cause or a connection?</span>
+          </button>
+        </div>
+      </div>
+      <!-- Right Panel -->
+      <div class="col-span-1 lg:col-span-4 flex flex-col gap-gutter">
+        <!-- Room Stats -->
+        <div class="bg-surface border-4 border-on-background shadow-[4px_4px_0px_0px_#191b23] flex flex-col">
+          <div class="bg-primary border-b-2 border-on-background p-3">
+            <h3 class="font-label-md text-label-md text-on-primary tracking-widest uppercase">Room Telemetry</h3>
+          </div>
+          <div class="p-4 flex flex-col gap-6">
+            <div>
+              <div class="font-code-sm text-code-sm text-on-surface-variant mb-1">ROOM INTEGRITY AVERAGE</div>
+              <div class="flex items-end gap-2">
+                <span class="font-headline-xl text-headline-xl text-primary">87%</span>
+                <span class="material-symbols-outlined text-tertiary text-2xl mb-2 filled">trending_up</span>
+              </div>
+              <div class="flex gap-1 mt-2 h-4 w-full">
+                <div class="bg-primary flex-1 border-2 border-on-background"></div>
+                <div class="bg-primary flex-1 border-2 border-on-background"></div>
+                <div class="bg-primary flex-1 border-2 border-on-background"></div>
+                <div class="bg-primary flex-1 border-2 border-on-background"></div>
+                <div class="bg-surface flex-1 border-2 border-on-background"></div>
+              </div>
+            </div>
+            <div class="p-4 border-2 border-on-background bg-surface-container-high">
+              <div class="font-code-sm text-code-sm text-on-surface-variant mb-2">MOST LOST ATOM</div>
+              <div class="font-headline-lg text-headline-lg text-on-surface">Context Limits</div>
+              <div class="font-body-md text-body-md text-on-surface mt-2 border-t-2 border-on-background pt-2">42% of participants missed contextual boundaries.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Finish Game -->
+        <button onclick="navigateTo('lobby')" class="w-full mt-auto py-6 bg-primary text-on-primary font-headline-lg text-headline-lg neo-btn-lg flex items-center justify-center gap-4">
+          <span>FINISH GAME</span>
+          <span class="material-symbols-outlined text-3xl">login</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 8: PACK STUDIO LIBRARY                                   -->
+<!-- ============================================================ -->
+<section id="page-pack-library" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow p-8 flex flex-col gap-8 bg-dot-pattern">
+    <!-- Header -->
+    <div class="flex justify-between items-end border-b-4 border-on-background pb-4">
+      <div>
+        <h2 class="font-headline-xl text-headline-xl text-on-background tracking-tight">LIBRARY</h2>
+        <p class="font-code-sm text-code-sm text-on-surface-variant mt-2 uppercase">Local Directory / Pack Studio Workspace</p>
+      </div>
+      <div class="flex gap-4">
+        <button class="px-4 py-2 bg-surface border-2 border-on-background font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-[18px]">filter_list</span> FILTER
+        </button>
+        <button class="px-4 py-2 bg-surface border-2 border-on-background font-label-md text-label-md flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-[18px]">sort</span> SORT
+        </button>
+      </div>
+    </div>
+    <!-- Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 flex-grow">
+      <!-- Create New Pack -->
+      <div onclick="navigateTo('pack-editor')" class="bg-secondary border-4 border-on-background neo-card flex flex-col items-center justify-center p-8 group cursor-pointer neo-card-hover transition-all min-h-[320px]">
+        <div class="w-24 h-24 bg-surface rounded-full border-4 border-on-background flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_#191b23]">
+          <span class="material-symbols-outlined text-[48px] text-primary font-bold filled">add</span>
+        </div>
+        <h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-secondary text-center tracking-tight leading-tight">CREATE<br>NEW PACK</h3>
+        <p class="font-code-sm text-code-sm text-on-secondary-container mt-4 bg-secondary-fixed px-3 py-1 border-2 border-on-background rounded-full">INITIALIZE CANVAS</p>
+      </div>
+      <!-- Pack 1: Health -->
+      <div class="bg-surface border-2 border-on-background neo-card flex flex-col group cursor-pointer neo-card-hover transition-all min-h-[320px]">
+        <div class="h-32 bg-primary-container border-b-2 border-on-background relative overflow-hidden flex items-center justify-center">
+          <span class="material-symbols-outlined text-[64px] text-on-primary-container relative z-10 filled">medical_services</span>
+        </div>
+        <div class="p-5 flex flex-col gap-2 flex-grow">
+          <div class="flex justify-between items-start gap-2">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Health Pack</h3>
+            <span class="shrink-0 bg-tertiary-container text-on-tertiary-container font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.1.4</span>
+          </div>
+          <div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+            <div class="flex justify-between border-b border-outline-variant/50 pb-1"><span>CLAIMS</span><span class="font-bold text-on-surface">1,402</span></div>
+            <div class="flex justify-between pt-1"><span>AUTHOR</span><span class="font-bold text-on-surface">ID-993A</span></div>
+          </div>
+          <div class="mt-auto pt-6">
+            <button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Pack 2: Disaster -->
+      <div class="bg-surface border-2 border-on-background neo-card flex flex-col group cursor-pointer neo-card-hover transition-all min-h-[320px]">
+        <div class="h-32 bg-error-container border-b-2 border-on-background relative overflow-hidden flex items-center justify-center">
+          <span class="material-symbols-outlined text-[64px] text-on-error-container relative z-10 filled">warning</span>
+        </div>
+        <div class="p-5 flex flex-col gap-2 flex-grow">
+          <div class="flex justify-between items-start gap-2">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Disaster Response</h3>
+            <span class="shrink-0 bg-tertiary-container text-on-tertiary-container font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.2.0</span>
+          </div>
+          <div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+            <div class="flex justify-between border-b border-outline-variant/50 pb-1"><span>CLAIMS</span><span class="font-bold text-on-surface">8,991</span></div>
+            <div class="flex justify-between pt-1"><span>AUTHOR</span><span class="font-bold text-on-surface">SYS-ROOT</span></div>
+          </div>
+          <div class="mt-auto pt-6">
+            <button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Pack 3: Civic -->
+      <div class="bg-surface border-2 border-on-background neo-card flex flex-col group cursor-pointer neo-card-hover transition-all min-h-[320px]">
+        <div class="h-32 bg-secondary-fixed border-b-2 border-on-background relative overflow-hidden flex items-center justify-center">
+          <span class="material-symbols-outlined text-[64px] text-on-secondary-fixed relative z-10 filled">account_balance</span>
+        </div>
+        <div class="p-5 flex flex-col gap-2 flex-grow">
+          <div class="flex justify-between items-start gap-2">
+            <h3 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface uppercase truncate">Civic Infrastructure</h3>
+            <span class="shrink-0 bg-surface-variant text-on-surface-variant font-code-sm text-code-sm px-2 py-1 rounded-full border-2 border-on-background">v.0.9</span>
+          </div>
+          <div class="font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 mt-2">
+            <div class="flex justify-between border-b border-outline-variant/50 pb-1"><span>CLAIMS</span><span class="font-bold text-on-surface">342</span></div>
+            <div class="flex justify-between pt-1"><span>AUTHOR</span><span class="font-bold text-on-surface">ID-112B</span></div>
+          </div>
+          <div class="mt-auto pt-6">
+            <button class="w-full bg-surface border-2 border-on-background shadow-[2px_2px_0px_0px_#191b23] py-3 font-label-md text-label-md font-bold hover:bg-primary hover:text-on-primary transition-colors active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex justify-center items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">download</span> LOAD PACK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- System Log -->
+    <div class="mt-8 bg-inverse-surface text-inverse-on-surface border-4 border-on-background neo-card p-6 font-code-sm text-code-sm flex flex-col gap-2 h-48 overflow-y-auto relative rounded-sm">
+      <div class="absolute top-0 right-0 bg-primary text-on-primary px-3 py-1 border-b-2 border-l-2 border-on-background font-bold tracking-widest">SYS.LOG</div>
+      <div class="opacity-60">&gt;&gt; SYSTEM INITIALIZATION SEQUENCE STARTED...</div>
+      <div class="opacity-60">&gt;&gt; CHECKING DIRECTORY INTEGRITY... [OK]</div>
+      <div class="text-tertiary-fixed-dim">&gt;&gt; MOUNTING WORKSPACE VOLUMES... [SUCCESS]</div>
+      <div class="text-secondary-fixed">&gt;&gt; AUTH_TOKEN_VALID: SESSION ACTIVE FOR ID-993A</div>
+      <div class="opacity-60">&gt;&gt; WAITING FOR USER INPUT...</div>
+      <div class="text-on-primary font-bold bg-primary-fixed-dim/20 inline-block px-2 py-1 border-l-4 border-primary">&gt;&gt; PACK: DISASTER_01 LOADED SUCCESSFULLY.</div>
+      <div class="opacity-60">&gt;&gt; PARSING CLAIM DATA... 8,991 RECORDS FOUND.</div>
+      <div class="flex items-center gap-2 mt-2 text-primary-fixed-dim">
+        <span>C:\BRICK\STUDIO&gt;</span>
+        <span class="w-3 h-4 bg-primary-fixed-dim animate-pulse inline-block"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PAGE 9: PACK STUDIO EDITOR                                    -->
+<!-- ============================================================ -->
+<section id="page-pack-editor" class="page-section flex-col min-h-[calc(100vh-8rem)]">
+  <div class="flex-grow p-gutter overflow-y-auto flex gap-gutter">
+    <!-- Workspace -->
+    <div class="flex-1 flex flex-col gap-6 max-w-[800px]">
+      <!-- Pack Header -->
+      <div class="bg-surface-container-low border-4 border-on-background p-6 shadow-[8px_8px_0px_0px_#191b23] flex justify-between items-start">
+        <div class="flex-1">
+          <label class="font-label-md text-label-md text-on-surface-variant uppercase mb-2 block">Pack Designation</label>
+          <input class="w-full bg-surface text-on-background font-headline-lg text-headline-lg-mobile md:text-headline-lg p-3 neo-inset focus:outline-none focus:ring-0" type="text" value="The Sleep Science Pack">
+        </div>
+        <div class="ml-6 flex items-center gap-2 mt-8">
+          <span class="font-label-md text-label-md bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full border-2 border-on-background uppercase">Draft</span>
+        </div>
+      </div>
+      <!-- Baseplate -->
+      <div class="bg-surface border-4 border-on-background neo-card flex flex-col">
+        <div class="bg-primary-container text-on-primary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+          <h2 class="font-headline-lg text-headline-lg-mobile uppercase flex items-center gap-2">
+            <span class="material-symbols-outlined">foundation</span> Baseplate Claim
+          </h2>
+          <span class="font-code-sm text-code-sm bg-on-background text-surface px-2 py-1">HOP 0</span>
+        </div>
+        <div class="p-6">
+          <p class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase">Tag Integrity Atoms in the source text:</p>
+          <div class="bg-surface-container p-6 border-2 border-on-background font-body-lg text-body-lg leading-relaxed relative neo-inset">
+            <span class="relative inline-block bg-[#dbe1ff] border-b-2 border-on-background px-1 cursor-pointer">According to a recent study by Oxford University<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Source</span></span>, adults need exactly
+            <span class="relative inline-block bg-[#ffe083] border-b-2 border-on-background px-1 cursor-pointer">8.5 hours<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Number</span></span> of sleep per night.
+            <span class="relative inline-block bg-[#b4c5ff] border-b-2 border-on-background px-1 cursor-pointer">Failing to do so<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Cause</span></span>
+            <span class="relative inline-block bg-[#ffdad6] border-b-2 border-on-background px-1 cursor-pointer">will inevitably lead<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Scope</span></span> to
+            <span class="relative inline-block bg-[#e1e2ed] border-b-2 border-on-background px-1 cursor-pointer">severe cognitive decline<span class="absolute -top-4 left-0 bg-on-background text-surface text-[10px] px-1 font-bold uppercase">Hedge</span></span> within a week.
+          </div>
+          <!-- Atom Palette -->
+          <div class="w-full border-t-2 border-on-background pt-4 mt-6">
+            <p class="font-label-md text-label-md text-on-surface-variant mb-3 uppercase">Atom Palette</p>
+            <div class="flex gap-3 flex-wrap">
+              <button class="flex-1 min-w-[100px] font-bold text-label-md bg-[#dbe1ff] text-[#00174b] border-2 border-on-background p-3 neo-btn flex flex-col items-center gap-1"><span class="material-symbols-outlined">account_balance</span>SOURCE</button>
+              <button class="flex-1 min-w-[100px] font-bold text-label-md bg-[#ffe083] text-[#231b00] border-2 border-on-background p-3 neo-btn flex flex-col items-center gap-1"><span class="material-symbols-outlined">tag</span>NUMBER</button>
+              <button class="flex-1 min-w-[100px] font-bold text-label-md bg-[#e1e2ed] text-[#434655] border-2 border-on-background p-3 neo-btn flex flex-col items-center gap-1"><span class="material-symbols-outlined">warning</span>HEDGE</button>
+              <button class="flex-1 min-w-[100px] font-bold text-label-md bg-[#ffdad6] text-[#93000a] border-2 border-on-background p-3 neo-btn flex flex-col items-center gap-1"><span class="material-symbols-outlined">public</span>SCOPE</button>
+              <button class="flex-1 min-w-[100px] font-bold text-label-md bg-[#b4c5ff] text-[#00174b] border-2 border-on-background p-3 neo-btn flex flex-col items-center gap-1"><span class="material-symbols-outlined">link</span>CAUSE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Variant Builder -->
+      <div class="bg-surface border-4 border-on-background neo-card flex flex-col">
+        <div class="bg-secondary-container text-on-secondary-container p-4 border-b-2 border-on-background flex justify-between items-center">
+          <h2 class="font-headline-lg text-headline-lg-mobile uppercase flex items-center gap-2">
+            <span class="material-symbols-outlined">call_split</span> Variant Builder
+          </h2>
+        </div>
+        <div class="p-6 flex flex-col gap-6">
+          <!-- Hop 1 -->
+          <div class="border-2 border-on-background bg-surface-container-low p-4 relative">
+            <div class="absolute -top-3 -left-3 bg-on-background text-surface font-code-sm text-code-sm px-2 py-1 border-2 border-on-background">HOP 1</div>
+            <textarea class="w-full h-24 bg-surface border-2 border-on-background neo-inset p-3 mt-2 font-body-md text-body-md focus:outline-none">A new study says adults need 8 hours of sleep or they will face cognitive decline soon.</textarea>
+            <div class="flex items-center gap-4 mt-4">
+              <span class="font-label-md text-label-md uppercase">Pressure Applied:</span>
+              <select class="bg-surface border-2 border-on-background px-3 py-1 font-code-sm text-code-sm neo-inset focus:outline-none">
+                <option>Brevity (Simplification)</option>
+                <option>Sensationalism</option>
+                <option>Generalization</option>
+              </select>
+            </div>
+          </div>
+          <!-- Hop 2 -->
+          <div class="border-2 border-on-background bg-surface-container-low p-4 relative">
+            <div class="absolute -top-3 -left-3 bg-on-background text-surface font-code-sm text-code-sm px-2 py-1 border-2 border-on-background">HOP 2</div>
+            <textarea class="w-full h-24 bg-surface border-2 border-on-background neo-inset p-3 mt-2 font-body-md text-body-md focus:outline-none">Scientists say if you don't sleep 8 hours you lose your mind.</textarea>
+            <div class="flex items-center gap-4 mt-4">
+              <span class="font-label-md text-label-md uppercase">Pressure Applied:</span>
+              <select class="bg-surface border-2 border-on-background px-3 py-1 font-code-sm text-code-sm neo-inset focus:outline-none">
+                <option>Sensationalism</option>
+                <option>Brevity (Simplification)</option>
+                <option>Generalization</option>
+              </select>
+            </div>
+          </div>
+          <button class="self-start font-label-md text-label-md uppercase bg-surface text-on-background border-2 border-on-background px-4 py-2 neo-btn flex items-center gap-2 border-dashed">
+            <span class="material-symbols-outlined">add</span> ADD HOP
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrity Panel (Right) -->
+    <aside class="w-80 flex-shrink-0 flex flex-col gap-6 hidden lg:flex">
+      <div class="bg-surface border-4 border-on-background neo-card p-6">
+        <h3 class="font-headline-lg text-headline-lg-mobile uppercase mb-6 flex items-center gap-2 border-b-2 border-on-background pb-2">
+          <span class="material-symbols-outlined">fact_check</span> Integrity Check
+        </h3>
+        <ul class="flex flex-col gap-4">
+          <li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-tertiary-fixed border-2 border-on-background"></div><span class="font-label-md text-label-md">Source Atom</span></div>
+            <span class="material-symbols-outlined text-tertiary animate-bounce filled">check_circle</span>
+          </li>
+          <li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-secondary-fixed border-2 border-on-background"></div><span class="font-label-md text-label-md">Number Atom</span></div>
+            <span class="material-symbols-outlined text-tertiary animate-bounce filled">check_circle</span>
+          </li>
+          <li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-surface-variant border-2 border-on-background"></div><span class="font-label-md text-label-md">Hedge Atom</span></div>
+            <span class="material-symbols-outlined text-tertiary animate-bounce filled">check_circle</span>
+          </li>
+          <li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-error-container border-2 border-on-background"></div><span class="font-label-md text-label-md">Scope Atom</span></div>
+            <span class="material-symbols-outlined text-tertiary animate-bounce filled">check_circle</span>
+          </li>
+          <li class="flex items-center justify-between border-2 border-on-background p-3 bg-surface-container">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-primary-fixed border-2 border-on-background"></div><span class="font-label-md text-label-md">Cause Atom</span></div>
+            <span class="material-symbols-outlined text-tertiary animate-bounce filled">check_circle</span>
+          </li>
+        </ul>
+        <div class="mt-6 pt-4 border-t-2 border-on-background">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-label-md text-label-md uppercase">Structural Health</span>
+            <span class="font-code-sm text-code-sm bg-on-background text-surface px-2">100%</span>
+          </div>
+          <div class="flex gap-1 h-4">
+            <div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+            <div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+            <div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+            <div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+            <div class="flex-1 bg-tertiary border-2 border-on-background"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Publish -->
+      <button onclick="navigateTo('pack-library')" class="mt-auto w-full bg-tertiary text-on-tertiary font-headline-lg text-headline-lg-mobile py-6 px-4 neo-btn-lg flex flex-col items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[32px] filled">publish</span>
+        SAVE &amp; PUBLISH PACK
+      </button>
+      <!-- Back -->
+      <button onclick="navigateTo('pack-library')" class="w-full bg-surface text-on-surface font-label-md text-label-md py-3 px-4 neo-btn flex items-center justify-center gap-2 uppercase">
+        <span class="material-symbols-outlined">arrow_back</span> Back to Library
+      </button>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================ -->
+<!-- SHARED SHELL: Footer (desktop)                                -->
+<!-- ============================================================ -->
+<footer class="fixed bottom-0 right-0 w-full md:w-[calc(100%-16rem)] z-30 justify-between items-center px-gutter py-2 h-12 bg-surface-container-highest text-on-surface border-t-2 border-on-background hidden md:flex">
+  <div class="font-label-md text-label-md font-bold">SYSTEM STATUS: VERIFIED</div>
+  <div class="flex gap-6 font-code-sm text-code-sm">
+    <a class="text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="#">Privacy Protocol</a>
+    <a class="text-on-surface-variant hover:text-primary transition-colors active:scale-95" href="#">Source Code</a>
+  </div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- SHARED SHELL: Mobile Bottom Navigation                        -->
+<!-- ============================================================ -->
+<div class="fixed bottom-0 left-0 w-full bg-surface border-t-4 border-on-background flex justify-around p-2 md:hidden z-50 shadow-[0px_-4px_0px_0px_#191b23]">
+  <button onclick="navigateTo('lobby')" class="mobile-nav flex flex-col items-center p-2 text-on-surface-variant" data-nav="lobby">
+    <span class="material-symbols-outlined">grid_view</span>
+    <span class="font-code-sm text-[10px]">Canvas</span>
+  </button>
+  <button onclick="navigateTo('reflection')" class="mobile-nav flex flex-col items-center p-2 text-on-surface-variant" data-nav="reflection">
+    <span class="material-symbols-outlined">analytics</span>
+    <span class="font-code-sm text-[10px]">Ledger</span>
+  </button>
+  <button onclick="navigateTo('pack-library')" class="mobile-nav flex flex-col items-center p-2 text-on-surface-variant" data-nav="pack-library">
+    <span class="material-symbols-outlined">inventory_2</span>
+    <span class="font-code-sm text-[10px]">Studio</span>
+  </button>
+  <button onclick="navigateTo('lobby')" class="mobile-nav flex flex-col items-center p-2 text-on-surface-variant opacity-50" data-nav="vault">
+    <span class="material-symbols-outlined">lock</span>
+    <span class="font-code-sm text-[10px]">Vault</span>
+  </button>
+</div>
+
+<!-- ============================================================ -->
+<!-- ROUTER & INTERACTION SCRIPTS                                  -->
+<!-- ============================================================ -->
+<script>
+  // ---- Page badge labels ----
+  const pageBadges = {
+    'lobby': '',
+    'mode-select': 'SELECT MODE',
+    'briefing': 'BAD FAITH',
+    'gameplay': 'IN PROGRESS',
+    'voting': 'BAD FAITH',
+    'reflection': 'REFLECTION',
+    'debrief': 'DEBRIEF',
+    'pack-library': 'PACK STUDIO',
+    'pack-editor': 'PACK STUDIO'
+  };
+
+  // ---- Which nav item each page belongs to ----
+  const pageNavMap = {
+    'lobby': 'lobby',
+    'mode-select': 'lobby',
+    'briefing': 'lobby',
+    'gameplay': 'lobby',
+    'voting': 'lobby',
+    'reflection': 'reflection',
+    'debrief': 'reflection',
+    'pack-library': 'pack-library',
+    'pack-editor': 'pack-library'
+  };
+
+  // ---- Navigate ----
+  function navigateTo(page) {
+    window.location.hash = page;
+  }
+
+  // ---- Router ----
+  function route() {
+    const hash = window.location.hash.replace('#', '') || 'lobby';
+    const pages = document.querySelectorAll('.page-section');
+    pages.forEach(p => p.classList.remove('active'));
+
+    const target = document.getElementById('page-' + hash);
+    if (target) {
+      target.classList.add('active');
+    } else {
+      document.getElementById('page-lobby').classList.add('active');
+    }
+
+    // Update page badge
+    const badge = document.getElementById('page-badge');
+    const label = pageBadges[hash] || '';
+    if (label) {
+      badge.textContent = label;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    // Update side nav active state
+    const navGroup = pageNavMap[hash] || 'lobby';
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.dataset.nav === navGroup) {
+        link.classList.add('active');
+      }
+    });
+
+    // Update mobile nav active state
+    document.querySelectorAll('.mobile-nav').forEach(btn => {
+      btn.classList.remove('text-primary', 'font-bold');
+      btn.classList.add('text-on-surface-variant');
+      if (btn.dataset.nav === navGroup) {
+        btn.classList.add('text-primary', 'font-bold');
+        btn.classList.remove('text-on-surface-variant');
+        btn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+      } else {
+        btn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+      }
+    });
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.scrollTop = 0;
+  }
+
+  // ---- Voting: suspect selection ----
+  function selectSuspect(selectedCard) {
+    document.querySelectorAll('.suspect-card').forEach(card => {
+      card.classList.remove('selected');
+      const btn = card.querySelector('.vote-btn');
+      btn.innerText = 'VOTE';
+    });
+    selectedCard.classList.add('selected');
+    selectedCard.querySelector('.vote-btn').innerText = 'SELECTED';
+
+    const lockBtn = document.getElementById('lock-vote-btn');
+    lockBtn.classList.remove('bg-surface-variant', 'text-on-surface-variant', 'opacity-50', 'cursor-not-allowed');
+    lockBtn.classList.add('bg-error', 'text-on-error', 'cursor-pointer');
+    lockBtn.innerHTML = '<span class="material-symbols-outlined text-3xl filled">lock</span> CONFIRM LOCK';
+  }
+
+  // ---- Voting timer ----
+  let votingTimer = null;
+  function startVotingTimer() {
+    if (votingTimer) clearInterval(votingTimer);
+    let timeLeft = 15;
+    const timerEl = document.getElementById('timer');
+    if (!timerEl) return;
+    timerEl.innerHTML = '<span class="material-symbols-outlined text-error animate-pulse">timer</span> 15s';
+    votingTimer = setInterval(() => {
+      timeLeft--;
+      if (timeLeft >= 0) {
+        timerEl.innerHTML = `<span class="material-symbols-outlined text-error animate-pulse">timer</span> ${timeLeft}s`;
+      } else {
+        clearInterval(votingTimer);
+        timerEl.innerHTML = '<span class="material-symbols-outlined text-error">timer_off</span> 0s';
+        timerEl.classList.add('text-error');
+      }
+    }, 1000);
+  }
+
+  // ---- Init ----
+  window.addEventListener('hashchange', () => {
+    route();
+    if (window.location.hash === '#voting') startVotingTimer();
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    route();
+    if (window.location.hash === '#voting') startVotingTimer();
+
+    // Auto-scroll system log
+    const logBox = document.querySelector('#page-pack-library .overflow-y-auto');
+    if (logBox) logBox.scrollTop = logBox.scrollHeight;
+  });
+</script>
+
+</body>
+</html>
