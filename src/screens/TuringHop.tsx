@@ -23,9 +23,15 @@ export default function TuringHop() {
   const dispatch = useGameDispatch();
   const hasMachineHop = round.aiHopIndexes.length > 0;
 
+  /* The vote itself is the last piece of T6. Until it exists this beat steps
+     straight through — including when a machine hop WAS taken, which is now
+     the common case. Without that second condition the round dead-ends here
+     with a blank screen and never reaches the ledger. */
+  const built = false;
+
   useEffect(() => {
-    if (!hasMachineHop) dispatch({ type: 'ADVANCE', from: 'turingHop' });
-  }, [hasMachineHop, dispatch]);
+    if (!hasMachineHop || !built) dispatch({ type: 'ADVANCE', from: 'turingHop' });
+  }, [hasMachineHop, built, dispatch]);
 
   return null;
 }
