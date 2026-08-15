@@ -1,4 +1,4 @@
-import type { Atom, AtomOverride, AtomVerdict, Hop } from '../types/contracts';
+import type { Atom, AtomOverride, AtomVerdict, Hop, LedgerResult } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { hopsForLedger } from '../state/gameReducer';
@@ -170,6 +170,17 @@ export default function Ledger() {
         })}
       </div>
 
+      {/* T8 CHANGE, AGREED BEFORE MAKING IT. This is the number BAD FAITH
+          exists to produce: the room has just spent an argument hunting one
+          person, and this is where it learns that person did less damage than
+          the people trying to help. The mode fails without it, so it sits on
+          the screen the room is already reading for the verdict.
+
+          Gated on the mode — chain and crowd rounds render exactly as before. */}
+      {settings.mode === 'badfaith' && round.imposter && (
+        <IntentSplit result={result} hops={hops} targetAtom={round.imposter.targetAtom} />
+      )}
+
       {/* CROWD RECALL has no final reader, so there is no decision to revisit. */}
       {!isCrowd && (
         <div className="card">
@@ -296,6 +307,77 @@ function AdjudicateRow({
           Gone
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   T8 — on purpose, and by accident.
+
+   One person was told to make a property disappear. Nobody told anybody else
+   to do anything, and the chain lost more anyway. That comparison is the
+   whole reason the mode exists, and it is why adding a saboteur strengthens
+   the thesis instead of contradicting it: in CHAIN the room is told nobody
+   lied, and here it finds out while actively hunting a liar.
+
+   No score, and no blame. The deliberate loss is named by its property and
+   its hop, exactly like every other row on this screen.
+   ========================================================================== */
+function IntentSplit({
+  result,
+  hops,
+  targetAtom,
+}: {
+  result: LedgerResult;
+  hops: Hop[];
+  targetAtom: Atom;
+}) {
+  const { deliberate, accidental } = splitByIntent(result, hops);
+
+  const list = (atoms: Atom[]) =>
+    atoms.map((atom) => `${atom} (hop ${(result[atom].deathHop ?? 0) + 1})`).join(' · ');
+
+  return (
+    <div className="card">
+      <p className="eyebrow">On purpose, and by accident</p>
+
+      <dl className="intent-split">
+        <dt className="intent-split-label">Deliberate</dt>
+        <dd className="intent-split-value">
+          {deliberate.length ? (
+            <>
+              <span className="intent-split-count">
+                {deliberate.length} {deliberate.length === 1 ? 'property' : 'properties'}
+              </span>
+              <span className="intent-split-atoms">{list(deliberate)}</span>
+            </>
+          ) : (
+            <span className="intent-split-count is-none">nothing</span>
+          )}
+        </dd>
+
+        <dt className="intent-split-label">Accidental</dt>
+        <dd className="intent-split-value">
+          {accidental.length ? (
+            <>
+              <span className="intent-split-count">
+                {accidental.length} {accidental.length === 1 ? 'property' : 'properties'}
+              </span>
+              <span className="intent-split-atoms">{list(accidental)}</span>
+            </>
+          ) : (
+            <span className="intent-split-count is-none">nothing</span>
+          )}
+        </dd>
+      </dl>
+
+      <p className="muted">
+        {accidental.length > deliberate.length
+          ? `One person was asked to make ${targetAtom} disappear. Nobody asked anyone else for anything, and the chain lost ${accidental.length} more ${accidental.length === 1 ? 'property' : 'properties'} anyway.`
+          : deliberate.length
+            ? `One person was asked to make ${targetAtom} disappear, and the rest of the chain held on to what it was given. That is rarer than it looks.`
+            : `One person was asked to make ${targetAtom} disappear and did not manage it. Everything lost here was lost by somebody trying to help.`}
+      </p>
     </div>
   );
 }
