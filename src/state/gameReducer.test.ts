@@ -420,6 +420,19 @@ describe('CLEAR_SAVED_STATE', () => {
   });
 });
 
+describe('SET_VERIFY_CHOICE', () => {
+  it('records which atom the final reader would check first', () => {
+    const state = run(started(5), { type: 'SET_VERIFY_CHOICE', atom: 'HEDGE' });
+    expect(state.round.verifyChoice).toBe('HEDGE');
+  });
+
+  it('resets to null on the next round', () => {
+    let state = run(started(5), { type: 'SET_VERIFY_CHOICE', atom: 'SCOPE' });
+    state = run(state, { type: 'BEGIN_ROUND', setup: prepareRound(state, CLAIMS) });
+    expect(state.round.verifyChoice).toBeNull();
+  });
+});
+
 describe('atoms', () => {
   it('scores nothing but the five', () => {
     const atoms: Atom[] = [...ATOMS];

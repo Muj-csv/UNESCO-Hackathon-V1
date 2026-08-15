@@ -324,7 +324,7 @@ export function gameReducer(state: GameState, action: Action): GameState {
 
     case 'SET_VERIFY_CHOICE':
       /* T4 — which atom the final reader would check first. Never scored. */
-      return state;
+      return { ...state, round: { ...state.round, verifyChoice: action.atom } };
 
     case 'RESTORE_STATE':
       /* T5 — rehydrate from sessionStorage after the resume prompt. loadState()
