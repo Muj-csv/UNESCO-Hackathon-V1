@@ -3,7 +3,7 @@ import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
 import { hopPlayerId, hopPlayerName, textInFrontOfPlayer } from '../state/gameReducer';
 import { getCard } from '../data/cards';
-import StageBar from '../components/StageBar';
+import Icon from '../components/Icon';
 import AIHopBeat from '../components/AIHopBeat';
 import HopInput, { hopInputValid } from '../components/HopInput';
 
@@ -93,8 +93,10 @@ export default function Round() {
     if (!isMyTurn) {
       return (
         <div className="screen">
-          <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} />
           <div className="handoff">
+            <span className="handoff-mark" aria-hidden="true">
+              <Icon name="timer" size={28} />
+            </span>
             <p className="eyebrow">Waiting on</p>
             <h1>{player}</h1>
             <p className="muted">This isn't your device's turn — sit tight.</p>
@@ -104,12 +106,14 @@ export default function Round() {
     }
     return (
       <div className="screen">
-        <StageBar label={`Hop ${index + 1} of ${settings.chainLength}`} />
         <div className="handoff">
+          <span className="handoff-mark" aria-hidden="true">
+            <Icon name="send" size={28} />
+          </span>
           <p className="eyebrow">Pass the device to</p>
           <h1>{player}</h1>
           <p className="muted">Only {player} should read the next screen.</p>
-          <button className="btn btn-primary btn-block" onClick={() => setHandedOver(true)}>
+          <button className="btn btn-primary btn-lg btn-block" onClick={() => setHandedOver(true)}>
             I'm {player}
           </button>
         </div>
@@ -123,65 +127,80 @@ export default function Round() {
 
   return (
     <div className="screen">
-      <StageBar
-        label={`Hop ${index + 1} of ${settings.chainLength}`}
-        note={isMachineHop ? 'AI participant' : player}
-      />
-
       <AIHopBeat />
 
-      <div className="row round-clock">
-        <span className={`timer${timeShort ? ' is-warning' : ''}`}>
-          {Math.max(0, secondsLeft)}s
-        </span>
-        <span className="spacer" />
-        <span className="muted">Stay as accurate as you can.</span>
-      </div>
-      <div className="timer-track">
-        <div
-          className={`timer-fill${timeShort ? ' is-warning' : ''}`}
-          style={{
-            width: `${Math.max(0, Math.min(100, (secondsLeft / timerTotal) * 100))}%`,
-          }}
-        />
-      </div>
-
-      {card && (
-        <div className="constraint">
-          <span className="constraint-name">{card.name}</span>
-          <span className="constraint-note">{card.note}</span>
+      <section className="neo-panel round-panel">
+        <div className="neo-head">
+          <span className="round-who">
+            <Icon name="play" className="icon-lg" />
+            {isMachineHop ? 'AI participant' : `${player}'s turn`}
+          </span>
+          <span className="neo-tag">
+            Hop {index + 1} / {settings.chainLength}
+          </span>
         </div>
-      )}
 
-      <div className="paper paper-original">
-        <p className="eyebrow">{index === 0 ? 'The claim' : 'What you were given'}</p>
-        <p className="paper-text">{source}</p>
-      </div>
+        <div className="neo-body stack">
+          <div className="row round-clock">
+            <Icon name="timer" className={timeShort ? 'round-clock-icon is-warning' : 'round-clock-icon'} />
+            <span className={`timer${timeShort ? ' is-warning' : ''}`}>
+              {Math.max(0, secondsLeft)}s
+            </span>
+            <span className="spacer" />
+            <span className="muted">Stay as accurate as you can.</span>
+          </div>
+          <div className="timer-track">
+            <div
+              className={`timer-fill${timeShort ? ' is-warning' : ''}`}
+              style={{
+                width: `${Math.max(0, Math.min(100, (secondsLeft / timerTotal) * 100))}%`,
+              }}
+            />
+          </div>
 
-      {checked && (
-        <div className="paper round-checked">
-          <p className="eyebrow">You checked the original</p>
-          <p className="paper-text">{round.claim.originalText}</p>
+          {card && (
+            <div className="constraint">
+              <span className="eyebrow">Active constraint</span>
+              <span className="constraint-name">{card.name}</span>
+              <span className="constraint-note">{card.note}</span>
+            </div>
+          )}
+
+          <div className="paper paper-original">
+            <p className="eyebrow">{index === 0 ? 'The claim' : 'What you were given'}</p>
+            <p className="paper-text">{source}</p>
+          </div>
+
+          {checked && (
+            <div className="paper round-checked">
+              <p className="eyebrow">You checked the original</p>
+              <p className="paper-text">{round.claim.originalText}</p>
+            </div>
+          )}
+
+          <HopInput card={card} source={source} value={draft} onChange={setDraft} />
+
+          <button
+            className="btn btn-primary btn-lg btn-block"
+            disabled={!valid}
+            onClick={() => submit(draft.trim())}
+          >
+            Pass it on <Icon name="send" />
+          </button>
+
+          {!checked && round.verificationsLeft > 0 && (
+            <button
+              className="btn btn-block"
+              onClick={() => {
+                dispatch({ type: 'SPEND_VERIFICATION', hopIndex: index, atoms: [...ATOMS] });
+                setChecked(true);
+              }}
+            >
+              <Icon name="search" /> Check the original ({round.verificationsLeft} left)
+            </button>
+          )}
         </div>
-      )}
-
-      <HopInput card={card} source={source} value={draft} onChange={setDraft} />
-
-      <button className="btn btn-primary btn-block" disabled={!valid} onClick={() => submit(draft.trim())}>
-        Pass it on
-      </button>
-
-      {!checked && round.verificationsLeft > 0 && (
-        <button
-          className="btn btn-ghost btn-block"
-          onClick={() => {
-            dispatch({ type: 'SPEND_VERIFICATION', hopIndex: index, atoms: [...ATOMS] });
-            setChecked(true);
-          }}
-        >
-          Check the original ({round.verificationsLeft} left for the whole chain)
-        </button>
-      )}
+      </section>
     </div>
   );
 }

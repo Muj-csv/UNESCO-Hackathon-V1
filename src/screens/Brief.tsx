@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Atom, GameState } from '../types/contracts';
 import { useGame } from '../state/GameContext';
+import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -28,13 +29,20 @@ import StageBar from '../components/StageBar';
 export interface BriefVariant {
   /** Who it is for, or null when the whole room reads the same thing. */
   player: string | null;
+  /** Which treatment to render. The imposter's brief gets its own, so that a
+      player who has just been handed it cannot mistake it for the ordinary
+      one at a glance. */
+  kind: 'room' | 'imposter';
   lines: string[];
   anchor: string;
   anchorNote: string;
+  /** T8 only — the property this brief asks to make disappear. */
+  target?: Atom;
 }
 
 const ROOM_BRIEF: BriefVariant = {
   player: null,
+  kind: 'room',
   lines: [
     "You'll get a claim, and a card.",
     'Rewrite the claim as accurately as you can under that card.',
@@ -56,6 +64,8 @@ const ROOM_BRIEF: BriefVariant = {
 function imposterBrief(player: string, target: Atom): BriefVariant {
   return {
     player,
+    kind: 'imposter',
+    target,
     lines: [
       'Everyone else is trying to be accurate. You are too — mostly.',
       `Rewrite under your card, and make ${target} disappear.`,
@@ -160,10 +170,13 @@ export default function Brief() {
       <div className="screen">
         <StageBar label={stage} />
         <div className="handoff">
+          <span className="handoff-mark" aria-hidden="true">
+            <Icon name="send" size={28} />
+          </span>
           <p className="eyebrow">Pass the device to</p>
           <h1>{current.player}</h1>
           <p className="muted">Only {current.player} should read the next screen.</p>
-          <button className="btn btn-primary btn-block" onClick={() => setHandedOver(true)}>
+          <button className="btn btn-primary btn-lg btn-block" onClick={() => setHandedOver(true)}>
             I'm {current.player}
           </button>
         </div>
@@ -180,29 +193,98 @@ export default function Brief() {
     setHandedOver(false);
   };
 
+  if (current.kind === 'imposter') {
+    return (
+      <div className="screen">
+        <StageBar label={stage} />
+
+        {/* A different frame entirely, so that a player holding this cannot
+            mistake it for the ordinary brief at a glance — and so that the
+            handful of seconds they have with it are unambiguous.
+
+            The copy still never says "lie", and the objective is a PROPERTY,
+            never the truth. That restraint is the whole design: this player
+            is about to discover how small an edit has to be, and how much it
+            looks like an ordinary mistake. */}
+        <section className="neo-panel classified">
+          <div className="neo-head neo-head-red">
+            <span className="classified-title">
+              <Icon name="alert" className="icon-lg" />
+              Different brief
+            </span>
+            <span className="neo-dots" aria-hidden="true">
+              <span />
+              <span />
+            </span>
+          </div>
+
+          <div className="neo-body stack">
+            <div className="classified-role">
+              <span className="classified-role-eyebrow">Only you are reading this</span>
+              <p className="classified-role-name">
+                Make <span className="classified-target">{current.target}</span> disappear
+              </p>
+            </div>
+
+            <div className="classified-grid">
+              <div className="classified-cell">
+                <p className="classified-cell-head">
+                  <Icon name="target" /> Objective
+                </p>
+                <p className="classified-cell-body">{current.lines[1]}</p>
+              </div>
+              <div className="classified-cell">
+                <p className="classified-cell-head">
+                  <Icon name="radar" /> Keep it quiet
+                </p>
+                <p className="classified-cell-body">{current.lines[2]}</p>
+              </div>
+            </div>
+
+            <p className="muted">{current.lines[0]}</p>
+          </div>
+        </section>
+
+        <div className="brief-anchor brief-anchor-red">
+          <p className="brief-anchor-line">{current.anchor}</p>
+          <p className="muted">{current.anchorNote}</p>
+        </div>
+
+        <button className="btn btn-danger btn-lg btn-block" onClick={advance}>
+          <Icon name="checkCircle" /> Understood
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="screen">
       <StageBar label={stage} />
-      <h2>Read this once</h2>
 
-      <div className="card">
-        <p className="eyebrow">In a moment</p>
-        <ul className="brief-lines">
-          {current.lines.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      </div>
+      <section className="neo-panel">
+        <div className="neo-head">
+          In a moment
+          <span className="neo-tag">Read once</span>
+        </div>
+        <div className="neo-body">
+          <ul className="brief-lines">
+            {current.lines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       {/* The sentence the entire session depends on. It gets its own block,
           in the display face, with nothing beside it. */}
-      <div className="paper brief-anchor">
+      <div className="brief-anchor">
         <p className="brief-anchor-line">{current.anchor}</p>
         <p className="muted">{current.anchorNote}</p>
       </div>
 
-      <button className="btn btn-primary btn-block" onClick={advance}>
+      <button className="btn btn-primary btn-lg btn-block" onClick={advance}>
         {last ? 'Start the round' : 'Pass it on'}
+        <Icon name="arrowForward" />
       </button>
     </div>
   );

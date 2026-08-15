@@ -48,7 +48,7 @@ export default function HopInput({ card, source, value, onChange, disabled }: Ho
       />
       {limit !== null && (
         <p className={`hop-count mono${over ? ' is-over' : ''}`}>
-          {value.length} / {limit}
+          {value.length} / {limit} characters
         </p>
       )}
     </div>

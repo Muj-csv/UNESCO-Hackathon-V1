@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { Atom } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
+import { ATOM_ICON, ATOM_SHORT } from '../data/atoms';
+import Icon from './Icon';
 import StageBar from '../components/StageBar';
 
 /* ============================================================================
@@ -18,13 +20,6 @@ import StageBar from '../components/StageBar';
    and waits for the others, same as Round.tsx's `isMyTurn` gate.
    ========================================================================== */
 
-const ATOM_PREDICT_NOTE: Record<Atom, string> = {
-  SOURCE: 'who says so',
-  NUMBER: 'the figure and its base',
-  HEDGE: 'may / suggests / preliminary',
-  SCOPE: 'who, where, when',
-  CAUSE: 'correlational vs. causal',
-};
 
 export default function PredictionPrompt() {
   const { state, dispatch } = useGame();
@@ -82,10 +77,13 @@ export default function PredictionPrompt() {
       <div className="screen">
         <StageBar label="Before it starts" />
         <div className="handoff">
+          <span className="handoff-mark" aria-hidden="true">
+            <Icon name="send" size={28} />
+          </span>
           <p className="eyebrow">Pass the device to</p>
           <h1>{current.name}</h1>
           <p className="muted">Only {current.name} should read the next screen.</p>
-          <button className="btn btn-primary btn-block" onClick={() => setHandedOver(true)}>
+          <button className="btn btn-primary btn-lg btn-block" onClick={() => setHandedOver(true)}>
             I'm {current.name}
           </button>
         </div>
@@ -105,11 +103,14 @@ export default function PredictionPrompt() {
       <p className="lede">
         Five seconds, one tap. Nobody else sees your pick until the debrief.
       </p>
-      <div className="stack">
+      <div className="atomgrid">
         {ATOMS.map((atom) => (
-          <button key={atom} type="button" className="lobby-option" onClick={() => pick(atom)}>
-            <span className="lobby-option-name mono">{atom}</span>
-            <span className="lobby-option-note">{ATOM_PREDICT_NOTE[atom]}</span>
+          <button key={atom} type="button" className="atomcard" onClick={() => pick(atom)}>
+            <span className={`atomcard-icon atomcard-${atom.toLowerCase()}`}>
+              <Icon name={ATOM_ICON[atom]} size={22} />
+            </span>
+            <span className="atomcard-name">{atom}</span>
+            <span className="atomcard-note">{ATOM_SHORT[atom]}</span>
           </button>
         ))}
       </div>
