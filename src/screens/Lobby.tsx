@@ -24,7 +24,7 @@ const MODES: { id: Mode; name: string; note: string; ready: boolean }[] = [
 ];
 
 export default function Lobby() {
-  const { state, dispatch, startRound, roomStatus } = useGame();
+  const { state, dispatch, startRound, roomStatus, packNotice, dismissPackNotice } = useGame();
   const { players, settings, room } = state;
   const [name, setName] = useState('');
   const warnings = selectLobbyWarnings(state);
@@ -64,6 +64,27 @@ export default function Lobby() {
       <button className="btn btn-ghost btn-block" onClick={() => dispatch({ type: 'GO_TO', screen: 'howToPlay' })}>
         How to play
       </button>
+
+      {packNotice && (
+        <div className={`lobby-warning row${packNotice.kind === 'loaded' ? ' pack-notice-loaded' : ''}`}>
+          <span style={{ flex: 1 }}>{packNotice.message}</span>
+          <button className="btn btn-ghost btn-small" onClick={dismissPackNotice}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {state.packClaims?.length ? (
+        <div className="row">
+          <span className="muted" style={{ flex: 1 }}>
+            Playing a custom pack — {state.packClaims.length} claim
+            {state.packClaims.length === 1 ? '' : 's'}.
+          </span>
+          <button className="btn btn-ghost btn-small" onClick={() => dispatch({ type: 'CLEAR_PACK' })}>
+            Use built-in claims
+          </button>
+        </div>
+      ) : null}
 
       {inRoom ? (
         <section className="stack">
@@ -262,7 +283,10 @@ export default function Lobby() {
             </button>
           </>
         )}
-        <button className="btn btn-ghost btn-small" disabled>
+        <button
+          className="btn btn-ghost btn-small"
+          onClick={() => dispatch({ type: 'GO_TO', screen: 'packStudio' })}
+        >
           Pack Studio
         </button>
       </div>

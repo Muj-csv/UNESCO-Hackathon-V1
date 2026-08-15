@@ -69,15 +69,15 @@ A student sends a pack to another school over Messenger. That is the whole distr
 
 ## Acceptance criteria
 
-- [ ] Author a complete claim with all five atoms and five variants
-- [ ] Text selection tags phrases without retyping
-- [ ] Validation errors are readable and specific
-- [ ] Real-entity check flags for review
-- [ ] Encode → URL → decode round-trips exactly
-- [ ] Shared link loads and plays on another device
-- [ ] Pack text never reaches the server
-- [ ] Export and import round-trip
-- [ ] Usable at 375px
+- [x] Author a complete claim with all five atoms and five variants
+- [x] Text selection tags phrases without retyping
+- [x] Validation errors are readable and specific
+- [x] Real-entity check flags for review
+- [x] Encode → URL → decode round-trips exactly
+- [x] Shared link loads and plays on another device
+- [x] Pack text never reaches the server
+- [x] Export and import round-trip
+- [x] Usable at 375px
 
 ## Do not
 

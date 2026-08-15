@@ -13,6 +13,7 @@ import { getCard } from '../data/cards';
 import ResumePrompt from '../components/ResumePrompt';
 import RoomStatusBar from '../components/RoomStatusBar';
 import rawClaims from '../data/claims.en.json';
+import { PackDecodeError, decodePack, readPackFragment } from '../engine/packCodec';
 
 const SAVE_DEBOUNCE_MS = 300;
 /* Separate, shorter debounce for pushing to the room — a round in progress
@@ -49,6 +50,16 @@ interface GameContextValue {
   /** T7 — this room's round is a simultaneous chain being driven by
       per-player projections, not the single-shared-round mechanism. */
   simRoundActive: boolean;
+  /** T10 — result of loading a pack found in the URL fragment on boot, if
+      any. Null once there is nothing left to say about it. */
+  packNotice: PackNotice | null;
+  dismissPackNotice: () => void;
+}
+
+/** T10. */
+export interface PackNotice {
+  kind: 'loaded' | 'error';
+  message: string;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -258,6 +269,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const claims = state.packClaims?.length ? state.packClaims : BUILT_IN_CLAIMS;
 
+  /* T10 — a pack shared as a link arrives in the URL fragment, which never
+     touches the server. Handled once per load: StrictMode's double effect
+     would otherwise decode (and toast) it twice. The hash is cleared right
+     after so a refresh doesn't reapply it and so an in-progress round saved
+     under T5 isn't shadowed by a stale link sitting in the address bar. */
+  const [packNotice, setPackNotice] = useState<PackNotice | null>(null);
+  const packUrlHandledRef = useRef(false);
+  useEffect(() => {
+    if (packUrlHandledRef.current) return;
+    packUrlHandledRef.current = true;
+    const value = readPackFragment(window.location.hash);
+    if (!value) return;
+
+    decodePack(value)
+      .then((loaded) => {
+        dispatch({ type: 'LOAD_PACK', claims: loaded });
+        setPackNotice({
+          kind: 'loaded',
+          message: `Loaded a shared pack — ${loaded.length} claim${loaded.length === 1 ? '' : 's'}. Start a round from the lobby to play it.`,
+        });
+      })
+      .catch((err) => {
+        setPackNotice({
+          kind: 'error',
+          message: err instanceof PackDecodeError ? err.message : 'This pack link could not be read.',
+        });
+      })
+      .finally(() => {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      });
+  }, [dispatch]);
+
   const startRound = useCallback(() => {
     /* T7: a room in chain mode runs a simultaneous round (see
        simultaneousRound.ts) — the host asks the server to start it, and
@@ -283,9 +326,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'BEGIN_ROUND', setup });
   }, [state, claims, dispatch]);
 
+  const dismissPackNotice = useCallback(() => setPackNotice(null), []);
+
   const value = useMemo<GameContextValue>(
-    () => ({ state, dispatch, claims, startRound, nextRound, roomStatus, simRoundActive }),
-    [state, claims, startRound, nextRound, dispatch, roomStatus, simRoundActive],
+    () => ({
+      state,
+      dispatch,
+      claims,
+      startRound,
+      nextRound,
+      roomStatus,
+      simRoundActive,
+      packNotice,
+      dismissPackNotice,
+    }),
+    [state, claims, startRound, nextRound, dispatch, roomStatus, simRoundActive, packNotice, dismissPackNotice],
   );
 
   if (pendingRestore) {
