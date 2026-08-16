@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Atom, Claim } from '../types/contracts';
 import { ATOMS } from '../types/contracts';
 import { useGameDispatch } from '../state/GameContext';
-import StageBar from '../components/StageBar';
+import Icon from '../components/Icon';
 import PhraseTagger from '../components/PhraseTagger';
+import { ATOM_ICON, ATOM_SHORT } from '../data/atoms';
 import {
   ATOM_LABEL,
   draftToClaim,
@@ -15,17 +16,21 @@ import type { ClaimDraft } from '../engine/validateClaim';
 import { MAX_LINK_CLAIMS, PackDecodeError, buildShareFragment, parsePackJson } from '../engine/packCodec';
 
 /* ============================================================================
-   OWNER: T10 (pack authoring).
+   OWNER: T10 (pack authoring). Design pass: T11 phase 7.
 
    This is where the theme stops being a metaphor: young people stop being
-   the audience for an MIL tool and become the authors of one. One claim at a
-   time — original text, the five atoms tagged by selecting text rather than
-   retyping, and five degraded variants, each with exactly one atom degraded
-   and the other four intact.
+   the audience for an MIL tool and become the authors of one.
 
-   Kept deliberately minimal: this screen only authors claims into a local
-   list. Sharing that list by link, export, and import land in the next pass
-   — see docs/T10-pack-authoring.md.
+   Two views, because authoring a claim and holding a pack are different
+   jobs and the old single scroll made you do both at once:
+
+     LIBRARY   what is in the pack, and how it leaves this device.
+     EDITOR    one claim, built in three moves — baseplate, tags, variants —
+               with an integrity check that reads the draft continuously
+               instead of waiting for a submit to say no.
+
+   Nothing here is scored and nothing is graded. The check panel counts what
+   is still missing; it never rates what has been written.
 
    Do not use AI to generate claims. The authoring is the learning.
    ========================================================================== */
@@ -38,10 +43,14 @@ const ATOM_NOTE: Record<Atom, string> = {
   CAUSE: 'Correlation versus causation — "linked to", never "causes".',
 };
 
+type View = 'library' | 'editor';
+
 export default function PackStudio() {
   const dispatch = useGameDispatch();
 
+  const [view, setView] = useState<View>('library');
   const [draft, setDraft] = useState<ClaimDraft>(emptyClaimDraft);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [activeAtom, setActiveAtom] = useState<Atom>('SOURCE');
   const [kwInput, setKwInput] = useState('');
   const [orInput, setOrInput] = useState('');
@@ -59,6 +68,13 @@ export default function PackStudio() {
     () => ATOMS.reduce((acc, a) => ({ ...acc, [a]: draft.atoms[a].phrase }), {} as Record<Atom, string>),
     [draft],
   );
+
+  /* A draft is "started" once anything is in it. Used to offer a resume tile
+     in the library rather than silently holding work nobody can see. */
+  const draftStarted =
+    !!draft.topic.trim() ||
+    !!draft.originalText.trim() ||
+    ATOMS.some((a) => draft.atoms[a].phrase.trim() || draft.degraded[a].trim());
 
   const setAtomField = (atom: Atom, patch: Partial<ClaimDraft['atoms'][Atom]>) => {
     setDraft((d) => ({ ...d, atoms: { ...d.atoms, [atom]: { ...d.atoms[atom], ...patch } } }));
@@ -80,19 +96,50 @@ export default function PackStudio() {
 
   const fieldErrors = (field: string) => validation.errors.filter((e) => e.field === field);
 
-  const addClaim = () => {
-    setAttempted(true);
-    if (validation.errors.length) return;
-    const claim = draftToClaim(draft, makeClaimId(draft.topic));
-    setPack((p) => [...p, claim]);
+  /* ------------------------------------------------------------- authoring -- */
+
+  const newClaim = () => {
     setDraft(emptyClaimDraft());
+    setEditingId(null);
     setActiveAtom('SOURCE');
     setAttempted(false);
-    setSavedNote(`Added "${claim.topic}" to this pack.`);
+    setSavedNote(null);
+    setView('editor');
+  };
+
+  const editClaim = (claim: Claim) => {
+    setDraft(claimToDraft(claim));
+    setEditingId(claim.id);
+    setActiveAtom('SOURCE');
+    setAttempted(false);
+    setSavedNote(null);
+    setView('editor');
+  };
+
+  const saveClaim = () => {
+    setAttempted(true);
+    if (validation.errors.length) return;
+
+    if (editingId) {
+      const updated = draftToClaim(draft, editingId);
+      setPack((p) => p.map((c) => (c.id === editingId ? updated : c)));
+      setSavedNote(`Updated "${updated.topic}".`);
+    } else {
+      const claim = draftToClaim(draft, makeClaimId(draft.topic));
+      setPack((p) => [...p, claim]);
+      setSavedNote(`Added "${claim.topic}" to this pack.`);
+    }
+
+    setDraft(emptyClaimDraft());
+    setEditingId(null);
+    setActiveAtom('SOURCE');
+    setAttempted(false);
+    setView('library');
   };
 
   const removeClaim = (id: string) => {
     setPack((p) => p.filter((c) => c.id !== id));
+    if (editingId === id) setEditingId(null);
   };
 
   /* -------------------------------------------------------------- sharing -- */
@@ -129,7 +176,7 @@ export default function PackStudio() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'truthchain-pack.json';
+    a.download = 'brick-by-brick-pack.json';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -141,6 +188,7 @@ export default function PackStudio() {
       .then((text) => {
         const imported = parsePackJson(text);
         setPack((p) => [...p, ...imported]);
+        setView('library');
       })
       .catch((err) => {
         setImportError(err instanceof PackDecodeError ? err.message : "Couldn't read that file.");
@@ -157,249 +205,657 @@ export default function PackStudio() {
 
   return (
     <div className="screen">
-      <StageBar label="Pack Studio" note="Author a claim" />
-      <header>
-        <h2>Write your own claim</h2>
-        <p className="muted">
-          Fabricated claims only — no real people, organisations, or events. One claim, all five
-          atoms, five variants that each degrade exactly one.
+      {/* No StageBar: the top bar badges this screen and the hero names it. */}
+      <header className="lobby-hero">
+        <span className="lobby-chip">Pack Studio</span>
+        <h1>{view === 'library' ? 'Your claim pack' : editingId ? 'Edit this claim' : 'Build a claim'}</h1>
+        <p className="lede">
+          Write the claims your room plays with. Fabricated only — no real people, organisations
+          or events. One claim, all five atoms tagged, five variants that each degrade exactly one.
         </p>
       </header>
 
-      <section className="stack">
-        <p className="eyebrow">1. The original claim</p>
-        <label className="field-label" htmlFor="pack-topic">
-          Topic
-        </label>
-        <input
-          id="pack-topic"
-          className="field"
-          value={draft.topic}
-          onChange={(e) => setDraft((d) => ({ ...d, topic: e.target.value }))}
-          placeholder="e.g. School attendance"
-          maxLength={40}
-        />
-        <label className="field-label" htmlFor="pack-original">
-          Original text — one or two sentences
-        </label>
-        <textarea
-          id="pack-original"
-          className="field"
-          value={draft.originalText}
-          onChange={(e) => setDraft((d) => ({ ...d, originalText: e.target.value }))}
-          placeholder="A named source says a specific, hedged, scoped, correlational thing…"
-          rows={3}
-        />
-        {attempted && fieldErrors('originalText').map((e, i) => (
-          <p key={i} className="pack-error">
-            {e.message}
-          </p>
-        ))}
-        {validation.warnings.map((w, i) => (
-          <p key={i} className="pack-warning">
-            {w.message}
-          </p>
-        ))}
-      </section>
+      <div className="pack-tabs" role="tablist" aria-label="Pack Studio view">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={view === 'library'}
+          className={`pack-tab${view === 'library' ? ' is-active' : ''}`}
+          onClick={() => setView('library')}
+        >
+          <Icon name="inventory" /> Library
+          <span className="neo-tag">{pack.length}</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={view === 'editor'}
+          className={`pack-tab${view === 'editor' ? ' is-active' : ''}`}
+          onClick={() => setView('editor')}
+        >
+          <Icon name="add" /> Editor
+          {draftStarted && <span className="neo-tag">Draft</span>}
+        </button>
+      </div>
 
-      <section className="stack">
-        <p className="eyebrow">2. Tag the five atoms</p>
-        <div className="row pack-atom-tabs">
-          {ATOMS.map((atom) => (
-            <button
-              key={atom}
-              type="button"
-              className={`atom-chip${activeAtom === atom ? ' is-alive' : ''}`}
-              onClick={() => setActiveAtom(atom)}
-            >
-              {atom}
-              {draft.atoms[atom].phrase ? ' ✓' : ''}
-            </button>
-          ))}
-        </div>
-
-        <p className="muted">{ATOM_NOTE[activeAtom]}</p>
-
-        <PhraseTagger
-          text={draft.originalText}
-          activeAtom={activeAtom}
-          phrases={phrases}
-          onTag={(atom, phrase) => setAtomField(atom, { phrase })}
-        />
-
-        <div className="paper">
-          <p className="field-label">Tagged phrase</p>
-          <p className="paper-text">{atomDraft.phrase || 'Not tagged yet.'}</p>
-        </div>
-        {attempted && fieldErrors(`atoms.${activeAtom}.phrase`).map((e, i) => (
-          <p key={i} className="pack-error">
-            {e.message}
-          </p>
-        ))}
-
-        <label className="field-label" htmlFor="pack-truth">
-          What {activeAtom} holds here, in plain words — shown in the ledger
-        </label>
-        <input
-          id="pack-truth"
-          className="field"
-          value={atomDraft.truth}
-          onChange={(e) => setAtomField(activeAtom, { truth: e.target.value })}
-          placeholder="e.g. Preliminary figures that only suggest a trend"
-        />
-
-        <ChipInput
-          label="Alternative phrasings that still count as this atom surviving"
-          value={kwInput}
-          onChange={setKwInput}
-          onAdd={() => {
-            addToList(activeAtom, 'keywords', kwInput);
-            setKwInput('');
-          }}
-          items={atomDraft.keywords}
-          onRemove={(i) => removeFromList(activeAtom, 'keywords', i)}
-        />
-        {attempted && fieldErrors(`atoms.${activeAtom}.keywords`).map((e, i) => (
-          <p key={i} className="pack-error">
-            {e.message}
-          </p>
-        ))}
-
-        <ChipInput
-          label="Overreach phrases — wording that means this atom already died"
-          value={orInput}
-          onChange={setOrInput}
-          onAdd={() => {
-            addToList(activeAtom, 'overreach', orInput);
-            setOrInput('');
-          }}
-          items={atomDraft.overreach}
-          onRemove={(i) => removeFromList(activeAtom, 'overreach', i)}
-        />
-      </section>
-
-      <section className="stack">
-        <p className="eyebrow">3. Five degraded variants</p>
-        <p className="muted">
-          One variant per atom. Rewrite the claim so {ATOM_LABEL[activeAtom]} is the one thing
-          that degrades — keep the other four intact.
+      {savedNote && view === 'library' && (
+        <p className="pack-saved">
+          <Icon name="checkCircle" /> {savedNote}
         </p>
-        <label className="field-label" htmlFor="pack-degraded">
-          Variant where {activeAtom} degrades
-        </label>
-        <textarea
-          id="pack-degraded"
-          className="field"
-          value={degradedForActive}
-          onChange={(e) => setDegraded(activeAtom, e.target.value)}
-          rows={3}
+      )}
+
+      {view === 'library' ? (
+        <Library
+          pack={pack}
+          draft={draft}
+          draftStarted={draftStarted}
+          editingId={editingId}
+          onNew={newClaim}
+          onEdit={editClaim}
+          onRemove={removeClaim}
+          onResume={() => setView('editor')}
+          share={{
+            shareUrl,
+            shareError,
+            importError,
+            copied,
+            buildLink,
+            copyLink,
+            exportFile,
+            openImport: () => fileInputRef.current?.click(),
+            playPack,
+          }}
         />
-        {attempted && fieldErrors(`degraded.${activeAtom}`).map((e, i) => (
-          <p key={i} className="pack-error">
-            {e.message}
-          </p>
-        ))}
-        <div className="row pack-variant-status">
-          {ATOMS.map((atom) => (
-            <span key={atom} className={`atom-chip${draft.degraded[atom].trim() ? ' is-alive' : ''}`}>
-              {atom}
-            </span>
-          ))}
-        </div>
-      </section>
+      ) : (
+        <div className="pack-cols">
+          <div className="pack-work stack">
+            {/* -------------------------------------------------- baseplate -- */}
+            <section className="neo-panel">
+              <div className="neo-head">
+                <span>
+                  <span className="pack-step">01</span> Baseplate
+                </span>
+                <span className="neo-tag">The true claim</span>
+              </div>
+              <div className="neo-body stack">
+                <p className="muted">
+                  The version nobody in the room ever sees whole. Everything the ledger measures
+                  later is measured against this.
+                </p>
 
-      {attempted && validation.errors.length > 0 && (
-        <section className="card pack-issues">
-          <p className="eyebrow">{validation.errors.length} thing{validation.errors.length === 1 ? '' : 's'} to fix</p>
-          {validation.errors.map((e, i) => (
-            <p key={i} className="muted">
-              {e.message}
-            </p>
-          ))}
-        </section>
-      )}
+                <div className="stack">
+                  <label className="field-label" htmlFor="pack-topic">
+                    Topic
+                  </label>
+                  <input
+                    id="pack-topic"
+                    className="field"
+                    value={draft.topic}
+                    onChange={(e) => setDraft((d) => ({ ...d, topic: e.target.value }))}
+                    placeholder="e.g. School attendance"
+                    maxLength={40}
+                  />
+                </div>
 
-      <button className="btn btn-primary btn-block" onClick={addClaim}>
-        Add this claim to the pack
-      </button>
+                <div className="stack">
+                  <label className="field-label" htmlFor="pack-original">
+                    Original text — one or two sentences
+                  </label>
+                  <textarea
+                    id="pack-original"
+                    className="field"
+                    value={draft.originalText}
+                    onChange={(e) => setDraft((d) => ({ ...d, originalText: e.target.value }))}
+                    placeholder="A named source says a specific, hedged, scoped, correlational thing…"
+                    rows={3}
+                  />
+                </div>
 
-      {pack.length > 0 && (
-        <section className="stack">
-          <p className="eyebrow">Claims in this pack ({pack.length})</p>
-          {pack.map((c) => (
-            <div key={c.id} className="row">
-              <span className="paper-text" style={{ flex: 1 }}>
-                {c.topic}
-              </span>
-              <button className="btn btn-ghost btn-small" onClick={() => removeClaim(c.id)}>
-                Remove
-              </button>
-            </div>
-          ))}
-        </section>
-      )}
+                {attempted &&
+                  fieldErrors('originalText').map((e, i) => (
+                    <p key={i} className="pack-error">
+                      {e.message}
+                    </p>
+                  ))}
+                {validation.warnings.map((w, i) => (
+                  <p key={i} className="pack-warning">
+                    <Icon name="alert" /> {w.message}
+                  </p>
+                ))}
+              </div>
+            </section>
 
-      {savedNote && <p className="muted center">{savedNote}</p>}
+            {/* ------------------------------------------------- atom palette -- */}
+            <section className="neo-panel">
+              <div className="neo-head neo-head-amber">
+                <span>
+                  <span className="pack-step">02</span> Tag the five
+                </span>
+                <span className="neo-tag">{taggedCount(draft)}/5 tagged</span>
+              </div>
+              <div className="neo-body stack">
+                <div className="pack-palette" role="group" aria-label="Choose an atom to tag">
+                  {ATOMS.map((atom) => {
+                    const tagged = !!draft.atoms[atom].phrase.trim();
+                    const varied = !!draft.degraded[atom].trim();
+                    return (
+                      <button
+                        key={atom}
+                        type="button"
+                        className={`pack-swatch${activeAtom === atom ? ' is-active' : ''}`}
+                        aria-pressed={activeAtom === atom}
+                        onClick={() => setActiveAtom(atom)}
+                      >
+                        <span className={`pack-swatch-icon atomcard-${atom.toLowerCase()}`}>
+                          <Icon name={ATOM_ICON[atom]} size={20} />
+                        </span>
+                        <span className="pack-swatch-name">{atom}</span>
+                        <span className="pack-swatch-state">
+                          <span className={`pack-dot${tagged ? ' is-on' : ''}`} title="Phrase tagged" />
+                          <span className={`pack-dot${varied ? ' is-on' : ''}`} title="Variant written" />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-      {pack.length > 0 && (
-        <section className="stack">
-          <p className="eyebrow">Share this pack</p>
-          <p className="muted">
-            Text stays in the link itself — nothing is sent to a server. A student sends this to
-            another school over Messenger; that's the whole distribution model.
-          </p>
-          {pack.length > MAX_LINK_CLAIMS && (
-            <p className="pack-warning">
-              {pack.length} claims is more than a link handles reliably — some messaging apps
-              truncate long links. Export to a file instead, or share in batches of {MAX_LINK_CLAIMS}.
-            </p>
-          )}
-          <div className="row">
-            <button className="btn btn-small" onClick={buildLink}>
-              Build share link
-            </button>
-            <button className="btn btn-small" onClick={exportFile}>
-              Export to file
-            </button>
-            <button className="btn btn-small" onClick={() => fileInputRef.current?.click()}>
-              Import from file
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/json"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) importFile(file);
-                e.target.value = '';
-              }}
-            />
+                <div className="pack-atomnote">
+                  <span className={`pack-swatch-icon atomcard-${activeAtom.toLowerCase()}`}>
+                    <Icon name={ATOM_ICON[activeAtom]} size={20} />
+                  </span>
+                  <span>
+                    <strong>{activeAtom}</strong> — {ATOM_SHORT[activeAtom]}
+                    <span className="pack-atomnote-long">{ATOM_NOTE[activeAtom]}</span>
+                  </span>
+                </div>
+
+                <PhraseTagger
+                  text={draft.originalText}
+                  activeAtom={activeAtom}
+                  phrases={phrases}
+                  onTag={(atom, phrase) => setAtomField(atom, { phrase })}
+                />
+
+                <div className="paper pack-tagged">
+                  <p className="field-label">Tagged phrase for {activeAtom}</p>
+                  <p className="paper-text">{atomDraft.phrase || 'Not tagged yet.'}</p>
+                </div>
+                {attempted &&
+                  fieldErrors(`atoms.${activeAtom}.phrase`).map((e, i) => (
+                    <p key={i} className="pack-error">
+                      {e.message}
+                    </p>
+                  ))}
+
+                <div className="stack">
+                  <label className="field-label" htmlFor="pack-truth">
+                    What {activeAtom} holds here, in plain words — shown in the ledger
+                  </label>
+                  <input
+                    id="pack-truth"
+                    className="field"
+                    value={atomDraft.truth}
+                    onChange={(e) => setAtomField(activeAtom, { truth: e.target.value })}
+                    placeholder="e.g. Preliminary figures that only suggest a trend"
+                  />
+                </div>
+
+                <ChipInput
+                  label="Alternative phrasings that still count as this atom surviving"
+                  value={kwInput}
+                  onChange={setKwInput}
+                  onAdd={() => {
+                    addToList(activeAtom, 'keywords', kwInput);
+                    setKwInput('');
+                  }}
+                  items={atomDraft.keywords}
+                  onRemove={(i) => removeFromList(activeAtom, 'keywords', i)}
+                />
+                {attempted &&
+                  fieldErrors(`atoms.${activeAtom}.keywords`).map((e, i) => (
+                    <p key={i} className="pack-error">
+                      {e.message}
+                    </p>
+                  ))}
+
+                <ChipInput
+                  label="Overreach phrases — wording that means this atom already died"
+                  value={orInput}
+                  onChange={setOrInput}
+                  onAdd={() => {
+                    addToList(activeAtom, 'overreach', orInput);
+                    setOrInput('');
+                  }}
+                  items={atomDraft.overreach}
+                  onRemove={(i) => removeFromList(activeAtom, 'overreach', i)}
+                />
+              </div>
+            </section>
+
+            {/* -------------------------------------------------- variants -- */}
+            <section className="neo-panel">
+              <div className="neo-head">
+                <span>
+                  <span className="pack-step">03</span> Variants
+                </span>
+                <span className="neo-tag">{variantCount(draft)}/5 written</span>
+              </div>
+              <div className="neo-body stack">
+                <p className="muted">
+                  One variant per atom. Rewrite the claim so {ATOM_LABEL[activeAtom]} is the one
+                  thing that degrades — keep the other four intact.
+                </p>
+
+                <div className="pack-variant-strip">
+                  {ATOMS.map((atom) => (
+                    <button
+                      key={atom}
+                      type="button"
+                      className={`pack-variant-tab${activeAtom === atom ? ' is-active' : ''}${
+                        draft.degraded[atom].trim() ? ' is-written' : ''
+                      }`}
+                      aria-pressed={activeAtom === atom}
+                      onClick={() => setActiveAtom(atom)}
+                    >
+                      {draft.degraded[atom].trim() ? <Icon name="check" /> : null}
+                      {atom}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="paper pack-baseline">
+                  <p className="field-label">Original, for reference</p>
+                  <p className="paper-text">
+                    {draft.originalText.trim() || 'Write the baseplate first.'}
+                  </p>
+                </div>
+
+                <div className="stack">
+                  <label className="field-label" htmlFor="pack-degraded">
+                    Variant where {activeAtom} degrades
+                  </label>
+                  <textarea
+                    id="pack-degraded"
+                    className="field"
+                    value={degradedForActive}
+                    onChange={(e) => setDegraded(activeAtom, e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                {attempted &&
+                  fieldErrors(`degraded.${activeAtom}`).map((e, i) => (
+                    <p key={i} className="pack-error">
+                      {e.message}
+                    </p>
+                  ))}
+              </div>
+            </section>
           </div>
-          {shareUrl && (
-            <div className="stack">
-              <input className="field mono" readOnly value={shareUrl} onFocus={(e) => e.target.select()} />
-              <button className="btn btn-primary btn-small" onClick={copyLink}>
-                {copied ? 'Copied!' : 'Copy link'}
-              </button>
-            </div>
-          )}
-          {shareError && <p className="pack-error">{shareError}</p>}
-          {importError && <p className="pack-error">{importError}</p>}
-          <button className="btn btn-primary btn-block" onClick={playPack}>
-            Play this pack
-          </button>
-        </section>
+
+          {/* --------------------------------------------- integrity check -- */}
+          <IntegrityCheck
+            draft={draft}
+            errors={validation.errors}
+            warnings={validation.warnings}
+            attempted={attempted}
+            editing={!!editingId}
+            activeAtom={activeAtom}
+            onPick={setActiveAtom}
+            onSave={saveClaim}
+            onBack={() => setView('library')}
+          />
+        </div>
       )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json"
+        className="visually-hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) importFile(file);
+          e.target.value = '';
+        }}
+      />
 
       <button
         className="btn btn-ghost btn-block"
         onClick={() => dispatch({ type: 'GO_TO', screen: 'lobby' })}
       >
-        Back to the lobby
+        <Icon name="arrowBack" /> Back to the lobby
       </button>
     </div>
   );
+}
+
+/* ============================================================================
+   LIBRARY
+   ========================================================================== */
+
+interface ShareProps {
+  shareUrl: string | null;
+  shareError: string | null;
+  importError: string | null;
+  copied: boolean;
+  buildLink: () => void;
+  copyLink: () => void;
+  exportFile: () => void;
+  openImport: () => void;
+  playPack: () => void;
+}
+
+function Library({
+  pack,
+  draft,
+  draftStarted,
+  editingId,
+  onNew,
+  onEdit,
+  onRemove,
+  onResume,
+  share,
+}: {
+  pack: Claim[];
+  draft: ClaimDraft;
+  draftStarted: boolean;
+  editingId: string | null;
+  onNew: () => void;
+  onEdit: (claim: Claim) => void;
+  onRemove: (id: string) => void;
+  onResume: () => void;
+  share: ShareProps;
+}) {
+  return (
+    <div className="stack">
+      <section className="neo-panel">
+        <div className="neo-head neo-head-amber">
+          Pack library
+          <span className="neo-tag">
+            {pack.length} claim{pack.length === 1 ? '' : 's'}
+          </span>
+        </div>
+        <div className="neo-body stack">
+          {pack.length === 0 && (
+            <p className="lobby-empty">
+              Nothing in this pack yet. A pack of one claim is a perfectly good pack.
+            </p>
+          )}
+
+          <div className="pack-grid">
+            {pack.map((claim) => (
+              <article key={claim.id} className="pack-tile">
+                <header className="pack-tile-head">
+                  <h3 className="pack-tile-topic">{claim.topic}</h3>
+                  <span className="neo-tag">5 atoms</span>
+                </header>
+                <p className="paper-text pack-tile-text">{claim.originalText}</p>
+                <div className="pack-tile-atoms" aria-hidden="true">
+                  {ATOMS.map((atom) => (
+                    <span key={atom} className={`pack-tile-atom atomcard-${atom.toLowerCase()}`}>
+                      <Icon name={ATOM_ICON[atom]} size={14} />
+                    </span>
+                  ))}
+                </div>
+                <div className="row pack-tile-actions">
+                  <button className="btn btn-small" onClick={() => onEdit(claim)}>
+                    <Icon name="settings" /> Edit
+                  </button>
+                  <button
+                    className="btn btn-small btn-ghost"
+                    onClick={() => onRemove(claim.id)}
+                    aria-label={`Remove ${claim.topic}`}
+                  >
+                    <Icon name="close" /> Remove
+                  </button>
+                </div>
+              </article>
+            ))}
+
+            {/* Work in progress is a tile too, so a half-built claim is never
+                invisible state the author has to remember they left behind. */}
+            {draftStarted && !editingId && (
+              <article className="pack-tile pack-tile-draft">
+                <header className="pack-tile-head">
+                  <h3 className="pack-tile-topic">{draft.topic.trim() || 'Untitled claim'}</h3>
+                  <span className="neo-tag">Draft</span>
+                </header>
+                <p className="paper-text pack-tile-text">
+                  {draft.originalText.trim() || 'No text yet.'}
+                </p>
+                <p className="muted">
+                  {taggedCount(draft)}/5 tagged · {variantCount(draft)}/5 variants
+                </p>
+                <div className="row pack-tile-actions">
+                  <button className="btn btn-small btn-primary" onClick={onResume}>
+                    Resume <Icon name="arrowForward" />
+                  </button>
+                </div>
+              </article>
+            )}
+
+            <button type="button" className="pack-tile pack-tile-new" onClick={onNew}>
+              <span className="pack-tile-plus">
+                <Icon name="add" size={28} />
+              </span>
+              <span className="pack-tile-topic">New claim</span>
+              <span className="muted">Baseplate, five tags, five variants.</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="neo-panel">
+        <div className="neo-head neo-head-plain">
+          Share this pack
+          <span className="neo-tag">No server</span>
+        </div>
+        <div className="neo-body stack">
+          <p className="muted">
+            Text stays in the link itself — nothing is sent to a server. A student sends this to
+            another school over Messenger; that's the whole distribution model.
+          </p>
+
+          {pack.length > MAX_LINK_CLAIMS && (
+            <p className="pack-warning">
+              <Icon name="alert" /> {pack.length} claims is more than a link handles reliably — some
+              messaging apps truncate long links. Export to a file instead, or share in batches of{' '}
+              {MAX_LINK_CLAIMS}.
+            </p>
+          )}
+
+          <div className="row pack-share-actions">
+            <button className="btn btn-small" onClick={share.buildLink} disabled={!pack.length}>
+              <Icon name="link" /> Build share link
+            </button>
+            <button className="btn btn-small" onClick={share.exportFile} disabled={!pack.length}>
+              <Icon name="download" /> Export to file
+            </button>
+            <button className="btn btn-small" onClick={share.openImport}>
+              <Icon name="upload" /> Import from file
+            </button>
+          </div>
+
+          {share.shareUrl && (
+            <div className="stack">
+              <input
+                className="field mono"
+                readOnly
+                value={share.shareUrl}
+                aria-label="Share link"
+                onFocus={(e) => e.target.select()}
+              />
+              <button className="btn btn-primary btn-small" onClick={share.copyLink}>
+                {share.copied ? (
+                  <>
+                    <Icon name="check" /> Copied
+                  </>
+                ) : (
+                  'Copy link'
+                )}
+              </button>
+            </div>
+          )}
+          {share.shareError && <p className="pack-error">{share.shareError}</p>}
+          {share.importError && <p className="pack-error">{share.importError}</p>}
+
+          <button
+            className="btn btn-primary btn-lg btn-block"
+            onClick={share.playPack}
+            disabled={!pack.length}
+          >
+            {pack.length ? 'Play this pack' : 'Write a claim to play this pack'}
+            {pack.length ? <Icon name="arrowForward" /> : null}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ============================================================================
+   INTEGRITY CHECK
+
+   Reads the draft continuously. It counts what is missing and never rates
+   what is there — there is no score in this game, including here.
+   ========================================================================== */
+
+function IntegrityCheck({
+  draft,
+  errors,
+  warnings,
+  attempted,
+  editing,
+  activeAtom,
+  onPick,
+  onSave,
+  onBack,
+}: {
+  draft: ClaimDraft;
+  errors: { field: string; message: string }[];
+  warnings: { field: string; message: string }[];
+  attempted: boolean;
+  editing: boolean;
+  activeAtom: Atom;
+  onPick: (atom: Atom) => void;
+  onSave: () => void;
+  onBack: () => void;
+}) {
+  const clean = errors.length === 0;
+  const started =
+    !!draft.originalText.trim() || ATOMS.some((a) => draft.atoms[a].phrase.trim());
+
+  const headClass = clean && started ? 'neo-head-teal' : attempted ? 'neo-head-red' : 'neo-head-plain';
+
+  return (
+    <aside className="pack-check">
+      <section className="neo-panel pack-check-panel">
+        <div className={`neo-head ${headClass}`}>
+          Integrity check
+          <span className="neo-tag">{clean && started ? 'Ready' : `${errors.length} open`}</span>
+        </div>
+        <div className="neo-body stack">
+          <ul className="pack-check-rows">
+            {ATOMS.map((atom) => {
+              const tagged = !!draft.atoms[atom].phrase.trim();
+              const varied = !!draft.degraded[atom].trim();
+              const issues = errors.filter((e) => e.field.includes(`.${atom}`)).length;
+              return (
+                <li key={atom}>
+                  <button
+                    type="button"
+                    className={`pack-check-row${activeAtom === atom ? ' is-active' : ''}`}
+                    onClick={() => onPick(atom)}
+                  >
+                    <span className={`pack-swatch-icon atomcard-${atom.toLowerCase()}`}>
+                      <Icon name={ATOM_ICON[atom]} size={16} />
+                    </span>
+                    <span className="pack-check-name">{atom}</span>
+                    <span className="pack-check-marks">
+                      <span className={`pack-mark${tagged ? ' is-on' : ''}`}>TAG</span>
+                      <span className={`pack-mark${varied ? ' is-on' : ''}`}>VAR</span>
+                    </span>
+                    {issues > 0 && <span className="pack-check-count">{issues}</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {errors.length > 0 ? (
+            <div className="stack pack-check-list">
+              <p className="eyebrow">
+                {errors.length} thing{errors.length === 1 ? '' : 's'} still open
+              </p>
+              {errors.slice(0, 6).map((e, i) => (
+                <p key={i} className="pack-check-issue">
+                  {e.message}
+                </p>
+              ))}
+              {errors.length > 6 && (
+                <p className="muted">…and {errors.length - 6} more as you go.</p>
+              )}
+            </div>
+          ) : (
+            <p className="pack-check-ok">
+              <Icon name="checkCircle" /> {started
+                ? 'All five tagged, all five variants written.'
+                : 'Nothing to check yet — start with the baseplate.'}
+            </p>
+          )}
+
+          {/* Entity warnings are NOT repeated here. They live under the text
+              that raised them, which is where they get fixed. */}
+          {warnings.length > 0 && (
+            <p className="muted">
+              {warnings.length} name{warnings.length === 1 ? '' : 's'} to double-check in the
+              baseplate — never blocking.
+            </p>
+          )}
+
+          <button className="btn btn-primary btn-block" onClick={onSave}>
+            {editing ? 'Save changes' : 'Add to pack'}
+          </button>
+          <button className="btn btn-ghost btn-block btn-small" onClick={onBack}>
+            Back to library
+          </button>
+        </div>
+      </section>
+    </aside>
+  );
+}
+
+/* ============================================================================
+   HELPERS
+   ========================================================================== */
+
+function taggedCount(draft: ClaimDraft): number {
+  return ATOMS.filter((a) => draft.atoms[a].phrase.trim()).length;
+}
+
+function variantCount(draft: ClaimDraft): number {
+  return ATOMS.filter((a) => draft.degraded[a].trim()).length;
+}
+
+/**
+ * A saved claim, reopened for editing. The inverse of `draftToClaim`: the
+ * tagged phrase is stored first in `keywords`, so the rest are the author's
+ * alternatives and go back into the alternatives list.
+ */
+function claimToDraft(claim: Claim): ClaimDraft {
+  const base = emptyClaimDraft();
+  for (const atom of ATOMS) {
+    const a = claim.atoms[atom];
+    if (!a) continue;
+    base.atoms[atom] = {
+      truth: a.truth ?? '',
+      phrase: a.phrase ?? '',
+      keywords: (a.keywords ?? []).filter((k) => k !== a.phrase),
+      overreach: [...(a.overreach ?? [])],
+    };
+    base.degraded[atom] = claim.degraded?.[atom] ?? '';
+  }
+  return { ...base, topic: claim.topic, originalText: claim.originalText };
 }
 
 /* -------------------------------------------------------------- ChipInput -- */
@@ -436,11 +892,11 @@ function ChipInput({
           placeholder="Type a phrase, then Add"
         />
         <button type="button" className="btn btn-small" onClick={onAdd} disabled={!value.trim()}>
-          Add
+          <Icon name="add" /> Add
         </button>
       </div>
       {items.length > 0 && (
-        <div className="row">
+        <div className="row pack-chips">
           {items.map((item, i) => (
             <span key={i} className="atom-chip">
               {item}
