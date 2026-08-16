@@ -57,7 +57,9 @@ export default function RoomStatusBar() {
       });
       return;
     }
-    dispatch({ type: 'SUBMIT_HOP', text: textInFrontOfPlayer(state) });
+    /* BBB-004: the host advanced past this player, so the text passed on is
+       not theirs. Stamped as a forfeit for the same reason the timer's is. */
+    dispatch({ type: 'SUBMIT_HOP', text: textInFrontOfPlayer(state), forfeited: true });
   };
 
   /* An empty code is gameReducer's JOIN_ROOM shorthand for "go offline" —

@@ -27,11 +27,21 @@ const API_ROUTES = [
  * whole point of a proxy is that the key never reaches the client. Rooms fall
  * back to an in-process Map when the Upstash pair is absent, so dev works
  * without credentials; supply them to rehearse the real thing.
+ *
+ * NOT UNDER VITEST. Vitest builds a Vite server of its own, so `configureServer`
+ * fired during `vitest run` and pushed .env.local's Upstash pair into the test
+ * process — which pointed `roomStore.test.ts` at the live database. Two cases
+ * failed there and nowhere else: the TTL case, because `vi.setSystemTime` cannot
+ * move a clock inside Redis, and the overdue-wave case, because a network
+ * round-trip does not fit in a 5s test. Both were noise, but noise that has to
+ * be explained away on every run is how a real failure gets waved through. The
+ * suite documents that it exercises the in-process Map; this is what makes that
+ * true regardless of who has credentials on their machine.
  */
 function apiDevServer(mode: string): Plugin {
   return {
     name: 'brick-by-brick-api-dev',
-    apply: 'serve',
+    apply: (_config, { command }) => command === 'serve' && !process.env.VITEST,
     configureServer(server) {
       const env = loadEnv(mode, process.cwd(), '')
       for (const key of [

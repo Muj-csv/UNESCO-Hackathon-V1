@@ -50,6 +50,12 @@ export default function Reveal() {
               {!holdAuthors && (
                 <span className="chainblock-who">{hop.isAI ? 'AI participant' : hop.player}</span>
               )}
+              {/* BBB-004. Held back with the authors: the machine's hop can
+                  never forfeit, so this badge would narrow the Turing guess
+                  to "not that one" a screen early. */}
+              {hop.forfeited && !holdAuthors && (
+                <span className="chainblock-forfeit">Time ran out</span>
+              )}
             </header>
             <p className="paper-text">{hop.text}</p>
           </article>

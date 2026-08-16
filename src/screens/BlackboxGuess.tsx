@@ -49,6 +49,11 @@ export default function BlackboxGuess() {
               {revealed && (
                 <span className="chainblock-who">{hop.isAI ? 'AI participant' : hop.player}</span>
               )}
+              {/* BBB-004. Held and released with the authors — black box hides
+                  who wrote which, and "time ran out" is part of who wrote it. */}
+              {revealed && hop.forfeited && (
+                <span className="chainblock-forfeit">Time ran out</span>
+              )}
             </header>
             <p className="paper-text">{hop.text}</p>
           </article>

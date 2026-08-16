@@ -74,16 +74,27 @@ export default function Round() {
     return () => window.clearInterval(id);
   }, [handedOver]);
 
-  const submit = (text: string) => {
+  const submit = (text: string, forfeited = false) => {
     if (submitted.current) return;
     submitted.current = true;
-    dispatch({ type: 'SUBMIT_HOP', text });
+    dispatch({ type: 'SUBMIT_HOP', text, forfeited });
   };
 
   /* Time up. Whatever is in the box goes; if nothing is, the version passes on
-     unchanged. Running out is a rule of the game, not a failure state. */
+     unchanged. Running out is a rule of the game, not a failure state.
+
+     BBB-004, APPROVED: it is still not the same fact as choosing to pass it on,
+     so the hop is stamped `forfeited` and the reveal and the ledger say so.
+     The distinction only holds if it is drawn honestly — a player who wrote a
+     real version and was beaten to the button by the clock did author it. The
+     test is therefore "did anything of theirs survive into the text", not "was
+     the box empty": the word-tap editor hands back the whole source until the
+     first word is cut, so an untouched redaction is an empty box by any other
+     name. */
   useEffect(() => {
-    if (handedOver && secondsLeft <= 0) submit(draft.trim() || source);
+    if (!handedOver || secondsLeft > 0) return;
+    const text = draft.trim() || source;
+    submit(text, text === source);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handedOver, secondsLeft]);
 
@@ -166,7 +177,11 @@ export default function Round() {
             </div>
           )}
 
-          <div className="paper paper-original">
+          {/* BBB-011: green marks the true original, and only hop 1 is looking
+              at one. Every later hop is reading somebody's retelling, which may
+              already have lost something — so it gets the neutral treatment
+              rather than a colour that vouches for it. */}
+          <div className={`paper ${index === 0 ? 'paper-original' : 'paper-received'}`}>
             <p className="eyebrow">{index === 0 ? 'The claim' : 'What you were given'}</p>
             <p className="paper-text">{source}</p>
           </div>
@@ -188,7 +203,11 @@ export default function Round() {
             Pass it on <Icon name="send" />
           </button>
 
-          {!checked && round.verificationsLeft > 0 && (
+          {/* BBB-009, APPROVED: not offered at hop 1. The original is already
+              the text on screen there, so spending one of the room's limited
+              checks buys nothing but takes one away from a later hop that
+              needs it. */}
+          {!checked && index > 0 && round.verificationsLeft > 0 && (
             <button
               className="btn btn-block"
               onClick={() => {

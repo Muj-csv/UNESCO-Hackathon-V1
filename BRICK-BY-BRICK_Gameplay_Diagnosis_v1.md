@@ -5,8 +5,17 @@
 rule, claim, card, atom, mode, AI behaviour, ledger, verify flow or Pack Studio was modified.
 Source files were read, never written.
 
-> **Status of this document:** findings and a *proposed* plan.
-> "Proposed Direction" is not permission to implement.
+> **Status of this document:** §1–§7 are the original diagnosis, frozen as written. Nothing was
+> changed in the game while they were produced, and "Proposed Direction" there was never
+> permission to implement.
+>
+> §8 onward are the implementation passes that followed, each with its own approvals and its own
+> verification. **Eleven of the twelve findings are now settled; BBB-003 is open on purpose.**
+> The Outcome column in §5 is the index. Where §5 and a later section disagree, the later
+> section is right.
+>
+> None of it has been in front of a room of players. That remains the largest gap — see
+> "What is still open" in §5.
 
 ---
 
@@ -312,31 +321,60 @@ These are load-bearing and should not be disturbed by any repair above.
 
 ## 5. Improvement candidates
 
-**Proposed Direction is not approval.** Each needs a decision before any code is written.
+**Proposed Direction was not approval.** Each needed a decision before any code was written, and
+the Outcome column records the decision that was actually taken — not the proposal. Where the two
+differ, the section named in the cell says why. Kept in sync with §8 through §11; if this table and
+those sections ever disagree, the sections are right and this one is stale.
 
-| ID | Finding | Severity | Proposed direction | Approved? |
+| ID | Finding | Severity | Proposed direction | Outcome |
 |---|---|---|---|---|
-| BBB-001 | A checked hop is never re-tested, so an atom is marked alive over text that does not carry it; the loss is then re-attributed to a later player and card | **P0** | Choose among (a) re-test the checked hop, (b) preserve the first death and record recovery alongside, (c) spend the check only on the atoms the player named. (a)+(c) are compatible. Separately, make `firstLostAtom` tie-break on something other than `ATOMS` order. | ☐ |
-| BBB-002 | Turing Hop spoiled by the reveal's author labels | **P1** | Either hide author labels in the reveal whenever an AI hop is present, or move the Turing question before the reveal. | ☐ |
-| BBB-003 | Four cards exert no measurable pressure | **P1** | Decide whether each card needs a machine-visible target, or whether the ledger should stop naming cards it cannot verify were binding. | ☐ |
-| BBB-004 | Timer auto-submits silently | **P1** | Decide whether a forfeited hop should be marked as such in the hop record and shown in the reveal/ledger. | ☐ |
-| BBB-005 | Prediction taken before the claim is visible | **P2** | Decide whether the stake should follow the first sight of the claim, or whether the screen is really onboarding and should say so. | ☐ |
-| BBB-006 | Atoms unnamed on the forced path | **P2** | Decide whether the Brief should name the five, or whether first contact via the prediction screen is the intended design. | ☐ |
-| BBB-007 | HEADLINE ONLY unreachable by deletion | **P2** | Reconsider which cards mount the redact editor, or reword the card to describe cutting. | ☐ |
-| BBB-008 | No immediate response to the verify choice | **P2** | Decide whether an acknowledgement belongs at the point of choice. | ☐ |
-| BBB-009 | Check offered at hop 1 | **P3** | Suppress or annotate at hop 1. | ☐ |
-| BBB-010 | Readout claims card parity | **P3** | Copy correction. | ☐ |
-| BBB-011 | Green marks both original and degraded text | **P3** | Reserve green for verified-true text. | ☐ |
-| BBB-012 | Reactions inert in pass-and-play | **P3** | Hide unless in a room. | ☐ |
+| BBB-001 | A checked hop is never re-tested, so an atom is marked alive over text that does not carry it; the loss is then re-attributed to a later player and card | **P0** | Choose among (a) re-test the checked hop, (b) preserve the first death and record recovery alongside, (c) spend the check only on the atoms the player named. (a)+(c) are compatible. Separately, make `firstLostAtom` tie-break on something other than `ATOMS` order. | ☑ **Fixed** §8 — took (a): the atom returns only if the checked hop's text carries it back. +4 regression tests. Tie-break **not** changed: a display choice once attribution was correct. |
+| BBB-002 | Turing Hop spoiled by the reveal's author labels | **P1** | Either hide author labels in the reveal whenever an AI hop is present, or move the Turing question before the reveal. | ☑ **Fixed** §8 — hid the labels *and* the violet marker, for every block, while the guess is pending. |
+| BBB-003 | Four cards exert no measurable pressure | **P1** | Decide whether each card needs a machine-visible target, or whether the ledger should stop naming cards it cannot verify were binding. | ☐ **Open — held for evidence.** §11. Machine-visible targets would change difficulty and pacing in every mode; the only evidence is one automated tester's impression. Needs a played room (§6). |
+| BBB-004 | Timer auto-submits silently | **P1** | Decide whether a forfeited hop should be marked as such in the hop record and shown in the reveal/ledger. | ☑ **Fixed** §10 — `Hop.forfeited`, stamped at four sites, shown on all four chain screens and on the ledger's atom wire. The *warning before zero* was deliberately left; see §10. |
+| BBB-005 | Prediction taken before the claim is visible | **P2** | Decide whether the stake should follow the first sight of the claim, or whether the screen is really onboarding and should say so. | ☑ **Fixed** §11 — the first option is impossible, not merely costly (only hop 1 may see the original). Copy now says so, and drops the "five seconds" that promised a timer. |
+| BBB-006 | Atoms unnamed on the forced path | **P2** | Decide whether the Brief should name the five, or whether first contact via the prediction screen is the intended design. | ☑ **Fixed** §11 — the Brief names them, with the short gloss. The anchor sentence still dominates the screen. |
+| BBB-007 | HEADLINE ONLY unreachable by deletion | **P2** | Reconsider which cards mount the redact editor, or reword the card to describe cutting. | ☑ **Fixed** §9 — reworded to describe cutting. Which cards mount the editor is a T1 gameplay decision and was **not** touched. |
+| BBB-008 | No immediate response to the verify choice | **P2** | Decide whether an acknowledgement belongs at the point of choice. | ☑ **Fixed** §11 — an acknowledgement that names the question and never the verdict. The ledger keeps the payoff. |
+| BBB-009 | Check offered at hop 1 | **P3** | Suppress or annotate at hop 1. | ☑ **Fixed** §10 — suppressed. One condition in `Round.tsx`, approved before making it. |
+| BBB-010 | Readout claims card parity | **P3** | Copy correction. | ☑ **Fixed** §8 — "the same card" → "a card from the same deck". |
+| BBB-011 | Green marks both original and degraded text | **P3** | Reserve green for verified-true text. | ☑ **Fixed** §11 — new `.paper-received`. Green now means the original and nothing else; swept every `paper` container in the app to confirm. |
+| BBB-012 | Reactions inert in pass-and-play | **P3** | Hide unless in a room. | ⊘ **Withdrawn** §9 — not a defect. `ReactionBar.tsx` documents pass-and-play as a supported case; the finding contradicted a stated design intent. |
+
+**Eleven settled, one open.** BBB-003 is the only finding still holding code, and it is holding on
+purpose. Everything above is verified by typecheck, unit test and a played round in a browser —
+none of it by a room of actual players. See "What is still open", below.
 
 ### Priority order
 
+*Written before any of the work. Kept as the record of what the tiers were for; every gate below
+except BBB-003 has since been cleared.*
+
 - **P0 — before any further playtesting.** BBB-001. Until the ledger attributes correctly, every
   observation a playtest produces about *which pressure caused what* is unreliable, and so is the
-  debrief the room is given.
-- **P1 — before the next demo.** BBB-002, BBB-003, BBB-004.
-- **P2 — before wider classroom use.** BBB-005 … BBB-008.
-- **P3 — polish.** BBB-009 … BBB-012.
+  debrief the room is given. → **cleared** (§8). The gate this tier existed to hold is open: a
+  playtest can now proceed on a ledger that reports truthfully.
+- **P1 — before the next demo.** BBB-002, BBB-003, BBB-004. → BBB-002 and BBB-004 cleared;
+  **BBB-003 open by choice.** It does not block a demo — the cards still present real pressures to
+  a human reader, which is the only thing a demo audience experiences.
+- **P2 — before wider classroom use.** BBB-005 … BBB-008. → **cleared** (§9, §11).
+- **P3 — polish.** BBB-009 … BBB-012. → **cleared** (§8, §9, §10, §11).
+
+### What is still open
+
+Three of these four are not code, and none of them can be closed at a keyboard.
+
+1. **BBB-003** — four cards exert no machine-visible pressure. Held for a played room, deliberately.
+2. **The §28 regression playtest has never been run.** Everything in §8–§11 is verified by type, by
+   unit test, and — for the last two passes — by driving the app in a browser. None of it has been
+   in front of players. This is the single largest gap in the document.
+3. **BAD FAITH's `splitByIntent` is unconfirmed in a played round.** §8 argued the derived risk is
+   much less likely now that death hops no longer move when a check is spent. That is reasoning,
+   not evidence. Do not trust the deliberate-vs-accidental split until a BAD FAITH round has been
+   played through it — it is the number the entire mode exists to produce.
+4. **No warning as the hop timer approaches zero.** BBB-004's finding named three problems: no
+   warning, no confirmation, no record. The record is fixed, because it was the one corrupting the
+   debrief. A countdown warning is a pacing change and wants the same room as BBB-003.
 
 ### Change budget — do not touch without strong evidence
 
@@ -445,12 +483,15 @@ kill HEDGE and CAUSE.
 
 ## Deliberately not implemented
 
-| ID | Why it was left |
-|---|---|
-| BBB-003 | Giving the four soft cards a machine-visible target changes difficulty and pacing. A design decision, not a defect — the change budget says do not redesign on one diagnosis. |
-| BBB-004 | Marking a forfeited hop needs a new field on `Hop`, and `contracts.ts` is frozen. Needs an explicit decision before anyone touches it. |
-| BBB-005 – BBB-009, BBB-011, BBB-012 | Design and copy decisions; the protocol's implementation order puts them behind the fundamentals. |
-| `firstLostAtom` tie-break | With attribution corrected, ties are rarer. Breaking them by `ATOMS` order is a display choice, not a defect. |
+*As of this pass. Three of the four rows have since been overtaken — kept as written, with what
+happened next.*
+
+| ID | Why it was left | Since |
+|---|---|---|
+| BBB-003 | Giving the four soft cards a machine-visible target changes difficulty and pacing. A design decision, not a defect — the change budget says do not redesign on one diagnosis. | **Still holds.** Re-affirmed in §11. |
+| BBB-004 | Marking a forfeited hop needs a new field on `Hop`, and `contracts.ts` is frozen. Needs an explicit decision before anyone touches it. | Decision taken; **done in §10**. |
+| BBB-005 – BBB-009, BBB-011, BBB-012 | Design and copy decisions; the protocol's implementation order puts them behind the fundamentals. | Fundamentals landed; **all done or withdrawn in §9 and §11**. |
+| `firstLostAtom` tie-break | With attribution corrected, ties are rarer. Breaking them by `ATOMS` order is a display choice, not a defect. | **Still holds.** |
 
 ## Still open
 
@@ -523,3 +564,295 @@ handoff to the device that owns the turn (approved change)`).
 
 Typecheck clean. **491 passed**, 2 failed — the same pre-existing `roomStore` / live-Upstash
 failures, unrelated.
+
+---
+
+# 10. The two blocked items, unblocked
+
+Both were held in §8 and §9 for the same reason: they touch files CLAUDE.md protects. Both were
+approved before anything was written, and the approval is recorded in the source at each site.
+
+## Implemented
+
+### BBB-004 · `src/types/contracts.ts` + four screens — *a forfeit is not a retelling*
+
+`Hop` gains one optional field:
+
+```ts
+/** Nobody authored this one: the clock ran out, the host force-advanced, or a
+    wave filled for an absent player, and the text in front of them passed on
+    unchanged. */
+forfeited?: boolean;
+```
+
+Additive and optional, so every hop written before it exists reads as `undefined` — authored,
+which is what they were. No saved session and no room payload is invalidated.
+
+**Stamped at four sites, all of them the same fact from different directions:**
+
+| Site | Who ran out |
+|---|---|
+| `Round.tsx` — the hop timer hitting zero | the player at the device |
+| `GameContext.tsx` — the host watchdog | nobody was there at all |
+| `RoomStatusBar.tsx` — the host force-advancing | the host decided not to wait |
+| `api/_lib/simRound.ts` — `fillWave` | a wave filled for an absent player |
+
+The reducer stamps only when the caller says so (`if (action.forfeited)`), so an authored hop never
+carries `forfeited: false` into storage.
+
+**The honest test.** The timer path does not stamp "the box was empty" — it stamps
+`text === source`. A player who wrote a real version and was beaten to the button by the clock did
+author it, and is not marked. The word-tap editor hands back the whole source until the first word
+is cut, so an untouched redaction is an empty box by any other name and is caught by the same test.
+
+**Shown on all four chain screens, under one rule: never while a guess is pending.**
+
+| Screen | Gate | Why |
+|---|---|---|
+| `Reveal.tsx` | with the author labels (`!holdAuthors`) | the machine can never forfeit, so the badge would narrow the Turing guess a screen early |
+| `TuringHop.tsx` | after the vote | same tell, released with the names |
+| `BlackboxGuess.tsx` | after the reveal | "time ran out" is part of who wrote it |
+| `Accusation.tsx` | after the vote | a forfeited hop passed its text on untouched, so before the vote the badge is a mechanical elimination and the argument is the point |
+
+Copy is `Time ran out`, and the badge is deliberately **not red** — outline and `--ink-soft`,
+quieter than the card badge beside it. Running out of time is a rule of the game, not a failure
+state, and the house rule is name the part, clear the person. The badge exists so the room can tell
+*kept it intact on purpose* from *never got to it*, not so it can find someone to blame for the
+difference.
+
+**And on the ledger itself** (`Ledger.tsx`, protected, approved). `AtomWire` drew a forfeited hop
+as an ordinary live node — visually identical to somebody choosing to carry the atom past their
+turn. It now draws hollow:
+
+```
+[carried]—[carried]—[nobody]—[died]— ⋯
+```
+
+The wire on either side stays whole, because the atom did survive that hop. Only the node changes,
+because *surviving* is not the same act as *being kept*. Same quiet dashed outline as the badge,
+and never red.
+
+### BBB-009 · `src/screens/Round.tsx` — *no check at hop 1*
+
+One condition, exactly as proposed in §9:
+
+```diff
+-{!checked && round.verificationsLeft > 0 && (
++{!checked && index > 0 && round.verificationsLeft > 0 && (
+```
+
+At hop 1 the original is already the text on screen, so a check there buys nothing and takes one
+away from a later hop that needs it.
+
+## Verified
+
+| Check | Result |
+|---|---|
+| Typecheck | clean (`tsc -b` and `tsconfig.api.json`) |
+| Full suite | **494 passed**, 2 failed — the same pre-existing `api/_lib/roomStore.test.ts` / live-Upstash failures, unrelated |
+| New coverage | 3 reducer cases: an authored hop is unstamped, `forfeited: false` is still unstamped, `forfeited: true` stamps and otherwise advances the chain exactly like any hop |
+
+## Still open
+
+- **No forfeit has been produced in a played round.** Every path above is verified by type, by unit
+  test and by reading; none of the four stamping sites has been watched firing on a real clock.
+- **§28 regression playtest still not run**, and the BAD FAITH `splitByIntent` path is still
+  unconfirmed against a played round.
+
+## Deliberately not done
+
+- **No warning as the timer approaches zero.** BBB-004's finding named three things: no warning, no
+  confirmation, no record. This pass fixed the record — the one that corrupts the debrief. A
+  countdown warning is a pacing change, and the change budget says do not redesign on one diagnosis.
+
+---
+
+# 11. Closing out P2 and P3
+
+The four remaining items that could be settled without a played room. BBB-003 is deliberately not
+among them — see the bottom of this section.
+
+## Implemented
+
+### BBB-006 · `src/screens/Brief.tsx` — *name the five on the path everybody takes*
+
+How to Play names the atoms well, with a "goes when" example each. It is also opt-in from the
+sidebar, and the forced path — add players, Initiate round — never went near it. The Brief, which
+every room does read, never mentioned them, so the first contact was the prediction screen: five
+unfamiliar words to bet on before anyone had said what they were.
+
+The Brief now carries them, between the three steps and the anchor:
+
+```
+FIVE THINGS A CLAIM CARRIES                              [Atoms]
+  SOURCE   who says so
+  NUMBER   the figure and its base
+  HEDGE    may / suggests / preliminary
+  SCOPE    who, where, when
+  CAUSE    correlational vs. causal
+
+Any of them can go missing without anybody lying. That is what the ledger measures at the end.
+```
+
+Deliberately the short gloss (`ATOM_SHORT`) rather than How to Play's fuller examples. This screen
+is thirty seconds and has one job, and *the card is a pressure, not an instruction to distort* is
+the sentence that must survive it — it still gets its own block, in the display face, and is still
+the largest thing on the screen. Same icons and same `.howto-atoms` markup, so a property learned
+here is recognisable by its mark everywhere it appears later. No new CSS.
+
+The imposter's brief is untouched. It is a different frame for a reason, it already names the one
+atom that matters to its reader, and `briefsFor` is unchanged — the tests that assert the honest
+players read *exactly* the same thing still hold, because nothing was added to `BriefVariant`.
+
+### BBB-005 · `src/components/PredictionPrompt.tsx` — *stop implying a deduction is possible*
+
+The finding offered two readings: move the stake after first sight of the claim, or admit the
+screen is onboarding. **The first is impossible, not merely expensive.** Only the first player may
+see the original; putting it on a screen the whole room reads would hand every later hop the exact
+thing the chain exists to withhold. There is no version of this game where the prediction can be
+reasoned from the text.
+
+So the copy stops pretending otherwise:
+
+```diff
+-Five seconds, one tap. Nobody else sees your pick until the debrief.
++You haven't seen the claim yet — only the first player will. Go on instinct.
++Nobody else sees your pick until the debrief.
+```
+
+"Five seconds" also promised a timer that was not on the screen and enforced nothing.
+
+With BBB-006 landing one screen earlier, the pick is now a hunch about vocabulary the player has
+just been taught, rather than a lottery ticket on five unknown words. The two fixes are worth more
+together than separately.
+
+Deliberately not changed: the N-handoff pacing cost in pass-and-play. That is a flow redesign.
+
+### BBB-008 · `src/screens/Terminal.tsx` — *answer the tap where it is made*
+
+Picking an atom dispatched and advanced in the same breath, so the only response to the choice was
+the screen becoming something else. It now stops on an acknowledgement:
+
+```
+NOTED                                              [Your check]
+You'd ask who is the source?
+
+Hold on to that. The ledger at the end will show you what happened to
+SOURCE on the way here — and whether asking would have caught it.
+
+                    [ See what happened → ]
+```
+
+**What it must not do is say whether the pick was good.** The reveal has not happened yet, and
+"SOURCE was the first thing this claim lost" here would answer the ledger's payoff several screens
+early. So it repeats the choice back in the reader's own words, promises the answer, and stops.
+`VerifyFeedback` in the ledger is unchanged and still delivers it.
+
+### BBB-011 · `global.css`, `Round.tsx`, `SplitDistribute.tsx` — *green means true*
+
+`.paper-original` spent a trustworthiness convention on three different things: the true claim, the
+retelling handed to hops 2+, and the deliberately incomplete version each player holds in Crowd
+Recall. Two of those three are degraded text by construction.
+
+New `.paper-received` — neutral `--outline`, no claim made either way — applied at hop 2 onwards
+and in Crowd Recall's distribution. The palette now reads:
+
+| | Means |
+|---|---|
+| green `.paper-original` | the original, as it entered play |
+| blue `.round-checked` | the original, after a verification |
+| neutral `.paper-received` | somebody's retelling — nobody knows yet |
+| red `.paper-final` | what came out the far end |
+
+## Verified — played, not just typechecked
+
+Two-hop CHAIN round in Chrome, AI off.
+
+| Check | Result |
+|---|---|
+| Typecheck | clean |
+| Full suite | **494 passed**, 2 failed — the same pre-existing `roomStore` / live-Upstash failures. *Root-caused and fixed in §12; the suite is now fully green.* |
+| BBB-006 | Brief shows all five with icons and glosses; the anchor sentence still dominates the screen |
+| BBB-005 | New lede renders; no timer is promised |
+| BBB-011 | Hop 1 "The claim" green · hop 2 "What you were given" neutral · reveal "What entered play" still green |
+| BBB-008 | Acknowledgement renders, names the question not the verdict; the ledger's "You would have checked SOURCE. SOURCE did go, at hop 2 — though HEDGE went first." still lands intact |
+
+## Deliberately not done — BBB-003
+
+Four cards still exert no machine-visible pressure. Giving them targets changes difficulty and
+pacing for every round in every mode, and the only evidence for it is one automated tester's
+impression that a card felt unbinding. §5's change budget exists for exactly this, and §6 lists the
+instrument that would settle it. **This one waits for a room.**
+
+## Findings tally
+
+| | Closed | Open |
+|---|---|---|
+| P0 | BBB-001 | — |
+| P1 | BBB-002, BBB-004 | **BBB-003** |
+| P2 | BBB-005, BBB-006, BBB-007, BBB-008 | — |
+| P3 | BBB-009, BBB-010, BBB-011, BBB-012 *(withdrawn)* | — |
+
+Eleven settled, one held for evidence.
+
+---
+
+# 12. The two failing room tests — not pre-existing, just unexamined
+
+Every "Verified" table above carries the same line: *494 passed, 2 failed — both
+`api/_lib/roomStore.test.ts`, pre-existing, caused by `.env.local` pointing the room tests at live
+Upstash, unrelated.* That was repeated across four passes without anyone opening it. The diagnosis
+was roughly right and the conclusion was wrong: it was not a fact about the environment to be
+lived with, it was a one-line defect in `vite.config.ts`.
+
+## What was actually happening
+
+`apiDevServer` exists to make `/api/*` reachable from `vite dev`, and it loads `.env.local` into
+`process.env` so the handlers can read credentials Vite otherwise hides from client code. It was
+gated with `apply: 'serve'`.
+
+**Vitest builds a Vite server of its own.** So `configureServer` fired during `vitest run` too, and
+pushed the Upstash pair into the test process — pointing `roomStore.test.ts` at the live database,
+against a header in that very file which states the opposite:
+
+> No UPSTASH_REDIS_REST_URL / TOKEN in the test env, so every case here exercises the in-process
+> Map fallback.
+
+Two cases failed, and only those two, because only those two care where the data lives:
+
+| Case | Why it failed against real Redis |
+|---|---|
+| `is gone once the TTL has passed` | `vi.setSystemTime` moves this process's clock. It cannot move a clock inside Upstash, so the record was still there. |
+| `getRoom lazily catches up an overdue wave and persists the result` | Several network round-trips do not fit in a 5s test timeout. |
+
+Confirmed rather than assumed: a probe test inside the suite reported `VITEST=true` with both
+Upstash variables `SET`.
+
+## The fix
+
+```diff
+-    apply: 'serve',
++    apply: (_config, { command }) => command === 'serve' && !process.env.VITEST,
+```
+
+The plugin is for the dev server, and now it is only for the dev server. Nothing else changed —
+same hook, same env loading, same middleware.
+
+## Verified
+
+| Check | Result |
+|---|---|
+| `roomStore.test.ts` | **19 passed, 0 failed** — and 16.4s → 0.3s, which is the network leaving |
+| Full suite | **496 passed, 0 failed**, 25/25 files. Whole run 17s → 1.9s |
+| Typecheck, build | clean |
+| Dev server not broken | `vite dev` still mounts the route and still injects credentials — `POST /api/room` returned a created room with a code and a seated host. Env injection and middleware mounting are the same hook, so a mounted route proves both. |
+
+## Why it was worth doing
+
+Two failures that have to be explained away on every run are how a third, real one gets waved
+through. The suite now states something true: it exercises the in-process Map, on any machine,
+whether or not the developer has credentials. **The 2-failure caveat is retired** — the tables
+above keep it because it was accurate when written.
+
+Still not covered, and never was: the real Redis code path. `getRedis()` returns a client or null
+and the branches either side are thin, but nothing here tests Upstash itself.

@@ -75,6 +75,14 @@ export interface Hop {
   isImposter?: boolean;
   /** Hard-tagged when known, rather than inferred. */
   atomsLost?: Atom[];
+  /** BBB-004, APPROVED. Nobody authored this one: the clock ran out, the host
+      force-advanced, or a wave filled for an absent player, and the text in
+      front of them passed on unchanged. Additive and optional — every hop
+      written before this existed reads as `undefined`, i.e. authored, which
+      is what they were. The ledger must not present a forfeit as a retelling:
+      "chose to keep it intact" and "never got to it" are different facts and
+      the room needs to be able to tell them apart in the debrief. */
+  forfeited?: boolean;
 }
 
 /* ----------------------------------------------------------- the ledger --- */

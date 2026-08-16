@@ -82,6 +82,13 @@ export default function TuringHop() {
                 {voted && (
                   <span className="chainblock-who">{isMachine ? 'AI participant' : hop.player}</span>
                 )}
+                {/* BBB-004. Released with the authors, for the same reason
+                    they are held: the machine can never forfeit, so this badge
+                    before the vote would rule a block out. After it, the
+                    question is settled and the room is owed the fact. */}
+                {voted && hop.forfeited && (
+                  <span className="chainblock-forfeit">Time ran out</span>
+                )}
               </span>
               <span className="paper-text">{hop.text}</span>
               {voted && picked && <span className="turing-tag">The room picked this one</span>}

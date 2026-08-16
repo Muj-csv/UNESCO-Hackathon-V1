@@ -99,9 +99,18 @@ export default function PredictionPrompt() {
   return (
     <div className="screen">
       <StageBar label="Before it starts" />
+      {/* BBB-005. The claim cannot be shown here and never will be able to be:
+          only the first player is allowed to see the original, and putting it
+          on a screen the whole room reads would hand every later hop the thing
+          the chain exists to withhold. So the honest fix is to stop implying a
+          deduction is possible — this is a hunch, and it is worth more as one.
+
+          The old line also promised "five seconds", with no timer on the screen
+          and nothing enforcing it. */}
       <h2>Which one dies first?</h2>
       <p className="lede">
-        Five seconds, one tap. Nobody else sees your pick until the debrief.
+        You haven't seen the claim yet — only the first player will. Go on instinct. Nobody else
+        sees your pick until the debrief.
       </p>
       <div className="atomgrid">
         {ATOMS.map((atom) => (

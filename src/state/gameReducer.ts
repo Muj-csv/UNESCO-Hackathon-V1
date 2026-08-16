@@ -113,7 +113,7 @@ export type Action =
   | { type: 'SET_PRESET'; presetId: string }
   | { type: 'SET_SETTINGS'; patch: Partial<Settings> }
   | { type: 'BEGIN_ROUND'; setup: RoundSetup }
-  | { type: 'SUBMIT_HOP'; text: string }
+  | { type: 'SUBMIT_HOP'; text: string; forfeited?: boolean }
   | { type: 'SPEND_VERIFICATION'; hopIndex: number; atoms: Atom[] }
   | { type: 'SET_TERMINAL_DECISION'; decision: TerminalDecision }
   | { type: 'ADVANCE_REVEAL' }
@@ -262,6 +262,9 @@ export function gameReducer(state: GameState, action: Action): GameState {
       };
       if (state.round.aiHopIndexes.includes(index)) hop.isAI = true;
       if (state.round.imposter?.hopIndex === index) hop.isImposter = true;
+      /* BBB-004: only stamped when the caller says so, so an authored hop
+         never carries the flag at all. */
+      if (action.forfeited) hop.forfeited = true;
 
       const currentHop = index + 1;
       const done = currentHop >= state.settings.chainLength;

@@ -109,6 +109,29 @@ describe('SUBMIT_HOP', () => {
     state = run(state, ...Array.from({ length: 9 }, () => ({ type: 'SUBMIT_HOP', text: 'x' }) as Action));
     expect(state.round.hops).toHaveLength(5);
   });
+
+  /* BBB-004. The flag has to be absent, not false, on an authored hop: the
+     ledger and the reveal both branch on its truthiness, and a hop that
+     carries `forfeited: false` would still serialise into every saved
+     session and every room payload for no reason. */
+  it('leaves an authored hop unstamped', () => {
+    const state = run(started(5), { type: 'SUBMIT_HOP', text: 'a real retelling' });
+    expect(state.round.hops[0].forfeited).toBeUndefined();
+  });
+
+  it('leaves a hop unstamped when the caller passes forfeited: false', () => {
+    const state = run(started(5), { type: 'SUBMIT_HOP', text: 'x', forfeited: false });
+    expect(state.round.hops[0].forfeited).toBeUndefined();
+  });
+
+  it('stamps a forfeited hop so the reveal can tell it from a retelling', () => {
+    const state = run(started(5), { type: 'SUBMIT_HOP', text: 'x', forfeited: true });
+    expect(state.round.hops[0].forfeited).toBe(true);
+    /* Still an ordinary hop in every other respect — a forfeit advances the
+       chain, it does not stall or skip it. */
+    expect(state.round.hops[0].player).toBe('P1');
+    expect(state.round.currentHop).toBe(1);
+  });
 });
 
 describe('SPEND_VERIFICATION', () => {

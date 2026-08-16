@@ -234,7 +234,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const budgetMs = (timerSeconds + HOST_WATCHDOG_GRACE_SECONDS) * 1000;
 
     const timer = window.setTimeout(() => {
-      dispatch({ type: 'SUBMIT_HOP', text: textInFrontOfPlayer(state) });
+      /* BBB-004: nobody was there to write it — this is the clearest forfeit
+         of the three, and the reveal should not present it as a retelling. */
+      dispatch({ type: 'SUBMIT_HOP', text: textInFrontOfPlayer(state), forfeited: true });
     }, budgetMs);
     return () => window.clearTimeout(timer);
   }, [
