@@ -25,3 +25,9 @@ dist-ssr
 
 .vercel
 .env*
+
+# Claude Code creates isolated worktrees in here. Each one is a separate
+# checkout of this repo, so `git add` records it as a phantom submodule
+# (mode 160000) instead of the files inside it - which is how a commit ends
+# up holding a broken link and none of the actual work. Never track them.
+.claude/worktrees/

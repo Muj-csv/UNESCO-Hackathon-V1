@@ -32,7 +32,10 @@
      One black. Every border, every shadow, most text. Nothing else. */
   --ink: #191b23;
   --ink-soft: #434655;
-  --outline: #737686;
+  /* Also used as a text colour for the quietest labels, so it has to clear
+     4.5:1 on the tinted surfaces below, not just on white. #737686 did not
+     (4.09:1 on --surface-low); this does. */
+  --outline: #676a7a;
   --outline-variant: #c3c6d7;
 
   /* -- surfaces ---------------------------------------------------------- */
@@ -227,6 +230,13 @@ a {
 :focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* The top bar is the one surface that is itself blue, so the blue ring would
+   disappear into it. Everywhere else the 2px offset puts the ring on a light
+   background, where blue is the strongest thing available. */
+.topbar :focus-visible {
+  outline-color: var(--surface-lowest);
 }
 
 /* Chunky scrollbars, in-system. */
@@ -3552,38 +3562,9 @@ select.field {
    earns nothing, and the mark on a hop is a fact about the brief, not a
    verdict on the person. */
 
-.accuse-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-}
-
-.accuse-option {
-  appearance: none;
-  min-height: 64px;
-  padding: 14px 16px;
-  border: var(--border-1) solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--surface-lowest);
-  color: var(--ink);
-  box-shadow: var(--shadow-2);
-  font-family: var(--font-display);
-  font-size: var(--text-body-lg);
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
-}
-
-.accuse-option:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-2-hover);
-  background: var(--red-container);
-}
-
-.accuse-option:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
+/* `.accuse-options` / `.accuse-option` lived here until the vote became the
+   `.suspects` grid. Removed rather than kept warm: dead rules are how a
+   stylesheet starts lying about what the screens do. */
 
 /* The hop that carried the different brief, once the room has voted. */
 .accuse-hop {
@@ -3893,9 +3874,470 @@ select.field {
    Young people stop being the audience for an MIL tool and become its
    authors. The tagger is tap-first: tap the first word, tap the last. */
 
-.pack-atom-tabs {
+/* -- the two views --------------------------------------------------------
+   Library and Editor are different jobs, so they are different views rather
+   than two halves of one long scroll. */
+
+.pack-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pack-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Grows to fill its row so a wrapped pair reads as two full-width tabs on
+     a phone, capped so it stays a control rather than a banner on desktop. */
+  flex: 1 1 auto;
+  max-width: 260px;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 8px 16px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--text-body-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+}
+
+.pack-tab.is-active {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  box-shadow: var(--shadow-2);
+}
+
+.pack-tab.is-active .neo-tag {
+  background: var(--surface-lowest);
+}
+
+.pack-saved {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+
+/* -- editor layout --------------------------------------------------------
+   Work on the left, the check on the right. Below 1024px the check drops
+   under the work rather than beside it — it is a reference, not a gate. */
+
+.pack-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+  align-items: start;
+}
+
+.pack-work {
+  min-width: 0;
+  gap: var(--gutter);
+}
+
+@media (min-width: 1024px) {
+  .pack-cols {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .pack-check-panel {
+    position: sticky;
+    top: calc(var(--topbar) + 16px);
+  }
+}
+
+/* The step number in a panel's title bar. Three moves, always in order. */
+.pack-step {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 700;
+  opacity: 0.72;
+  margin-right: 8px;
+}
+
+/* -- the library grid ------------------------------------------------------ */
+
+.pack-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .pack-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pack-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px;
+  text-align: left;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+}
+
+.pack-tile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pack-tile-topic {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pack-tile-text {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.pack-tile-atoms {
+  display: flex;
+  gap: 6px;
+}
+
+.pack-tile-atom {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.pack-tile-actions {
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Work in progress. Dashed, because it is not yet part of the pack. */
+.pack-tile-draft {
+  border-style: dashed;
+  background: var(--surface-low);
+}
+
+/* The way in. A tile-shaped button, so "new claim" sits in the grid rather
+   than floating above it as a stray control. */
+.pack-tile-new {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 180px;
+  text-align: center;
+  border-style: dashed;
+  border-width: var(--border-2);
+  background: var(--surface-low);
+  box-shadow: none;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pack-tile-new:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
+  background: var(--surface-lowest);
+}
+
+.pack-tile-new:active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.pack-tile-plus {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: var(--border-2) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--amber);
+  color: var(--on-amber-deep);
+}
+
+.pack-share-actions {
+  gap: 8px;
+}
+
+/* -- the atom palette ------------------------------------------------------
+   One tint and one icon per property, from data/atoms.ts, so the palette
+   reads as the same five things the ledger will report on later. */
+
+.pack-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+}
+
+.pack-swatch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 8px 10px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.pack-swatch:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-2);
+}
+
+.pack-swatch.is-active {
+  box-shadow: var(--shadow-2);
+  border-width: var(--border-2);
+  padding: 6px 8px;
+}
+
+.pack-swatch-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.pack-swatch-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pack-swatch-state {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.pack-dot {
+  width: 8px;
+  height: 8px;
+  border: var(--border-1) solid var(--ink);
+  border-radius: 2px;
+  background: var(--surface-lowest);
+}
+
+.pack-dot.is-on {
+  background: var(--teal-container);
+}
+
+/* What the selected property holds, restated where the tagging happens. */
+.pack-atomnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface-low);
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  font-size: var(--text-label);
+}
+
+.pack-atomnote-long {
+  display: block;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.pack-tagged,
+.pack-baseline {
+  margin: 0;
+}
+
+.pack-chips {
+  gap: 8px;
+}
+
+/* -- variant builder ------------------------------------------------------ */
+
+.pack-variant-strip {
+  display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.pack-variant-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: var(--surface-lowest);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.pack-variant-tab.is-written {
+  color: var(--on-teal-fixed);
+  background: var(--teal-fixed);
+  border-color: var(--ink);
+}
+
+.pack-variant-tab.is-active {
+  border-color: var(--ink);
+  border-width: var(--border-2);
+  padding: 4px 10px;
+  color: var(--ink);
+}
+
+/* -- integrity check ------------------------------------------------------
+   Counts what is missing. Never rates what is there — there is no score in
+   this game, and a studio that graded an author's claim would be one. */
+
+.pack-check {
+  min-width: 0;
+}
+
+.pack-check-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pack-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 6px 8px;
+  background: var(--surface-lowest);
+  color: var(--ink);
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pack-check-row.is-active {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-1);
+}
+
+.pack-check-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pack-check-marks {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.pack-mark {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 4px;
+  border: var(--border-1) solid var(--outline-variant);
+  border-radius: 2px;
+  color: var(--outline);
+}
+
+.pack-mark.is-on {
+  background: var(--teal-fixed);
+  border-color: var(--ink);
+  color: var(--on-teal-fixed);
+}
+
+.pack-check-count {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  background: var(--red);
+  color: var(--on-red);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pack-check-list {
+  gap: 8px;
+}
+
+.pack-check-issue {
+  margin: 0;
+  padding-left: 12px;
+  border-left: var(--border-2) solid var(--outline-variant);
+  font-size: var(--text-label);
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.pack-check-ok {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--teal-fixed);
+  color: var(--on-teal-fixed);
+  border: var(--border-1) solid var(--ink);
+  border-radius: var(--radius);
+  font-size: var(--text-label);
+  font-weight: 700;
 }
 
 .pack-error {
@@ -3911,6 +4353,9 @@ select.field {
 }
 
 .pack-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   color: var(--on-amber-deep);
   background: var(--amber-soft);
   border: var(--border-1) solid var(--ink);
@@ -3919,11 +4364,8 @@ select.field {
   font-family: var(--font-mono);
   font-size: var(--text-code);
   font-weight: 700;
+  line-height: 1.45;
   margin: 0;
-}
-
-.pack-issues {
-  border: var(--border-2) solid var(--red);
 }
 
 .pack-tagger {
@@ -4024,11 +4466,6 @@ select.field {
   color: var(--on-primary-fixed);
 }
 
-.pack-variant-status {
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .pack-notice-loaded {
   background: var(--teal-fixed);
   color: var(--on-teal-fixed);
@@ -4048,6 +4485,36 @@ select.field {
 }
 
 /* ==========================================================================
+   TOUCH TARGETS
+
+   --tap is 44px and the note on it says not negotiable, phones in classrooms.
+   The compact controls are 34-40px, which is fine under a mouse and not fine
+   under a thumb, so they grow to the full target at phone and tablet widths
+   only. The size distinction that makes them read as secondary survives on
+   desktop, where it costs nobody anything.
+
+   Last in the file on purpose: these override the component defaults above,
+   and both sides have the same specificity.
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+
+  .btn-small,
+  .icon-btn,
+  .pack-variant-tab,
+  .joinroom-tab,
+  .reactionbar-btn,
+  .pack-chip-remove {
+    min-height: var(--tap);
+  }
+
+  .icon-btn {
+    width: var(--tap);
+    height: var(--tap);
+  }
+}
+
+/* ==========================================================================
    MOTION
    ========================================================================== */
 
@@ -4062,19 +4529,57 @@ select.field {
   }
 
   /* Translation-on-press is feedback, not decoration — but without the
-     transition it should simply not move. */
-  .btn:hover,
-  .btn:active,
-  .lobby-option:hover,
-  .lobby-option:active,
+     transition it should simply not move.
+
+     Every selector below mirrors a rule above EXACTLY, including its
+     :not(:disabled) parts. That is not redundancy: `.btn:active` loses to
+     `.btn-lg:active:not(:disabled)` on specificity, so a shortened selector
+     here would leave the biggest button in the game still jumping 8px for a
+     player who asked the system for no motion. If you add a hover or press
+     transform, add its selector here in the same form.
+
+     The :not() guards matter just as much. Several elements sit offset as a
+     STATE — a picked mode card rests down on its shadow, a cut word sits
+     back — and that offset is meaning, not motion. Without the guard this
+     block would cancel it the moment a pointer passed over, so the selected
+     card would look unselected while hovered. */
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .btn-lg:active:not(:disabled),
+  .btn-small:active:not(:disabled),
+  .btn-small:hover:not(:disabled),
+  .lobby-option:hover:not(:disabled):not(.is-picked),
+  .lobby-option:active:not(:disabled):not(.is-picked),
   .neo-hover:hover,
-  .redact-word:hover,
-  .redact-word:active,
-  .accuse-option:hover,
-  .accuse-option:active,
-  .turing-option:hover,
+  .modecard:hover:not(.is-picked),
+  .sidebar-link:hover:not(.is-active),
+  .icon-btn:hover,
+  .icon-btn:active,
+  .redact-word:hover:not(.is-removed),
+  .redact-word:active:not(.is-removed),
+  .atomcard:hover,
+  .atomcard:active,
+  .decisioncard:hover,
+  .decisioncard:active,
+  .ledger-diag-choice:hover:not(.is-alive):not(.is-lost),
+  .suspect:hover,
+  .suspect:active,
+  .turing-option:hover:not(:disabled),
+  .pack-swatch:hover,
+  .pack-tile-new:hover,
+  .pack-tile-new:active,
   .reactionbar-btn:hover,
   .reactionbar-btn:active {
     transform: none;
+  }
+
+  /* One case the :not() guard cannot reach: the picked preset's hover rule
+     out-specifies its own picked state, so excluding it from the list above
+     leaves the hover offset winning anyway. Restate the resting position so
+     a picked preset stays visibly picked under the pointer. Mirrors
+     `.lobby-option.is-picked`. */
+  .lobby-option.is-picked:hover,
+  .lobby-option.is-picked:active {
+    transform: translate(2px, 2px);
   }
 }

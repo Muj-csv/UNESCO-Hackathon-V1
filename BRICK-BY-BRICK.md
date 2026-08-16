@@ -1,4 +1,4 @@
-# TruthChain
+# BRICK-BY-BRICK
 
 **A media and information literacy game about how true information quietly stops being true.**
 
@@ -38,7 +38,7 @@ What learners lack is not more scepticism. It is a vocabulary for **what specifi
 
 ## 3. Objectives
 
-TruthChain is built around a six-stage learning arc:
+BRICK-BY-BRICK is built around a six-stage learning arc:
 
 **EXPERIENCE → DIAGNOSE → DETECT → COMPARE → VERIFY → AUTHOR**
 
@@ -70,7 +70,7 @@ The design constraint that follows: **the barrier to entry is a room, not a comp
 
 ## 5. Prototype and concept
 
-TruthChain is a working browser game, playable now at **[VERCEL URL]**. Text-only, no installation, no account, runs on a low-end phone.
+BRICK-BY-BRICK is a working browser game, playable now at **[VERCEL URL]**. Text-only, no installation, no account, runs on a low-end phone.
 
 ### The five Integrity Atoms
 
@@ -121,7 +121,7 @@ Original:  "associated with"
 Final:     "causes"
 ```
 
-Telephone shows that a message changed. TruthChain shows what was lost, where it disappeared, and what pressure caused it. Where detection is uncertain, the ledger proposes and the room decides — the noticing is the learning.
+Telephone shows that a message changed. BRICK-BY-BRICK shows what was lost, where it disappeared, and what pressure caused it. Where detection is uncertain, the ledger proposes and the room decides — the noticing is the learning.
 
 In BAD FAITH the ledger closes with the comparison that carries the whole lesson: *deliberate 1, accidental 3.*
 
@@ -163,9 +163,9 @@ Writing a claim where all five properties are present and separable teaches the 
 
 **A vocabulary, not just a game.** The five Integrity Atoms work as a classroom checklist with no application at all. The game exists to make the vocabulary felt rather than memorised.
 
-**It teaches the distinction the field collapses.** Every major MIL game casts the player as a manipulator, and the evidence suggests this mainly produces blanket suspicion. TruthChain never asks whether something is true. It asks what it has lost — and by running the villain and villain-free cases side by side, it teaches learners to tell sabotage from pressure.
+**It teaches the distinction the field collapses.** Every major MIL game casts the player as a manipulator, and the evidence suggests this mainly produces blanket suspicion. BRICK-BY-BRICK never asks whether something is true. It asks what it has lost — and by running the villain and villain-free cases side by side, it teaches learners to tell sabotage from pressure.
 
-**Diagnosis instead of demonstration.** TruthChain resembles Telephone and we say so openly. The difference is instrumentation: a per-property audit naming the lost phrase, the hop, and the pressure responsible.
+**Diagnosis instead of demonstration.** BRICK-BY-BRICK resembles Telephone and we say so openly. The difference is instrumentation: a per-property audit naming the lost phrase, the hop, and the pressure responsible.
 
 **AI as a subject, not a feature.** Most projects add AI to appear current. Here the model is the thing being examined, audited by exactly the same ledger as a human. The strongest finding the game produces is that a room usually cannot tell which hop was the machine.
 
@@ -199,4 +199,4 @@ Writing a claim where all five properties are present and separable teaches the 
 
 ---
 
-*All claims used in TruthChain are fabricated and clearly labelled as fictional in-game. No real people, organisations, or events are referenced.*
+*All claims used in BRICK-BY-BRICK are fabricated and clearly labelled as fictional in-game. No real people, organisations, or events are referenced.*

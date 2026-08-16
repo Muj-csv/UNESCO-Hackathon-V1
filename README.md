@@ -1,4 +1,4 @@
-# TruthChain
+# BRICK-BY-BRICK
 
 A media and information literacy game about how true information quietly stops being true.
 
@@ -176,5 +176,5 @@ real phone before opening a PR; that is what the users have.
 
 ---
 
-*All claims used in TruthChain are fabricated and clearly labelled as fictional
+*All claims used in BRICK-BY-BRICK are fabricated and clearly labelled as fictional
 in-game. No real people, organisations or events are referenced.*

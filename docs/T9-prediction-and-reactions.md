@@ -15,7 +15,7 @@ Five seconds, one tap. Revealed at the debrief.
 **Two jobs at once:**
 
 1. **Stakes for waiting players.** In pass-and-play, six of eight people are watching. A private prediction gives them something riding on every hop without introducing competition.
-2. **It is the measurement instrument.** The proposal claims TruthChain is measurable in one class period. Right now that claim has nothing behind it. Prediction versus outcome, tracked across three rounds, makes it concrete.
+2. **It is the measurement instrument.** The proposal claims BRICK-BY-BRICK is measurable in one class period. Right now that claim has nothing behind it. Prediction versus outcome, tracked across three rounds, makes it concrete.
 
 **Build:**
 - Five atom buttons with their one-line descriptions, after the Brief

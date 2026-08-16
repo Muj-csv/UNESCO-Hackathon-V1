@@ -17,7 +17,7 @@ This is a migration, not a redesign. Every improvement made here is a merge conf
 ## Phase 1 — Scaffold
 
 ```bash
-npm create vite@latest truthchain -- --template react-ts
+npm create vite@latest brick-by-brick -- --template react-ts
 ```
 
 - Set `"strict": false` in `tsconfig.json`

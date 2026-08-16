@@ -6,7 +6,7 @@ Project context for Claude Code. Read fully before touching any file.
 
 ## What this is
 
-**TruthChain** — a media and information literacy game where a true claim degrades as people (and an AI) retell it under pressure, and a **Decay Ledger** diagnoses exactly what was lost, where, and why.
+**BRICK-BY-BRICK** — a media and information literacy game where a true claim degrades as people (and an AI) retell it under pressure, and a **Decay Ledger** diagnoses exactly what was lost, where, and why.
 
 Built for the UNESCO Youth Hackathon 2026. Theme: *Play Your Part: Youth Designing the Future of Media and Information Literacy*.
 

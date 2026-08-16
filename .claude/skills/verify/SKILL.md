@@ -1,9 +1,9 @@
 ---
 name: verify
-description: Build/launch/drive recipe for TruthChain (Vite + React SPA, no backend running locally)
+description: Build/launch/drive recipe for BRICK-BY-BRICK (Vite + React SPA, no backend running locally)
 ---
 
-# Verifying TruthChain in a browser
+# Verifying BRICK-BY-BRICK in a browser
 
 ## Launch
 
