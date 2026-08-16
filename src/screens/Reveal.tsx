@@ -17,6 +17,14 @@ export default function Reveal() {
 
   if (!round.claim) return null;
 
+  /* The Turing Hop is still ahead and still unanswered, so naming the machine
+     here would answer it a screen early — and so would the violet marker the
+     machine block otherwise wears. Hold BOTH back, and hold the human names
+     with them: a single unlabelled block among named ones is the same tell.
+     (Diagnosis BBB-002.) */
+  const turingPending = round.aiHopIndexes.length > 0 && round.turingGuess === null;
+  const holdAuthors = settings.blackBox || turingPending;
+
   return (
     <div className="screen">
       <StageBar label="What happened to it" note={`${step} of ${hops.length} shown`} />
@@ -31,14 +39,15 @@ export default function Reveal() {
           <article
             key={i}
             className={`chainblock${i === hops.length - 1 ? ' is-final' : ''}${
-              hop.isAI ? ' is-machine' : ''
+              hop.isAI && !holdAuthors ? ' is-machine' : ''
             }`}
           >
             <header className="chainblock-head">
               <span className="chainblock-n">{String(i + 1).padStart(2, '0')}</span>
               <span className="chainblock-card">{cardName(hop.cardId)}</span>
-              {/* Black box holds the authors back until the guessing beat. */}
-              {!settings.blackBox && (
+              {/* Black box holds the authors back until the guessing beat, and
+                  so does a pending Turing Hop. */}
+              {!holdAuthors && (
                 <span className="chainblock-who">{hop.isAI ? 'AI participant' : hop.player}</span>
               )}
             </header>

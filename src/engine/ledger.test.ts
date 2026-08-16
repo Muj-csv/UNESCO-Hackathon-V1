@@ -131,7 +131,10 @@ describe('computeLedger — mid-chain verification', () => {
   });
 
   it('only restores the atoms the check actually covered', () => {
-    const hops = [hop('Flooding causes chaos everywhere.'), hop('Flooding causes chaos everywhere.')];
+    /* Hop 1 carries the original wording back, so CAUSE — which the check
+       covered — comes back with it. SOURCE is in that text too, but nobody
+       checked SOURCE, so it stays where it died. */
+    const hops = [hop('Flooding causes chaos everywhere.'), hop(rainfall.originalText)];
     const result = computeLedger(rainfall, hops, [{ hopIndex: 1, atoms: ['CAUSE'] }]);
     expect(result.CAUSE.alive).toBe(true);
     expect(result.SOURCE.alive).toBe(false);
@@ -380,5 +383,71 @@ describe('computeLedger — which rows the room is asked about', () => {
     expect(decided.SCOPE.alive).toBe(true);
     expect(decided.SCOPE.confidence).toBe('override');
     expect(uncertainAtoms(decided)).not.toContain('SCOPE');
+  });
+});
+
+/* ==========================================================================
+   BBB-001 — a check is permission to survive, not a guarantee of it.
+
+   Diagnosed in play: an AI hop killed HEDGE and CAUSE under SOUND CERTAIN,
+   a later player checked the original and still wrote them away, and the
+   ledger erased the machine's kill and named the NEXT player, under a card
+   that had nothing to do with it. The ledger is the only measurement in this
+   game; it has to name the hop that actually did it.
+   ========================================================================== */
+describe('computeLedger — a check does not launder a loss', () => {
+  const kills = rainfall.degraded.CAUSE;
+
+  it('leaves the loss where it happened when the checker did not carry it back', () => {
+    const hops = [
+      hop(rainfall.originalText, { player: 'Ana' }),
+      hop(kills, { player: 'Machine', isAI: true }),
+      hop(kills, { player: 'Caleb' }),
+    ];
+    const result = computeLedger(rainfall, hops, [{ hopIndex: 2, atoms: ['CAUSE'] }]);
+
+    expect(result.CAUSE.alive).toBe(false);
+    expect(result.CAUSE.deathHop).toBe(1);
+    expect(result.CAUSE.deathPlayer).toBe('Machine');
+    expect(result.CAUSE.recovered).toBe(false);
+  });
+
+  it('names the checker when they had a live atom and dropped it anyway', () => {
+    const hops = [
+      hop(rainfall.originalText, { player: 'Ana' }),
+      hop(kills, { player: 'Bea', cardId: 'chars' }),
+    ];
+    const result = computeLedger(rainfall, hops, [{ hopIndex: 1, atoms: ['CAUSE'] }]);
+
+    expect(result.CAUSE.alive).toBe(false);
+    expect(result.CAUSE.deathHop).toBe(1);
+    expect(result.CAUSE.deathPlayer).toBe('Bea');
+    expect(result.CAUSE.deathCardId).toBe('chars');
+  });
+
+  it('still restores an atom the checker genuinely wrote back', () => {
+    const hops = [
+      hop(kills, { player: 'Ana' }),
+      hop(rainfall.originalText, { player: 'Bea' }),
+    ];
+    const result = computeLedger(rainfall, hops, [{ hopIndex: 1, atoms: ['CAUSE'] }]);
+
+    expect(result.CAUSE.alive).toBe(true);
+    expect(result.CAUSE.deathHop).toBe(null);
+    expect(result.CAUSE.recovered).toBe(true);
+  });
+
+  it('keeps the machine hop answerable for what it cost', () => {
+    const hops = [
+      hop(rainfall.originalText, { player: 'Ana' }),
+      hop(kills, { player: 'Machine', isAI: true }),
+      hop(kills, { player: 'Caleb' }),
+      hop(kills, { player: 'Bea' }),
+    ];
+    const result = computeLedger(rainfall, hops, [{ hopIndex: 2, atoms: [...ATOMS] }]);
+
+    const death = result.CAUSE.deathHop;
+    expect(death).not.toBeNull();
+    expect(hops[death!].isAI).toBe(true);
   });
 });

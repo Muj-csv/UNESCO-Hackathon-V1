@@ -30,7 +30,7 @@ const API_ROUTES = [
  */
 function apiDevServer(mode: string): Plugin {
   return {
-    name: 'truthchain-api-dev',
+    name: 'brick-by-brick-api-dev',
     apply: 'serve',
     configureServer(server) {
       const env = loadEnv(mode, process.cwd(), '')

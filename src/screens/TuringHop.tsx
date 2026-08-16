@@ -52,7 +52,7 @@ export default function TuringHop() {
               ? 'Say it out loud and argue about it first. There is no score on this — and no timer.'
               : found
                 ? 'Most rooms cannot pick it out. Whatever gave it away here, it was not the machine being careless.'
-                : `The machine wrote ${machineLabel(round.aiHopIndexes)}. It was doing the same job as everyone else, under the same card.`}
+                : `The machine wrote ${machineLabel(round.aiHopIndexes)}. It was doing the same job as everyone else, under a card from the same deck.`}
           </p>
         </div>
       </div>

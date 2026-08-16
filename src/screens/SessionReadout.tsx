@@ -122,7 +122,7 @@ export default function SessionReadout() {
             <p className="muted">
               {turing.correct === 0
                 ? 'Not once — which is the usual result. A summariser under a real pressure is not distinguishable from a person doing their honest best under the same one.'
-                : 'Whatever gave it away, it was not the machine being careless. It was handed the same version and the same card as everyone else.'}
+                : 'Whatever gave it away, it was not the machine being careless. It was handed the version in front of it and a card from the same deck as everyone else.'}
             </p>
           </div>
         </section>

@@ -23,7 +23,7 @@ Original:  "associated with"
 Final:     "causes"
 ```
 
-This is the project's answer to "isn't this just Telephone." Telephone shows a message changed. TruthChain shows what was lost, where, and why. It is also the shot the pitch video is built around.
+This is the project's answer to "isn't this just Telephone." Telephone shows a message changed. BRICK-BY-BRICK shows what was lost, where, and why. It is also the shot the pitch video is built around.
 
 ---
 

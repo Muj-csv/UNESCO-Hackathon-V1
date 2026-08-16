@@ -32,7 +32,10 @@
      One black. Every border, every shadow, most text. Nothing else. */
   --ink: #191b23;
   --ink-soft: #434655;
-  --outline: #737686;
+  /* Also used as a text colour for the quietest labels, so it has to clear
+     4.5:1 on the tinted surfaces below, not just on white. #737686 did not
+     (4.09:1 on --surface-low); this does. */
+  --outline: #676a7a;
   --outline-variant: #c3c6d7;
 
   /* -- surfaces ---------------------------------------------------------- */
@@ -227,6 +230,13 @@ a {
 :focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* The top bar is the one surface that is itself blue, so the blue ring would
+   disappear into it. Everywhere else the 2px offset puts the ring on a light
+   background, where blue is the strongest thing available. */
+.topbar :focus-visible {
+  outline-color: var(--surface-lowest);
 }
 
 /* Chunky scrollbars, in-system. */
@@ -3552,38 +3562,9 @@ select.field {
    earns nothing, and the mark on a hop is a fact about the brief, not a
    verdict on the person. */
 
-.accuse-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-}
-
-.accuse-option {
-  appearance: none;
-  min-height: 64px;
-  padding: 14px 16px;
-  border: var(--border-1) solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--surface-lowest);
-  color: var(--ink);
-  box-shadow: var(--shadow-2);
-  font-family: var(--font-display);
-  font-size: var(--text-body-lg);
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.12s ease;
-}
-
-.accuse-option:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-2-hover);
-  background: var(--red-container);
-}
-
-.accuse-option:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
+/* `.accuse-options` / `.accuse-option` lived here until the vote became the
+   `.suspects` grid. Removed rather than kept warm: dead rules are how a
+   stylesheet starts lying about what the screens do. */
 
 /* The hop that carried the different brief, once the room has voted. */
 .accuse-hop {
@@ -4504,6 +4485,36 @@ select.field {
 }
 
 /* ==========================================================================
+   TOUCH TARGETS
+
+   --tap is 44px and the note on it says not negotiable, phones in classrooms.
+   The compact controls are 34-40px, which is fine under a mouse and not fine
+   under a thumb, so they grow to the full target at phone and tablet widths
+   only. The size distinction that makes them read as secondary survives on
+   desktop, where it costs nobody anything.
+
+   Last in the file on purpose: these override the component defaults above,
+   and both sides have the same specificity.
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+
+  .btn-small,
+  .icon-btn,
+  .pack-variant-tab,
+  .joinroom-tab,
+  .reactionbar-btn,
+  .pack-chip-remove {
+    min-height: var(--tap);
+  }
+
+  .icon-btn {
+    width: var(--tap);
+    height: var(--tap);
+  }
+}
+
+/* ==========================================================================
    MOTION
    ========================================================================== */
 
@@ -4518,21 +4529,57 @@ select.field {
   }
 
   /* Translation-on-press is feedback, not decoration — but without the
-     transition it should simply not move. */
-  .btn:hover,
-  .btn:active,
-  .lobby-option:hover,
-  .lobby-option:active,
+     transition it should simply not move.
+
+     Every selector below mirrors a rule above EXACTLY, including its
+     :not(:disabled) parts. That is not redundancy: `.btn:active` loses to
+     `.btn-lg:active:not(:disabled)` on specificity, so a shortened selector
+     here would leave the biggest button in the game still jumping 8px for a
+     player who asked the system for no motion. If you add a hover or press
+     transform, add its selector here in the same form.
+
+     The :not() guards matter just as much. Several elements sit offset as a
+     STATE — a picked mode card rests down on its shadow, a cut word sits
+     back — and that offset is meaning, not motion. Without the guard this
+     block would cancel it the moment a pointer passed over, so the selected
+     card would look unselected while hovered. */
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .btn-lg:active:not(:disabled),
+  .btn-small:active:not(:disabled),
+  .btn-small:hover:not(:disabled),
+  .lobby-option:hover:not(:disabled):not(.is-picked),
+  .lobby-option:active:not(:disabled):not(.is-picked),
   .neo-hover:hover,
-  .redact-word:hover,
-  .redact-word:active,
-  .accuse-option:hover,
-  .accuse-option:active,
+  .modecard:hover:not(.is-picked),
+  .sidebar-link:hover:not(.is-active),
+  .icon-btn:hover,
+  .icon-btn:active,
+  .redact-word:hover:not(.is-removed),
+  .redact-word:active:not(.is-removed),
+  .atomcard:hover,
+  .atomcard:active,
+  .decisioncard:hover,
+  .decisioncard:active,
+  .ledger-diag-choice:hover:not(.is-alive):not(.is-lost),
+  .suspect:hover,
+  .suspect:active,
+  .turing-option:hover:not(:disabled),
   .pack-swatch:hover,
   .pack-tile-new:hover,
-  .turing-option:hover,
+  .pack-tile-new:active,
   .reactionbar-btn:hover,
   .reactionbar-btn:active {
     transform: none;
+  }
+
+  /* One case the :not() guard cannot reach: the picked preset's hover rule
+     out-specifies its own picked state, so excluding it from the list above
+     leaves the hover offset winning anyway. Restate the resting position so
+     a picked preset stays visibly picked under the pointer. Mirrors
+     `.lobby-option.is-picked`. */
+  .lobby-option.is-picked:hover,
+  .lobby-option.is-picked:active {
+    transform: translate(2px, 2px);
   }
 }
