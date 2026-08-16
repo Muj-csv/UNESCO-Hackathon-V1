@@ -41,6 +41,7 @@ const VERIFY_QUESTIONS: { atom: Atom; label: string }[] = [
 export default function Terminal() {
   const { state, dispatch } = useGame();
   const [asking, setAsking] = useState(false);
+  const [picked, setPicked] = useState<Atom | null>(null);
 
   const choose = (decision: TerminalDecision) => {
     dispatch({ type: 'SET_TERMINAL_DECISION', decision });
@@ -51,9 +52,18 @@ export default function Terminal() {
     dispatch({ type: 'ADVANCE' });
   };
 
+  /* BBB-008: picking an atom used to dispatch and advance in the same breath,
+     so the only response to the tap was the screen changing to something else.
+     The consequence still belongs in the ledger — it needs the whole chain to
+     be meaningful — but the choice deserves an answer where it is made.
+
+     What this must NOT do is say whether the pick was a good one. The reveal
+     has not happened yet, and "SOURCE was the first thing this claim lost"
+     here would answer the ledger's payoff several screens early. So it repeats
+     the choice back and promises the answer, and nothing more. */
   const chooseAtom = (atom: Atom) => {
     dispatch({ type: 'SET_VERIFY_CHOICE', atom });
-    dispatch({ type: 'ADVANCE' });
+    setPicked(atom);
   };
 
   return (
@@ -68,7 +78,32 @@ export default function Terminal() {
         <p className="paper-text">{finalText(state)}</p>
       </div>
 
-      {asking ? (
+      {picked ? (
+        <section className="neo-panel">
+          <div className="neo-head neo-head-plain">
+            Noted
+            <span className="neo-tag">Your check</span>
+          </div>
+          <div className="neo-body stack">
+            <p className="lede">
+              You'd ask{' '}
+              <strong>
+                {VERIFY_QUESTIONS.find((q) => q.atom === picked)?.label.toLowerCase()}
+              </strong>
+            </p>
+            <p className="muted">
+              Hold on to that. The ledger at the end will show you what happened to {picked} on the
+              way here — and whether asking would have caught it.
+            </p>
+            <button
+              className="btn btn-primary btn-lg btn-block"
+              onClick={() => dispatch({ type: 'ADVANCE' })}
+            >
+              See what happened <Icon name="arrowForward" />
+            </button>
+          </div>
+        </section>
+      ) : asking ? (
         <>
           <p className="eyebrow">You chose to check it first. What would you check?</p>
           <div className="atomgrid">

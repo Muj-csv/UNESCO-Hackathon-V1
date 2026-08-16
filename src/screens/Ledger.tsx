@@ -415,7 +415,20 @@ function AtomWire({ hops, deathHop }: { hops: Hop[]; deathHop: number | null }) 
             )}
             <span
               className={`wire-node${
-                spark ? ' is-spark' : dead ? '' : hop.isAI ? ' is-ai' : ' is-done'
+                spark
+                  ? ' is-spark'
+                  : dead
+                    ? ''
+                    : /* BBB-004, APPROVED. A live node says somebody carried this
+                         atom past their hop. Nobody carried a forfeit — the clock
+                         did, and the text went on untouched. The wire stays whole
+                         because the atom did survive; the node goes hollow because
+                         surviving is not the same act as being kept. */
+                      hop.forfeited
+                      ? ' is-forfeit'
+                      : hop.isAI
+                        ? ' is-ai'
+                        : ' is-done'
               }`}
             />
           </span>

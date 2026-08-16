@@ -39,7 +39,10 @@ export default function SplitDistribute() {
       ) : (
         <>
           <p className="lede">Read this once, then pass it on. You'll rebuild it together after.</p>
-          <div className="paper paper-original">
+          {/* BBB-011: this version is missing one property by construction —
+              that is the mode. Green would vouch for text the game has
+              deliberately holed. */}
+          <div className="paper paper-received">
             <p className="paper-text">{current.text}</p>
           </div>
           <button

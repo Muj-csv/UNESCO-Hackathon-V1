@@ -4583,3 +4583,48 @@ select.field {
     transform: translate(2px, 2px);
   }
 }
+
+/* ==========================================================================
+   FORFEITED HOP  (BBB-004)
+   ========================================================================== */
+
+/* Deliberately not red. Running out of time is a rule of the game, not a
+   failure state, and the house copy rule is name the part, clear the person —
+   this badge exists so the room can tell "kept it intact on purpose" from
+   "never got to it", not so it can find someone to blame for the difference.
+   Outline and ink-soft, quieter than the card badge beside it. */
+.chainblock-forfeit {
+  color: var(--ink-soft);
+  border: var(--border-1) dashed var(--ink-soft);
+  border-radius: var(--radius);
+  padding: 2px 8px;
+  letter-spacing: 0.06em;
+}
+
+/* The same fact on the ledger's atom wire. A filled node says somebody carried
+   the atom past their hop; this one is hollow because nobody did. The wire on
+   either side stays whole — the atom survived, it just was not kept. Dashed
+   and ink-soft, the same quiet outline as the badge above, and never red. */
+.wire-node.is-forfeit {
+  background: var(--surface-lowest);
+  border-style: dashed;
+  border-color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   TEXT IN TRANSIT  (BBB-011)
+   ========================================================================== */
+
+/* Green is a trustworthiness convention, and `.paper-original` spends it on
+   "what entered play" — the true claim, before anybody touched it. It was also
+   carrying "what you were given" at hops 2+ and the deliberately incomplete
+   version each player is handed in Crowd Recall, both of which are degraded
+   text by construction. This is the same object with no claim made about it:
+   neutral outline, because at that point in the chain nobody knows, and the
+   screen should not pretend otherwise.
+
+   Green stays reserved for the original; blue (`.round-checked`) for the
+   verified original; red (`.paper-final`) for what came out. */
+.paper-received {
+  border-left: 6px solid var(--outline);
+}

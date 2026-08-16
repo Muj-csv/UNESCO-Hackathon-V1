@@ -85,6 +85,13 @@ export default function Accusation() {
               {voted && hop.isImposter && (
                 <span className="chainblock-flag">The different brief</span>
               )}
+              {/* BBB-004, and the same rule as the other three chain screens:
+                  never while a guess is pending. A forfeited hop passed its
+                  text on untouched, so before the vote this badge is a
+                  mechanical elimination and the argument is the point. */}
+              {voted && hop.forfeited && (
+                <span className="chainblock-forfeit">Time ran out</span>
+              )}
             </header>
             <p className="paper-text">{hop.text}</p>
           </article>

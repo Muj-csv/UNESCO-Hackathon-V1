@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Atom, GameState } from '../types/contracts';
+import { ATOMS } from '../types/contracts';
 import { useGame } from '../state/GameContext';
+import { ATOM_ICON, ATOM_SHORT } from '../data/atoms';
 import Icon from '../components/Icon';
 import StageBar from '../components/StageBar';
 
@@ -272,6 +274,41 @@ export default function Brief() {
               <li key={line}>{line}</li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* BBB-006. How to Play names the five and is genuinely good, but it is
+          opt-in from the sidebar. A room that adds players and presses Initiate
+          round used to meet them for the first time on the prediction screen —
+          five unfamiliar words to bet on, before anyone had said what they are
+          or why they matter. This is the forced path, so they are named here.
+
+          Deliberately the short gloss, not How to Play's fuller "goes when"
+          examples: this screen is thirty seconds and has one job, and the
+          sentence about the card is the one that must survive it. Same icons
+          and same list markup as How to Play, so the property a player learns
+          here is recognisable by its mark everywhere it appears later. */}
+      <section className="neo-panel">
+        <div className="neo-head neo-head-amber">
+          Five things a claim carries
+          <span className="neo-tag">Atoms</span>
+        </div>
+        <div className="neo-body stack">
+          <dl className="howto-atoms">
+            {ATOMS.map((atom) => (
+              <div className="howto-atom" key={atom}>
+                <dt className="howto-atom-name">
+                  <Icon name={ATOM_ICON[atom]} />
+                  {atom}
+                </dt>
+                <dd className="howto-atom-note">{ATOM_SHORT[atom]}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="muted">
+            Any of them can go missing without anybody lying. That is what the ledger measures at
+            the end.
+          </p>
         </div>
       </section>
 

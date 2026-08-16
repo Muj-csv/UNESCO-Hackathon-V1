@@ -170,6 +170,10 @@ function fillWave(sim: SimRound): SimRound {
       player: sim.playerNames[playerId] ?? playerId,
       text: source,
       cardId: c.dealtCards[sim.tick] ?? null,
+      /* BBB-004: a filled wave is a forfeit by definition — this player never
+         submitted, so the previous text is passing on under their name and
+         the reveal must not read it as their retelling. */
+      forfeited: true,
     };
     return { ...c, hops: [...c.hops, hop] };
   });
