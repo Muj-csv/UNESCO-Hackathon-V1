@@ -25,7 +25,7 @@ export const CARDS: Record<CardId, ConstraintCard> = {
   headline: {
     id: 'headline',
     name: 'Headline Only',
-    note: 'One line, the way it would sit at the top of a page.',
+    note: 'Cut it back to the one line that would sit at the top of a page.',
     targets: ['SOURCE', 'HEDGE', 'CAUSE'],
     input: 'redact',
   },

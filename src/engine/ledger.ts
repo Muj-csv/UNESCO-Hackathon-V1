@@ -66,16 +66,36 @@ function verdictForAtom(
        The prototype skipped every hop from the check onward, which made the
        atom immortal for the rest of the chain. The loop continues. */
     if (isVerifiedAt(verifications, i, atom)) {
-      if (!alive) recovered = true;
-      alive = true;
-      deathHop = null;
-      deathKind = null;
-      finalPhrase = null;
-      /* A check restores the atom, but it cannot make an unreadable one
-         readable: with nothing authored to match against, the engine still
-         has no opinion and the row still belongs to the room (T2 part C). */
-      confidence = judgeable ? 'matched' : 'uncertain';
-      continue;
+      /* A check is PERMISSION to survive, not a guarantee of it.
+
+         Restoring unconditionally meant a player could look the original up,
+         write the atom away anyway, and still be credited with a save — which
+         erased the real loss and moved it onto whoever dropped it next. In a
+         diagnosed round an AI hop killed HEDGE and CAUSE under SOUND CERTAIN
+         and the ledger named a later human, under a different card, for both.
+         So the restore only applies when THIS hop actually carried it back.
+         (Diagnosis BBB-001.) */
+      const carriedBack =
+        !findPhrase(hop.text, truth?.overreach) &&
+        (!truth?.keywords?.length || containsAny(hop.text, truth.keywords));
+
+      if (carriedBack) {
+        if (!alive) recovered = true;
+        alive = true;
+        deathHop = null;
+        deathKind = null;
+        finalPhrase = null;
+        /* A check restores the atom, but it cannot make an unreadable one
+           readable: with nothing authored to match against, the engine still
+           has no opinion and the row still belongs to the room (T2 part C). */
+        confidence = judgeable ? 'matched' : 'uncertain';
+        continue;
+      }
+
+      /* Checked and still not carried. Fall through and judge this hop like
+         any other, so an atom that was already dead stays dead where it died
+         and one that was alive dies here, with the checker named — not the
+         next person to touch it. */
     }
 
     if (!alive) continue;
